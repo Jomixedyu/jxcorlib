@@ -4,11 +4,13 @@
 #include <string>
 #include <memory>
 
-#define _T(str) L##str
-
 using String = std::wstring;
 using RefString = std::shared_ptr<std::wstring>;
 using StringStream = std::wstringstream;
+
+#define _T(str) L##str
+#define STR(str) String(L##str)
+
 
 template<typename... Param>
 RefString NewString(Param&& ...str) {
