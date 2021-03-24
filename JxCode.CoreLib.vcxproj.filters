@@ -30,6 +30,9 @@
     <ClCompile Include="CoreLib\File.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CoreLib\String.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreLib\Events.hpp">

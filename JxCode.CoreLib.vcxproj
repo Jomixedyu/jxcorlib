@@ -142,6 +142,7 @@
     <ClCompile Include="CoreLib\File.cpp" />
     <ClCompile Include="CoreLib\Object.cpp" />
     <ClCompile Include="CoreLib\Path.cpp" />
+    <ClCompile Include="CoreLib\String.cpp" />
     <ClCompile Include="CoreLib\StringUtility.cpp" />
     <ClCompile Include="JxCode.CoreLib.cpp" />
   </ItemGroup>
