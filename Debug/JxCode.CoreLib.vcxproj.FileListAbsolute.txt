@@ -1,2 +1,0 @@
-F:\JxCode.CoreLib\Debug\JxCode.CoreLib.exe
-F:\JxCode.CoreLib\Debug\JxCode.CoreLib.pdb
