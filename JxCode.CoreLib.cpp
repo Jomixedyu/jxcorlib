@@ -9,7 +9,7 @@ class TestClass : public Object
     DEF_OBJECT_TYPE(TestClass, Object)
 public:
     virtual RefString to_string() const {
-        return NewString( _T("Str: ") + *this->get_type()->get_name() );
+        return _T("Str: ") + this->get_type()->get_name();
     }
 };
 
