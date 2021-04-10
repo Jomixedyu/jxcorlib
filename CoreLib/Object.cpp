@@ -1,9 +1,8 @@
 #include <vector>
+#include <map>
 #include "Object.h"
 
-
 static std::vector<Type*> g_types;
-
 
 static int _Type_Get_Index()
 {
@@ -12,13 +11,13 @@ static int _Type_Get_Index()
     return i;
 }
 
-int _Type_Register(Type* type, Type* base, RefString name)
+int _Type_Register(Type* type, Type* base, const String& name)
 {
     type->name_ = name;
 
     static String _object = _T("Object");
 
-    if (base == nullptr && *name != _object) {
+    if (base == nullptr && name != _object) {
         base = typeof<Object>();
     }
 
@@ -52,7 +51,7 @@ bool Type::IsSubclassOf(Type* type)
 Type* Type::GetType(const RefString& str)
 {
     for (auto& item : g_types) {
-        if (*item->get_name() == *str) {
+        if (item->get_name() == str) {
             return item;
         }
     }
@@ -62,7 +61,18 @@ Type* Type::GetType(const RefString& str)
 Type* Type::GetType(const String& str)
 {
     for (auto& item : g_types) {
-        if (*item->get_name() == str) {
+        if (item->get_name() == str) {
+            return item;
+        }
+    }
+    return nullptr;
+}
+
+Type* Type::GetType(const StringPointer& str)
+{
+    const RefString rs(str);
+    for (auto& item : g_types) {
+        if (item->get_name() == rs) {
             return item;
         }
     }
