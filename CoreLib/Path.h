@@ -1,12 +1,10 @@
 #ifndef CORELIB_PATH_H
 #define CORELIB_PATH_H
 
-#include <string>
+#include "String.h"
 
-class Path
-{
-public:
-    static std::wstring AppPath();
-};
+namespace Path {
+    std::string AppPath();
+}
 
 #endif

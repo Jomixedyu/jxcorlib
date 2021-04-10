@@ -2,21 +2,24 @@
 #define CORELIB_OBJECT_H
 
 #include "String.h"
-#include <functional>
-#define DEF_OBJECT_TYPE(name, base) \
+
+#define DEF_OBJECT_TYPE(NAME, BASE) \
 private: \
-    class _Type : public Type \
-    { \
-        virtual Object* CreateInstance(void* v) { \
-            return new name(v); \
+    class _Type : public Type { \
+    public: \
+        _Type(__c_inst_ptr_t __c_inst_ptr) : Type(__c_inst_ptr) \
+        { \
+        } \
+        virtual int get_size() const override { \
+            return sizeof(NAME); \
         } \
     }; \
-private: \
+public: \
     inline static Type* __meta_type() { \
         static int id = -1; \
         if (id == -1) { \
-            Type* t = new _Type; \
-            id = _Type_Register(t, Type::GetType(_T(#base)), NewString(_T(#name)) );\
+            Type* t = new _Type(DynCreateInstance); \
+            id = _Type_Register(t, Type::GetType(RefString(_T(#BASE))), _T(#NAME) ); \
         } \
         return Type::GetType(id); \
     } \
@@ -25,28 +28,47 @@ public: \
         return __meta_type(); \
     } \
 private: \
-    friend Type* typeof<name>(); \
+    using base = BASE; \
 
-#define DEF_OBJECT_CINSTCTOR(name) name(void* v) {}
+#define DEF_OBJECT_DYNCREATEINSTANCE() \
+        static Object* DynCreateInstance(CreateInstParamData* params) \
+        { throw std::exception("the creation method is not implemented"); }
 
-#define DECL_TOSTRING() virtual RefString to_string() const override
-#define DECL_EQUALS() virtual bool Equals(Object* target) const override
+#define DEF_OBJECT_META(name, base) \
+        DEF_OBJECT_TYPE(name, base) \
+        DEF_OBJECT_DYNCREATEINSTANCE()
+
+#define DECL_TOSTRING()   virtual String to_string() const override
+#define DECL_EQUALS()     virtual bool Equals(Object* target) const override
+#define DECL_OBJECT_DYNCREATEINSTANCE() \
+    static Object* DynCreateInstance(CreateInstParamData* params)
 
 class Type;
 class Object;
+struct CreateInstParamData
+{
+    void** data;
+    int len;
+};
 
-int _Type_Register(Type* type, Type* base, RefString name);
+using __c_inst_ptr_t = Object * (*)(CreateInstParamData*);
+
+int _Type_Register(Type* type, Type* base, const String& name);
 
 class Type
 {
 protected:
-    RefString name_;
+    String name_;
     Type* base_;
+    __c_inst_ptr_t __c_inst_ptr_;
+
 protected:
-    Type() : name_(nullptr), base_(nullptr) { }
+    Type() : base_(nullptr), __c_inst_ptr_(nullptr) { }
+    Type(__c_inst_ptr_t __c_inst_ptr) : base_(nullptr), __c_inst_ptr_(__c_inst_ptr) { }
+
 public:
     inline static Type* __meta_type() {
-        static RefString _name = NewString(_T("Type"));
+        static String _name = _T("Type");
         static int id = -1;
         if (id == -1) {
             Type* t = new Type;
@@ -57,8 +79,11 @@ public:
     inline virtual Type* get_type() const {
         return __meta_type();
     }
+    virtual int get_size() const {
+        return sizeof(Type);
+    }
 public:
-    RefString get_name() const {
+    const String& get_name() const {
         return this->name_;
     }
     Type* get_base() const {
@@ -70,15 +95,19 @@ public:
     * 确定当前 Type 表示的类是否是从指定的 Type 表示的类派生的。
     */
     bool IsSubclassOf(Type* type);
-    virtual Object* CreateInstance() {
-        return nullptr;
+    virtual Object* CreateInstance(CreateInstParamData* v) {
+        if (this->__c_inst_ptr_ == nullptr) {
+            throw std::exception("the creation method is not implemented");
+        }
+        return this->__c_inst_ptr_(v);
     }
 public:
     static Type* GetType(const RefString& str);
     static Type* GetType(const String& str);
+    static Type* GetType(const StringPointer& str);
     static Type* GetType(int id);
 public:
-    friend int _Type_Register(Type* type, Type* base, RefString name);
+    friend int _Type_Register(Type* type, Type* base, const String& name);
 };
 
 
@@ -97,7 +126,7 @@ public:
         static int id = -1;
         if (id == -1) {
             Type* t = new _Type;
-            id = _Type_Register(t, nullptr, NewString(_T("Object")));
+            id = _Type_Register(t, nullptr, _T("Object"));
         }
         return Type::GetType(id);
     }
@@ -108,27 +137,37 @@ public:
 public:
     Object() {}
 public:
-    virtual RefString to_string() const {
+    virtual String to_string() const {
         return this->get_type()->get_name();
     }
     static bool Equals(const Object* x, const Object* y) {
         return x == y;
     }
     virtual bool Equals(Object* target) const {
-        return Equals(this, target);
+        return Object::Equals(this, target);
     }
 };
 
-
+template<typename X, typename Y>
+struct is_same_type
+{
+    constexpr operator bool() {
+        return false;
+    }
+};
+template<typename X>
+struct is_same_type<X, X>
+{
+    constexpr operator bool() {
+        return true;
+    }
+};
 
 template<typename T>
-inline Type* typeof() {
+inline Type* typeof()
+{
     return T::__meta_type();
 }
-
-#define TypeOf(class) class::__meta_type()
-
-#define NameOf(class) _T(#class)
 
 
 inline bool istype(Object* obj, Type* type)
@@ -141,5 +180,10 @@ void RegisterClass() {
     typeof<T>();
 }
 
+class _TestExample : public Object {
+    DEF_OBJECT_META(_TestExample, Object);
+public:
+
+};
 
 #endif // !CORELIB_OBJECT_H

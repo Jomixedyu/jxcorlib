@@ -4,26 +4,12 @@
 #include <string>
 #include <memory>
 
-using StringPointer = const wchar_t*;
-using String = std::wstring;
-using RefString = std::shared_ptr<std::wstring>;
-using StringStream = std::wstringstream;
+using StringPointer = const char*;
+using String = std::string;
+using RefString = std::string_view;
+using StringStream = std::stringstream;
 
-#define _T(str) L##str
-#define STR(str) String(L##str)
+#define _T(str) str
 
-
-RefString operator+(const RefString& left, const RefString& right);
-
-RefString operator+(const StringPointer& left, const RefString& right);
-RefString operator+(const RefString& left, const StringPointer& right);
-
-RefString operator+(const RefString& left, const String& right);
-RefString operator+(const String& left, const RefString& right);
-
-template<typename... Param>
-RefString NewString(Param&& ...str) {
-    return std::make_shared<std::wstring>(str...);
-}
 
 #endif // !CORELIB_STRING_H

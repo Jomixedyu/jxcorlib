@@ -1,6 +1,4 @@
-#ifndef CORELIB_STRINGUTILITY_H
-#define CORELIB_STRINGUTILITY_H
-
+#pragma once
 #include <string>
 
 #pragma warning(disable : 4996)
@@ -22,4 +20,3 @@ public:
     static std::wstring StringToWstring(const std::string& str);
 };
 
-#endif // !CORELIB_STRINGUTILITY_H

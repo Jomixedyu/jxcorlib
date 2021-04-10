@@ -1,10 +1,13 @@
 #include "Path.h"
 #include <windows.h>
+#include "StringUtility.h"
 
-std::wstring Path::AppPath()
+namespace Path
 {
-    wchar_t c[255];
-    GetCurrentDirectory(255, c);
-    std::wstring str(c);
-    return str;
+    std::string AppPath()
+    {
+        wchar_t c[255];
+        GetCurrentDirectory(255, c);
+        return StringUtility::WstringToString(c);
+    }
 }

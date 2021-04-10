@@ -1,13 +1,24 @@
-#ifndef CORELIB_FILE_H
-#define CORELIB_FILE_H
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include "String.h"
 
-#include <string>
-
-class File
+namespace IO 
 {
-public:
-    static std::wstring ReadAllText(const std::wstring& path);
-
-};
-
-#endif // !CORELIB_FILE_H
+    class File
+    {
+    public:
+        static String ReadAllText(const String &path) {
+            std::ifstream ifs;
+            std::stringstream ss;
+            ifs.open(path);
+            if (!ifs.is_open()) {
+                throw std::invalid_argument("Unable to open file");
+            }
+            ss << ifs.rdbuf() << std::endl;
+            ifs.close();
+            return ss.str();
+        }
+    };
+}

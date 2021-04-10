@@ -1,4 +1,4 @@
-
+#pragma once
 #include <vector>
 #include <functional>
 #include <cstdint>
@@ -250,19 +250,19 @@ public:
     }
 };
 
-class Action0 : public _Events0<void> {};
+using Action0 = _Events0<void>;
 
 template<typename T1>
-class Action1 : public _Events1<void, T1> {};
+using Action1 = _Events1<void T1>;
 
 template<typename T1, typename T2>
-class Action2 : public _Events2<void, T1, T2> {};
+using Action2 = _Events2<void, T1, T2>;
 
 template<typename T1, typename T2, typename T3>
-class Action3 : public _Events3<void, T1, T2, T3> {};
+using Action3 = _Events3<void, T1, T2, T3>;
 
 template<typename T1, typename T2, typename T3, typename T4>
-class Action4 : public _Events4<void, T1, T2, T3, T4> {};
+using Action4 = _Events4<void, T1, T2, T3, T4>;
 
 template<typename T1, typename T2, typename T3, typename T4, typename T5>
-class Action5 : public _Events5<void, T1, T2, T3, T4, T5> {};
+using Action5 = _Events5<void, T1, T2, T3, T4, T5>;
