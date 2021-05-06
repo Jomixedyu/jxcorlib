@@ -4,10 +4,11 @@
 
 #include "File.h"
 
-std::wstring File::ReadAllText(const std::wstring& path)
+
+std::string File::ReadAllText(const std::string& path)
 {
-    std::wifstream ifs;
-    std::wstringstream ss;
+    std::ifstream ifs;
+    std::stringstream ss;
     ifs.open(path);
     if (!ifs.is_open()) {
         throw std::invalid_argument("Unable to open file");

@@ -10,7 +10,7 @@ private: \
         _Type(__c_inst_ptr_t __c_inst_ptr) : Type(__c_inst_ptr) \
         { \
         } \
-        virtual int get_size() const override { \
+        virtual int get_structure_size() const override { \
             return sizeof(NAME); \
         } \
     }; \
@@ -38,13 +38,14 @@ private: \
         DEF_OBJECT_TYPE(name, base) \
         DEF_OBJECT_DYNCREATEINSTANCE()
 
-#define DECL_TOSTRING()   virtual String to_string() const override
+#define DECL_TOSTRING()   virtual String ToString() const override
 #define DECL_EQUALS()     virtual bool Equals(Object* target) const override
 #define DECL_OBJECT_DYNCREATEINSTANCE() \
     static Object* DynCreateInstance(CreateInstParamData* params)
 
 class Type;
 class Object;
+
 struct CreateInstParamData
 {
     void** data;
@@ -55,7 +56,30 @@ using __c_inst_ptr_t = Object * (*)(CreateInstParamData*);
 
 int _Type_Register(Type* type, Type* base, const String& name);
 
-class Type
+
+class Object
+{
+private:
+
+public:
+    static Type* __meta_type();
+    inline virtual Type* get_type() const {
+        return __meta_type();
+    }
+public:
+    Object() {}
+public:
+    virtual String ToString() const;
+    static bool Equals(const Object* x, const Object* y) {
+        return x == y;
+    }
+    virtual bool Equals(Object* target) const {
+        return Object::Equals(this, target);
+    }
+};
+
+
+class Type : public Object
 {
 protected:
     String name_;
@@ -79,10 +103,10 @@ public:
     inline virtual Type* get_type() const {
         return __meta_type();
     }
-    virtual int get_size() const {
+public:
+    virtual int get_structure_size() const {
         return sizeof(Type);
     }
-public:
     const String& get_name() const {
         return this->name_;
     }
@@ -90,12 +114,16 @@ public:
         return this->base_;
     }
 public:
+    virtual String ToString() const override {
+        return this->name_;
+    }
+public:
     bool IsInstanceOfType(Object* object);
     /*
     * 确定当前 Type 表示的类是否是从指定的 Type 表示的类派生的。
     */
     bool IsSubclassOf(Type* type);
-    virtual Object* CreateInstance(CreateInstParamData* v) {
+    virtual Object* CreateInstance(CreateInstParamData* v = nullptr) {
         if (this->__c_inst_ptr_ == nullptr) {
             throw std::exception("the creation method is not implemented");
         }
@@ -111,42 +139,6 @@ public:
 };
 
 
-
-class Object
-{
-private:
-    class _Type : public Type
-    {
-        virtual Object* CreateInstance() {
-            return new Object;
-        }
-    };
-public:
-    inline static Type* __meta_type() {
-        static int id = -1;
-        if (id == -1) {
-            Type* t = new _Type;
-            id = _Type_Register(t, nullptr, _T("Object"));
-        }
-        return Type::GetType(id);
-    }
-    inline virtual Type* get_type() const {
-
-        return __meta_type();
-    }
-public:
-    Object() {}
-public:
-    virtual String to_string() const {
-        return this->get_type()->get_name();
-    }
-    static bool Equals(const Object* x, const Object* y) {
-        return x == y;
-    }
-    virtual bool Equals(Object* target) const {
-        return Object::Equals(this, target);
-    }
-};
 
 template<typename X, typename Y>
 struct is_same_type

@@ -70,9 +70,8 @@ Type* Type::GetType(const String& str)
 
 Type* Type::GetType(const StringPointer& str)
 {
-    const RefString rs(str);
     for (auto& item : g_types) {
-        if (item->get_name() == rs) {
+        if (item->get_name() == str) {
             return item;
         }
     }
@@ -82,4 +81,28 @@ Type* Type::GetType(const StringPointer& str)
 Type* Type::GetType(int id)
 {
     return g_types[id];
+}
+
+class _Type : public Type
+{
+    virtual Object* CreateInstance() {
+        return new Object;
+    }
+};
+
+Type* Object::__meta_type()
+{
+
+
+    static int id = -1;
+    if (id == -1) {
+        Type* t = new _Type;
+        id = _Type_Register(t, nullptr, _T("Object"));
+    }
+    return Type::GetType(id);
+}
+
+String Object::ToString() const
+{
+    return this->get_type()->get_name();
 }

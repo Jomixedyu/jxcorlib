@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <string_view>
 
 using StringPointer = const char*;
 using String = std::string;
