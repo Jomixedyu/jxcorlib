@@ -1,23 +1,85 @@
 ﻿#include <string>
 #include <iostream>
 #include "CoreLib/Object.h"
+#include "CoreLib/Events.hpp"
+
 #include <sstream>
 
 using namespace std;
 
+#define $ATTRIBUTE(src, type, attribute) 
+
+enum class MemberType
+{
+    Class,
+    Field,
+    Method
+};
+
+template<typename T>
+class Property
+{
+private:
+    std::function<T&()> get;
+    std::function<void(const T& value)> set;
+public:
+    Property(const std::function<T& ()>& get, const std::function<void(const T& value)>& set)
+        : get(get), set(set)
+    {
+    }
+    T& operator()() {
+        return this->get();
+    }
+    void operator=(const T& v) {
+        this->set(v);
+    }
+    operator T() {
+        return this->get();
+    }
+};
+#define PROP_GET(T) [this]()->T& 
+#define PROP_SET(T) [this](const T& value) 
+
+class TagAttribute {
+
+};
+class SerializableAttrubite {
+
+};
+
+
+$ATTRIBUTE(TestClass, MemberType::Class, TagAttribute("Test"));
 class TestClass : public Object
 {
     DEF_OBJECT_TYPE(TestClass, Object);
-    DEF_OBJECT_CINSTCTOR(TestClass);
-private:
-    int id;
-public:
-    TestClass(int _id) : id(_id) { }
-    DECL_TOSTRING() {
-        return _T("Str: ") + this->get_type()->get_name();
+
+    $ATTRIBUTE(TestClass::id, MemberType::Field, SerializableAttrubite);
+    private: int id;
+
+    public: Property<int> ii {
+        PROP_GET(int) {
+            return this->id;
+        },
+        PROP_SET(int) {
+            this->id = value;
+        }
+    };
+
+    public: TestClass(int _id) : id(_id) {
     }
-    DECL_EQUALS() {
-        return this->id == ((TestClass)target).id;
+    
+    public: virtual String ToString() const override {
+        Type* type = this->get_type();
+        return _T("Str: ") + type->get_name();
+    }
+    public: virtual bool Equals(Object* target) const override {
+        if (target->get_type() != typeof<TestClass>()) {
+            return false;
+        }
+        return this->id == (static_cast<TestClass*>(target))->id;
+    }
+    DECL_OBJECT_DYNCREATEINSTANCE() {
+        return new TestClass(0);
     }
 };
 
@@ -41,20 +103,29 @@ class MemoryPool
 };
 
 
+
+
 int main()
 {
 
     TestClass* tc0 = new TestClass(3);
 
     Type* type = tc0->get_type();
-    wcout << *type->get_name() << endl;
+    cout << type->get_name() << endl;
 
     //类型生成后，可以使用GetType查找
     //如果没有生成（没调用过get_type），需要用typeof<TestClass>()或者RegisterClass<TestClass>()来前向注册。
     Object* tc = Type::GetType(_T("TestClass"))->CreateInstance();
-    wcout << *tc->to_string() << endl;
+    cout << tc->ToString() << endl;
+
+    Action<> act;
+    act.AddListener([]() { cout << "called" << endl; });
+    act.Invoke();
+
+    Action<int, bool> act2;
+    act2.AddListener([](int x, bool y) {cout << x << y << endl; });
+    act2.Invoke(999, false);
+    return;
     
-
-
 }
 
