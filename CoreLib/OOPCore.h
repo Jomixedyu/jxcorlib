@@ -5,7 +5,7 @@
 #include "Object.h"
 #include "Type.h"
 
-#define DEF_OBJECT_TYPE(NAME, BASE) \
+#define DEF_OBJECT_META(NAME, BASE) \
 public: \
     inline static Type* __meta_type() { \
         static int id = -1; \
@@ -19,6 +19,7 @@ public: \
         return __meta_type(); \
     } \
 private: \
+    inline static struct NAME##_TypeInit { NAME##_TypeInit() { NAME::__meta_type(); } } _type_init_; \
     using base = BASE; \
 
 #define DEF_OBJECT_DYNCREATEINSTANCE() \
