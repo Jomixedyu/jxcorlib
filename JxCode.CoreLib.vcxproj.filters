@@ -59,6 +59,12 @@
     <ClInclude Include="CoreLib\Type.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CoreLib\Property.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreLib\Attribute.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

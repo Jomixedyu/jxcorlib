@@ -8,15 +8,13 @@
 #include "CoreLib/Attribute.h"
 #include "CoreLib/Property.h"
 
-
 using namespace std;
-
 
 
 class TestClass : public Object
 {
     $ATTRIBUTE(TestClass, MemberType::Class, TagAttribute("Test"));
-    DEF_OBJECT_TYPE(TestClass, Object);
+    DEF_OBJECT_META(TestClass, Object);
 
 private:
     $ATTRIBUTE(TestClass::id, MemberType::Field, SerializableAttrubite);
