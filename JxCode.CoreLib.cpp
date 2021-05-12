@@ -9,35 +9,8 @@
 
 class ExampleClass : public Object
 {
-private:
+    DEF_OBJECT_TYPE(ExampleClass, Object);
 
-public:
-    inline static Type* __meta_type() {
-        static int id = -1;
-        if (id == -1) {
-            id = Type::Register(nullptr, typeof<Object>(), _T("ExampleClass"), sizeof(ExampleClass));
-        }
-        return Type::GetType(id);
-    }
-
-public:
-    virtual Type* get_type() const {
-
-        return __meta_type();
-    }
-
-    inline static struct Init {
-        Init()
-        {
-            ExampleClass::__meta_type();
-            std::cout << " asdasd";
-        }
-    } init;
-private:
-    using base = Object;
-    static Object* DynCreateInstance(CreateInstParamData*) {
-        return new ExampleClass();
-    }
 };
 /*
 using namespace std;
