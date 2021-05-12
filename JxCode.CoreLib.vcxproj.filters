@@ -30,15 +30,15 @@
     <ClCompile Include="CoreLib\File.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CoreLib\String.cpp">
+    <ClCompile Include="CoreLib\Type.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreLib\OOPCore.h">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreLib\Events.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CoreLib\ExceptionBase.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CoreLib\File.h">
@@ -54,6 +54,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CoreLib\StringUtility.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreLib\Type.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
