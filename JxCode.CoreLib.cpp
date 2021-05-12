@@ -7,11 +7,8 @@
 #include <sstream>
 
 
-class ExampleClass : public Object
-{
-    DEF_OBJECT_TYPE(ExampleClass, Object);
 
-};
+
 /*
 using namespace std;
 

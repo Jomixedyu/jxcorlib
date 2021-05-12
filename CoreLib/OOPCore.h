@@ -19,8 +19,13 @@ public: \
         return __meta_type(); \
     } \
 private: \
-    inline static struct NAME##_TypeInit { NAME##_TypeInit() { NAME::__meta_type(); } } _type_init_; \
     using base = BASE; \
+    inline static struct NAME##_TypeInit{ \
+        NAME##_TypeInit() \
+        { \
+            NAME::__meta_type(); \
+        } \
+    } _type_init_; \
 
 #define DEF_OBJECT_DYNCREATEINSTANCE() \
         static Object* DynCreateInstance(CreateInstParamData* params) \
@@ -34,5 +39,13 @@ private: \
 #define DECL_EQUALS()     virtual bool Equals(Object* target) const override
 #define DECL_OBJECT_DYNCREATEINSTANCE() \
     static Object* DynCreateInstance(CreateInstParamData* params)
+
+
+
+class CoreLibExampleClass : public Object
+{
+    DEF_OBJECT_TYPE(CoreLibExampleClass, Object);
+};
+
 
 #endif // !CORELIB_OOPCORE_H
