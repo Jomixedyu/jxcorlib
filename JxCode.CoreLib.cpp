@@ -1,10 +1,45 @@
 ﻿#include <string>
 #include <iostream>
-#include "CoreLib/Object.h"
-#include "CoreLib/Events.hpp"
+
+#define CORELIB_AUTOINIT
+#include "CoreLib/OOPCore.h"
 
 #include <sstream>
 
+
+class ExampleClass : public Object
+{
+private:
+
+public:
+    inline static Type* __meta_type() {
+        static int id = -1;
+        if (id == -1) {
+            id = Type::Register(nullptr, typeof<Object>(), _T("ExampleClass"), sizeof(ExampleClass));
+        }
+        return Type::GetType(id);
+    }
+
+public:
+    virtual Type* get_type() const {
+
+        return __meta_type();
+    }
+
+    inline static struct Init {
+        Init()
+        {
+            ExampleClass::__meta_type();
+            std::cout << " asdasd";
+        }
+    } init;
+private:
+    using base = Object;
+    static Object* DynCreateInstance(CreateInstParamData*) {
+        return new ExampleClass();
+    }
+};
+/*
 using namespace std;
 
 #define $ATTRIBUTE(src, type, attribute) 
@@ -20,7 +55,7 @@ template<typename T>
 class Property
 {
 private:
-    std::function<T&()> get;
+    std::function<T& ()> get;
     std::function<void(const T& value)> set;
 public:
     Property(const std::function<T& ()>& get, const std::function<void(const T& value)>& set)
@@ -54,33 +89,33 @@ class TestClass : public Object
     DEF_OBJECT_TYPE(TestClass, Object);
 
     $ATTRIBUTE(TestClass::id, MemberType::Field, SerializableAttrubite);
-    private: int id;
+private: int id;
 
-    public: Property<int> ii {
-        PROP_GET(int) {
-            return this->id;
-        },
-        PROP_SET(int) {
-            this->id = value;
-        }
-    };
+public: Property<int> ii{
+    PROP_GET(int) {
+        return this->id;
+    },
+    PROP_SET(int) {
+        this->id = value;
+    }
+};
 
-    public: TestClass(int _id) : id(_id) {
+public: TestClass(int _id) : id(_id) {
+}
+
+public: virtual String ToString() const override {
+    Type* type = this->get_type();
+    return _T("Str: ") + type->get_name();
+}
+public: virtual bool Equals(Object* target) const override {
+    if (target->get_type() != typeof<TestClass>()) {
+        return false;
     }
-    
-    public: virtual String ToString() const override {
-        Type* type = this->get_type();
-        return _T("Str: ") + type->get_name();
-    }
-    public: virtual bool Equals(Object* target) const override {
-        if (target->get_type() != typeof<TestClass>()) {
-            return false;
-        }
-        return this->id == (static_cast<TestClass*>(target))->id;
-    }
-    DECL_OBJECT_DYNCREATEINSTANCE() {
-        return new TestClass(0);
-    }
+    return this->id == (static_cast<TestClass*>(target))->id;
+}
+      DECL_OBJECT_DYNCREATEINSTANCE() {
+          return new TestClass(0);
+      }
 };
 
 class MemoryBlock
@@ -102,30 +137,25 @@ class MemoryPool
     }
 };
 
+*/
 
 
+
+template<typename T>
+struct A {
+    const char* str = T;
+};
 
 int main()
 {
+    using namespace std;
 
-    TestClass* tc0 = new TestClass(3);
+    //Type* type = Type::GetType(_T("ExampleClass"));
+    //if (type != nullptr) {
+    //    cout << "yes" << endl;
+    //}
+    auto types = Type::GetTypes();
+    return 0;
 
-    Type* type = tc0->get_type();
-    cout << type->get_name() << endl;
-
-    //类型生成后，可以使用GetType查找
-    //如果没有生成（没调用过get_type），需要用typeof<TestClass>()或者RegisterClass<TestClass>()来前向注册。
-    Object* tc = Type::GetType(_T("TestClass"))->CreateInstance();
-    cout << tc->ToString() << endl;
-
-    Action<> act;
-    act.AddListener([]() { cout << "called" << endl; });
-    act.Invoke();
-
-    Action<int, bool> act2;
-    act2.AddListener([](int x, bool y) {cout << x << y << endl; });
-    act2.Invoke(999, false);
-    return;
-    
 }
 
