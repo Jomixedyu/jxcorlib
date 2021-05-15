@@ -1,6 +1,8 @@
 #ifndef CORELIB_OOPCORE_H
 #define CORELIB_OOPCORE_H
 
+#define CORELIB_AUTOINIT 1
+
 #include "String.h"
 #include "Object.h"
 #include "Type.h"
@@ -20,10 +22,12 @@ public: \
     } \
 private: \
     using base = BASE; \
-    inline static struct NAME##_TypeInit{ \
-        NAME##_TypeInit() \
+    inline static struct _TypeInit{ \
+        _TypeInit() \
         { \
-            NAME::__meta_type(); \
+            if constexpr(CORELIB_AUTOINIT) {\
+                NAME::__meta_type(); \
+            }\
         } \
     } _type_init_; \
 
@@ -39,13 +43,5 @@ private: \
 #define DECL_EQUALS()     virtual bool Equals(Object* target) const override
 #define DECL_OBJECT_DYNCREATEINSTANCE() \
     static Object* DynCreateInstance(CreateInstParamData* params)
-
-
-
-class CoreLibExampleClass : public Object
-{
-    DEF_OBJECT_TYPE(CoreLibExampleClass, Object);
-};
-
 
 #endif // !CORELIB_OOPCORE_H

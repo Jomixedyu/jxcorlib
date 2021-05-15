@@ -3,7 +3,7 @@
 #include <sstream>
 #include <functional>
 
-#define CORELIB_AUTOINIT
+
 #include "CoreLib/OOPCore.h"
 #include "CoreLib/Attribute.h"
 #include "CoreLib/Property.h"
@@ -13,9 +13,7 @@ using namespace std;
 
 class TestClass : public Object
 {
-    $ATTRIBUTE(TestClass, MemberType::Class, TagAttribute("Test"));
     DEF_OBJECT_META(TestClass, Object);
-
 private:
     $ATTRIBUTE(TestClass::id, MemberType::Field, SerializableAttrubite);
     int id;
@@ -59,6 +57,7 @@ int main()
     //if (type != nullptr) {
     //    cout << "yes" << endl;
     //}
+
     auto types = Type::GetTypes();
     return 0;
 
