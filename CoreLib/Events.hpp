@@ -54,39 +54,46 @@ public:
         if ((intptr_t)funcPtr == 0) {
             return 0;
         }
-        this->Push(FunctionType(funcPtr), (intptr_t)funcPtr);
-        return this->index;
+        return this->Push(FunctionType(funcPtr), (intptr_t)funcPtr);
     }
 
     template<typename TOBJ>
-    uint32_t AddInstListener(TOBJ* obj, TReturn(TOBJ::* ptr)(TParams...)) {
+    uint32_t AddListener(TOBJ* obj, TReturn(TOBJ::* ptr)(TParams...)) {
         return this->Push(std::bind(ptr, obj, TParams...));
     }
 
-    void RemoveListener(FunctionPointer funcPtr) {
+    uint32_t RemoveListener(FunctionPointer funcPtr) {
         if (funcPtr == nullptr) {
             return;
         }
         for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
             if (it->staticFuncPtr == (intptr_t)funcPtr) {
                 this->eventList.erase(it);
-                return;
+                return it->index;
             }
         }
+        return 0;
     }
 
-    void RemoveListenerByIndex(uint32_t index) {
+    uint32_t RemoveListenerByIndex(uint32_t index) {
         if (index == -1) {
             return;
         }
         for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
             if (it->index == index) {
                 this->eventList.erase(it);
-                break;
+                return index;
             }
         }
+        return 0;
+    }
+    uint32_t operator+=(FunctionPointer ptr) {
+        return this->AddListener(ptr);
     }
 
+    uint32_t operator-=(FunctionPointer ptr) {
+        return this->RemoveListener(ptr);
+    }
 };
 
 template<typename TReturn, typename... TParams>
