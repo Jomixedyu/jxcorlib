@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CORELIB_EVENTS_HPP
+#define CORELIB_EVENTS_HPP
+
 #include <vector>
 #include <functional>
 #include <cstdint>
@@ -114,3 +116,5 @@ public:
 
 template<typename... TParam>
 using Action = Events<void, TParam...>;
+
+#endif
