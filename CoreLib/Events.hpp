@@ -5,12 +5,12 @@
 #include <functional>
 #include <cstdint>
 
-template<typename TReturn, typename ...T>
+template<typename TReturn, typename... TParams>
 class Events
 {
 public:
-    using FunctionType = std::function<TReturn(T...)>;
-    using FunctionPointer = TReturn(*)(T...);
+    using FunctionType = std::function<TReturn(TParams...)>;
+    using FunctionPointer = TReturn(*)(TParams...);
 protected:
     class FunctionInfo
     {
@@ -46,27 +46,25 @@ public:
     Events() : index(0) {}
 protected:
     uint32_t Push(const FunctionType& func, const intptr_t& staticFuncPtr = 0) {
-        FunctionInfo f{ ++this->index, func, staticFuncPtr };
-        this->eventList.push_back(f);
+        this->eventList.push_back(FunctionInfo(++this->index, func, staticFuncPtr));
         return this->index;
     }
 public:
     uint32_t AddListener(FunctionPointer funcPtr) {
         if ((intptr_t)funcPtr == 0) {
-            return -1;
+            return 0;
         }
-        FunctionType func{ funcPtr };
-        this->Push(func, (intptr_t)funcPtr);
+        this->Push(FunctionType(funcPtr), (intptr_t)funcPtr);
         return this->index;
     }
 
     template<typename TOBJ>
-    int AddInstListener(TOBJ* obj, TReturn(TOBJ::* ptr)(T...)) {
-        return this->Push(std::bind(ptr, obj, T...));
+    uint32_t AddInstListener(TOBJ* obj, TReturn(TOBJ::* ptr)(TParams...)) {
+        return this->Push(std::bind(ptr, obj, TParams...));
     }
 
     void RemoveListener(FunctionPointer funcPtr) {
-        if ((intptr_t)funcPtr == 0) {
+        if (funcPtr == nullptr) {
             return;
         }
         for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
@@ -89,7 +87,13 @@ public:
         }
     }
 
-    void Invoke(const T&... t) {
+};
+
+template<typename TReturn, typename... TParams>
+class Delegate : public Events<TReturn, TParams...>
+{
+public:
+    void Invoke(const TParams&... t) {
         for (auto item : this->eventList) {
             item.func(t...);
         }
@@ -98,14 +102,22 @@ public:
     void RemoveAllListener() {
         this->eventList.clear();
     }
-
 };
 
+template<typename... TParams>
+using ActionEvents = Events<void, TParams...>;
+
+template<typename... TParams>
+using Action = Delegate<void, TParams...>;
+
 template<typename TReturn, typename... TParams>
-class Function : public Events<TReturn, TParams...>
+using FunctionEvents = Events<TReturn, TParams...>;
+
+template<typename TReturn, typename... TParams>
+class Function : public Delegate<TReturn, TParams...>
 {
 public:
-    std::vector<TReturn> Invoke(TParams&... args) {
+    std::vector<TReturn> InvokeResult(TParams&... args) {
         std::vector<TReturn> retList;
         for (auto item : this->eventList) {
             retList.push_back(item.func(args...));
@@ -114,7 +126,6 @@ public:
     }
 };
 
-template<typename... TParam>
-using Action = Events<void, TParam...>;
 
-#endif
+
+#endif // !CORELIB_EVENTS_HPP
