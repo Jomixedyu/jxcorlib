@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="CoreLib\Attribute.h" />
     <ClInclude Include="CoreLib\Events.hpp" />
+    <ClInclude Include="CoreLib\Exception.h" />
     <ClInclude Include="CoreLib\File.h" />
     <ClInclude Include="CoreLib\Object.h" />
     <ClInclude Include="CoreLib\Path.h" />

@@ -2,7 +2,7 @@
 #include <vector>
 #include <iostream>
 
-static std::vector<Type*> g_types;
+static std::vector<Type*>* g_types;
 
 String Type::ToString() const
 {
@@ -40,7 +40,7 @@ Object* Type::CreateInstance(CreateInstParamData* v)
 
 Type* Type::GetType(const RefString& str)
 {
-    for (auto& item : g_types) {
+    for (auto& item : *g_types) {
         if (item->get_name() == str) {
             return item;
         }
@@ -50,7 +50,7 @@ Type* Type::GetType(const RefString& str)
 
 Type* Type::GetType(const String& str)
 {
-    for (auto& item : g_types) {
+    for (auto& item : *g_types) {
         if (item->get_name() == str) {
             return item;
         }
@@ -60,7 +60,7 @@ Type* Type::GetType(const String& str)
 
 Type* Type::GetType(const StringPointer& str)
 {
-    for (auto& item : g_types) {
+    for (auto& item : *g_types) {
         if (item->get_name() == str) {
             return item;
         }
@@ -70,12 +70,12 @@ Type* Type::GetType(const StringPointer& str)
 
 Type* Type::GetType(int id)
 {
-    return g_types[id];
+    return g_types->at(id);
 }
 
 std::vector<Type*> Type::GetTypes()
 {
-    return g_types;
+    return *g_types;
 }
 
 Type::Type(int id, CRString name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size)
@@ -125,9 +125,9 @@ int Type::Register(Object* (*dynCreate)(CreateInstParamData*), Type* base, const
     int id = _Type_Get_Index();
     Type* type = new Type(id, name, base, dynCreate, structure_size);
 
-    static String _object = _T("Object");
+    static String object = _T("Object");
 
-    if (base == nullptr && name != _object) {
+    if (base == nullptr && name != object) {
         base = typeof<Object>();
     }
 
@@ -135,7 +135,10 @@ int Type::Register(Object* (*dynCreate)(CreateInstParamData*), Type* base, const
 
     std::cout << name << std::endl;
 
-    g_types.push_back(type);
+    if (g_types == nullptr) {
+        g_types = new std::vector<Type*>;
+    }
+    g_types->push_back(type);
     return id;
 }
 
