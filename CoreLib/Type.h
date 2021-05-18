@@ -42,7 +42,6 @@ public:
     bool IsSubclassOf(Type* type);
     Object* CreateInstance(CreateInstParamData* v = nullptr);
 public:
-    static Type* GetType(const RefString& str);
     static Type* GetType(const String& str);
     static Type* GetType(const StringPointer& str);
     static Type* GetType(int id);
