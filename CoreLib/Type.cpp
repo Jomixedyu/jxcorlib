@@ -38,16 +38,6 @@ Object* Type::CreateInstance(CreateInstParamData* v)
     return this->c_inst_ptr_(v);
 }
 
-Type* Type::GetType(const RefString& str)
-{
-    for (auto& item : *g_types) {
-        if (item->get_name() == str) {
-            return item;
-        }
-    }
-    return nullptr;
-}
-
 Type* Type::GetType(const String& str)
 {
     for (auto& item : *g_types) {
