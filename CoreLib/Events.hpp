@@ -17,16 +17,16 @@ protected:
     public:
         uint32_t index;
         FunctionType func;
-        intptr_t staticFuncPtr;
+        void* instance;
     public:
-        FunctionInfo() : index(0), func(nullptr), staticFuncPtr((intptr_t)0)
+        FunctionInfo() : index(0), func(nullptr), instance(nullptr)
         {
         }
         FunctionInfo(
             const uint32_t& index,
             const FunctionType& func,
-            const intptr_t& staticFuncPtr
-        ) : index(index), func(func), staticFuncPtr(staticFuncPtr)
+            void* instance
+        ) : index(index), func(func), instance(instance)
         {
         }
     public:
@@ -45,8 +45,8 @@ public:
 public:
     Events() : index(0) {}
 protected:
-    uint32_t Push(const FunctionType& func, const intptr_t& staticFuncPtr = 0) {
-        this->eventList.push_back(FunctionInfo(++this->index, func, staticFuncPtr));
+    uint32_t Push(const FunctionType& func, void* instance = nullptr) {
+        this->eventList.push_back(FunctionInfo(++this->index, func, instance));
         return this->index;
     }
 public:
@@ -57,19 +57,27 @@ public:
         return this->Push(FunctionType(funcPtr), (intptr_t)funcPtr);
     }
 
-    template<typename TOBJ>
-    uint32_t AddListener(TOBJ* obj, TReturn(TOBJ::* ptr)(TParams...)) {
-        return this->Push(std::bind(ptr, obj, TParams...));
+    template<typename TObj>
+    uint32_t AddListener(TObj* obj, TReturn(TOBJ::* ptr)(TParams...)) {
+        return this->Push(std::bind(ptr, obj, TParams...), obj);
     }
+    template<typename TObj>
+    uint32_t AddListener(TObj* obj, const FunctionType& func) {
+        return this->Push(func, obj);
+    }
+
 
     uint32_t RemoveListener(FunctionPointer funcPtr) {
         if (funcPtr == nullptr) {
             return;
         }
         for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
-            if (it->staticFuncPtr == (intptr_t)funcPtr) {
-                this->eventList.erase(it);
-                return it->index;
+            if (it->instance == nullptr) {
+                if (it->func.target<TReturn(TParams...)>() == funcPtr) {
+                    auto index = it->index;
+                    this->eventList.erase(it);
+                    return index;
+                }
             }
         }
         return 0;
