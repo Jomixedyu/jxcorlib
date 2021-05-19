@@ -10,125 +10,169 @@ class Events
 public:
     using FunctionType = std::function<TReturn(TArgs...)>;
     using FunctionPointer = TReturn(*)(TArgs...);
+
 protected:
+    enum class FunctionInfoType
+    {
+        Static,
+        Lambda,
+        Member
+    };
     class FunctionInfo
     {
     public:
         unsigned int index;
-        FunctionType func;
-        void* instance;
+        FunctionInfoType type;
     public:
-        FunctionInfo() : index(0), func(nullptr), instance(nullptr)
-        {
-        }
-        FunctionInfo(
-            const unsigned int& index,
-            const FunctionType& func,
-            void* instance
-        ) : index(index), func(func), instance(instance)
+        FunctionInfo(const unsigned int& index, const FunctionInfoType& type)
+            : index(index), type(type)
         {
         }
     public:
         bool operator ==(const FunctionInfo& r) {
             return this->index == r.index;
         }
+        virtual TReturn Invoke(TArgs...) = 0;
     };
-
-#ifdef _MSC_VER
-    template<int I>
-    using PlaceHolder = std::_Ph<I>;
-#else
-    using PlaceHolder = std::_Placeholder;
-#endif
-
-    template<int N, int... I>
-    struct MakeSeqs : MakeSeqs<N - 1, N - 1, I...> {};
-
-    template<int...I>
-    struct MakeSeqs<1, I...>
+    class StaticFunctionInfo : public FunctionInfo
     {
-        template<typename T, typename...Args>
-        static FunctionType bind(T* obj, TReturn(T::* _Func)(Args...))
+    public:
+        FunctionPointer ptr;
+        StaticFunctionInfo(const unsigned int& index, FunctionPointer ptr)
+            : FunctionInfo(index, FunctionInfoType::Static), ptr(ptr)
         {
-            return std::bind(_Func, obj, PlaceHolder<I>{}...);
+        }
+        virtual TReturn Invoke(TArgs... args) override {
+            return ptr(args...);
+        }
+    };
+    class LambdaFunctionInfo : public FunctionInfo
+    {
+    public:
+        FunctionType func;
+        void* instance;
+        LambdaFunctionInfo(
+            const unsigned int& index,
+            void* instance,
+            const FunctionType& func)
+            : FunctionInfo(index, FunctionInfoType::Lambda), instance(instance), func(func)
+        {
+        }
+        virtual TReturn Invoke(TArgs... args) override {
+            return func(args...);
+        }
+    };
+    template<typename TObj>
+    class MemberFunctionInfo : public FunctionInfo
+    {
+    public:
+        TObj* instance;
+        TReturn(TObj::* ptr)(TArgs...);
+
+        MemberFunctionInfo(
+            const unsigned int& index,
+            TObj* instance,
+            TReturn(TObj::* ptr)(TArgs...))
+            : FunctionInfo(index, FunctionInfoType::Member), instance(instance), ptr(ptr)
+        {
+        }
+        virtual TReturn Invoke(TArgs... args) override {
+            return (instance->*ptr)(args...);
         }
     };
 
 protected:
     unsigned int index;
-    std::list<FunctionInfo> eventList;
+    std::list<FunctionInfo*> eventList;
 public:
     int Count() const {
         return this->eventList.size();
     }
 public:
     Events() : index(0) {}
+    Events(const Events& right) = delete;
+    Events(Events&& right) = delete;
+    ~Events() {
+        this->RemoveAllListener();
+    }
 protected:
-    unsigned int Push(const FunctionType& func, void* instance = nullptr) {
-        this->eventList.push_back(FunctionInfo(++this->index, func, instance));
-        return this->index;
+    void RemoveAllListener() {
+        for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
+            delete* it;
+        }
+        this->eventList.clear();
     }
 public:
+    //static
     unsigned int AddListener(FunctionPointer funcPtr) {
         if (funcPtr == nullptr) {
             return 0;
         }
-        return this->Push(FunctionType{ funcPtr }, nullptr);
+        this->eventList.push_back(new StaticFunctionInfo(++this->index, funcPtr));
+        return this->index;
     }
-
+    //member
     template<typename TObj>
     unsigned int AddListener(TObj* obj, TReturn(TObj::* ptr)(TArgs...)) {
-        return this->Push(MakeSeqs<sizeof...(TArgs) + 1>::bind(obj, ptr), obj);
+        if (obj == nullptr) {
+            return 0;
+        }
+        this->eventList.push_back(new MemberFunctionInfo<TObj>(++this->index, obj, ptr));
+        return this->index;
     }
-
+    //lambda
     template<typename TObj>
     unsigned int AddListener(TObj* obj, const FunctionType& func) {
-        return this->Push(func, obj);
+        this->eventList.push_back(new LambdaFunctionInfo(++this->index, obj, func));
+        return this->index;
+    }
+
+    //static
+    unsigned int RemoveListener(FunctionPointer funcPtr) {
+        for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
+            if ((*it)->type == FunctionInfoType::Static
+                && static_cast<StaticFunctionInfo*>(*it)->ptr == funcPtr) {
+                auto index = (*it)->index;
+                delete* it;
+                this->eventList.erase(it);
+                return index;
+            }
+        }
+        return 0;
+    }
+    //member
+    template<typename TObj>
+    unsigned int RemoveListener(TObj* obj, TReturn(TObj::* ptr)(TArgs...)) {
+        for (auto it = this->eventList.begin(); it != this->eventList.end(); it++)
+        {
+            if ((*it)->type == FunctionInfoType::Member
+                && static_cast<MemberFunctionInfo<TObj>*>(*it)->instance == obj
+                && static_cast<MemberFunctionInfo<TObj>*>(*it)->ptr == ptr)
+            {
+                auto index = (*it)->index;
+                delete* it;
+                this->eventList.erase(it);
+                return index;
+            }
+        }
+        return 0;
     }
 
 
-    unsigned int RemoveListener(FunctionPointer funcPtr) {
-        if (funcPtr == nullptr) {
+    unsigned int RemoveListenerByIndex(unsigned int index) {
+        if (index <= 0) {
             return 0;
         }
         for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
-            if (it->instance == nullptr) {
-                if (*it->func.target<FunctionPointer>() == funcPtr) {
-                    auto index = it->index;
-                    this->eventList.erase(it);
-                    return index;
-                }
-            }
-        }
-        return 0;
-    }
-    template<typename TObj>
-    unsigned int RemoveListener(TObj* obj, TReturn(TObj::* ptr)(TArgs...)) {
-        for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
-            if (it->instance == obj 
-                && *it->func.target<TReturn(TObj::*)(TArgs...)>() == ptr) {
-
-                auto index = it->index;
-                this->eventList.erase(it);
-
-                return index;
-            }
-        }
-        return 0;
-    }
-
-    unsigned int RemoveListenerByIndex(unsigned int index) {
-        if (index == -1) {
-            return;
-        }
-        for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
-            if (it->index == index) {
+            if ((*it)->index == index) {
+                delete* it;
                 this->eventList.erase(it);
                 return index;
             }
         }
         return 0;
     }
+
     unsigned int operator+=(FunctionPointer ptr) {
         return this->AddListener(ptr);
     }
@@ -141,21 +185,35 @@ public:
 template<typename TReturn, typename... TArgs>
 class Delegate : public Events<TReturn, TArgs...>
 {
+    using  base = Events<TReturn, TArgs...>;
 public:
     void Invoke(TArgs... t) {
-        for (auto item : this->eventList) {
-            item.func(t...);
+        for (auto& item : this->eventList) {
+            item->Invoke(t...);
         }
     }
 
     void RemoveAllListener() {
-        this->eventList.clear();
+        base::RemoveAllListener();
     }
 
+    //member lambda
     template<typename TObj>
     void RemoveByInstance(TObj* obj) {
+        using MemberFunInfo = typename Events<TReturn, TArgs...>::template MemberFunctionInfo<TObj>;
+        using LambdaFunInfo = typename Events<TReturn, TArgs...>::LambdaFunctionInfo;
+
         for (auto it = this->eventList.begin(); it != this->eventList.end(); ) {
-            if (it->instance == obj) {
+            if ((
+                (*it)->type == base::FunctionInfoType::Member
+                && (static_cast<MemberFunInfo*>(*it))->instance == obj
+                ) || (
+                (*it)->type == base::FunctionInfoType::Lambda
+                && static_cast<LambdaFunInfo*>(*it)->instance == obj
+                )
+                )
+            {
+                delete* it;
                 it = this->eventList.erase(it);
             }
             else {
@@ -181,7 +239,7 @@ public:
     std::vector<TReturn> InvokeResult(TArgs... args) {
         std::vector<TReturn> retList;
         for (auto& item : this->eventList) {
-            retList.push_back(item.func(args...));
+            retList.push_back(item->Invoke(args...));
         }
         return retList;
     }
@@ -194,13 +252,13 @@ public:
     std::vector<bool> InvokeResult() {
         std::vector<bool> retList;
         for (auto& item : this->eventList) {
-            retList.push_back(item.func());
+            retList.push_back(item->Invoke());
         }
         return retList;
     }
 
     bool IsValidReturnInvoke() {
-        for (const bool& item : InvokeResult()) {
+        for (const bool& item : this->InvokeResult()) {
             if (!item) return false;
         }
         return true;

@@ -48,6 +48,15 @@ public:
     }
 };
 
+class EventTest1
+{
+public:
+    void Get(int c)
+    {
+        std::cout << "EventTest1: get" << std::endl;
+    }
+};
+
 #include "CoreLib/Events.hpp"
 class EventTest
 {
@@ -67,23 +76,29 @@ public:
 
     EventTest()
     {
-        //lambda两种方式
-        e.AddListener([](int c) { std::cout << "lambda callback" << std::endl; });
+        //静态lambda两种方式
+        e.AddListener([](int c) { std::cout << "static lambda1 callback" << std::endl; });
+        e += [](int c) { std::cout << "static lambda2 callback" << std::endl; };
 
-        auto de = [](int c) { std::cout << "lambda callback" << std::endl; };
-        e += de; //或 e.AddListener(de);
-        //e -= de; 或 e.RemoveListener(de);
-        
-        //添加与移除实例方法
+        //静态函数
+        e += static_method; //或 e.AddListener(static_method);
+        //e -= static_method; 或 e.RemoveListener(static_method);
+
+        //添加与移除闭包lambda方法，可以把lambda托管给this，然后最后按实例移除
         this->cb_index = e.AddListener(this, [this](int c) { this->lambda_inst(c); });
         //e.RemoveListenerByIndex(this->cb_index);
-        e.AddListener(this, &EventTest::bind_inst);
-        e.RemoveListener(this, &EventTest::bind_inst);
 
+        //添加与移除成员方法
+        e.AddListener(this, &EventTest::bind_inst);
+        //e.RemoveListener(this, &EventTest::bind_inst);
+
+        //执行
         e.Invoke(3);
 
         //移除实例中的所有事件
         e.RemoveByInstance(this);
+
+        //移除全部事件
         e.RemoveAllListener();
     }
 };
@@ -92,15 +107,13 @@ int main()
 {
     using namespace std;
 
+
     //Type* type = Type::GetType(_T("ExampleClass"));
     //if (type != nullptr) {
     //    cout << "yes" << endl;
     //}
-
     //auto types = Type::GetTypes();
     EventTest e;
-
-
 
     return 0;
 
