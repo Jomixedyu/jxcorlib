@@ -123,7 +123,7 @@ int Type::Register(Object* (*dynCreate)(CreateInstParamData*), Type* base, const
 
     type->base_ = base;
 
-    std::cout << name << std::endl;
+    //std::cout << name << std::endl;
 
     if (g_types == nullptr) {
         g_types = new std::vector<Type*>;
