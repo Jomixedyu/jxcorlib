@@ -173,6 +173,28 @@ public:
         return 0;
     }
 
+    //member lambda
+    template<typename TObj>
+    void RemoveByInstance(TObj* obj) {
+        for (auto it = this->eventList.begin(); it != this->eventList.end(); ) {
+            if ((
+                (*it)->type == FunctionInfoType::Member
+                && (static_cast<MemberFunctionInfo<TObj>*>(*it))->instance == obj
+                ) || (
+                (*it)->type == FunctionInfoType::Lambda
+                && static_cast<LambdaFunctionInfo*>(*it)->instance == obj
+                )
+                )
+            {
+                delete* it;
+                it = this->eventList.erase(it);
+            }
+            else {
+                it++;
+            }
+        }
+    }
+
     unsigned int operator+=(FunctionPointer ptr) {
         return this->AddListener(ptr);
     }
@@ -185,7 +207,7 @@ public:
 template<typename TReturn, typename... TArgs>
 class Delegate : public Events<TReturn, TArgs...>
 {
-    using  base = Events<TReturn, TArgs...>;
+    using base = Events<TReturn, TArgs...>;
 public:
     void Invoke(TArgs... t) {
         for (auto& item : this->eventList) {
@@ -195,31 +217,6 @@ public:
 
     void RemoveAllListener() {
         base::RemoveAllListener();
-    }
-
-    //member lambda
-    template<typename TObj>
-    void RemoveByInstance(TObj* obj) {
-        using MemberFunInfo = typename Events<TReturn, TArgs...>::template MemberFunctionInfo<TObj>;
-        using LambdaFunInfo = typename Events<TReturn, TArgs...>::LambdaFunctionInfo;
-
-        for (auto it = this->eventList.begin(); it != this->eventList.end(); ) {
-            if ((
-                (*it)->type == base::FunctionInfoType::Member
-                && (static_cast<MemberFunInfo*>(*it))->instance == obj
-                ) || (
-                (*it)->type == base::FunctionInfoType::Lambda
-                && static_cast<LambdaFunInfo*>(*it)->instance == obj
-                )
-                )
-            {
-                delete* it;
-                it = this->eventList.erase(it);
-            }
-            else {
-                it++;
-            }
-        }
     }
 };
 
