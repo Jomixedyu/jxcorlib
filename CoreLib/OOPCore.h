@@ -7,12 +7,13 @@
 #include "Object.h"
 #include "Type.h"
 
+
 #define DEF_OBJECT_META(NAME, BASE) \
 public: \
     inline static Type* __meta_type() { \
         static int id = -1; \
         if (id == -1) { \
-            id = Type::Register(DynCreateInstance, typeof<BASE>(), _T(NAMEOF(NAME)), sizeof(NAME)); \
+            id = Type::Register(DynCreateInstance, typeof<BASE>(), NAMEOF(NAME), sizeof(NAME)); \
         } \
         return Type::GetType(id); \
     } \

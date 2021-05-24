@@ -3,6 +3,7 @@
 #include <sstream>
 #include <functional>
 
+#include <filesystem>
 
 #include "CoreLib/OOPCore.h"
 #include "CoreLib/Attribute.h"
@@ -107,13 +108,19 @@ int main()
 {
     using namespace std;
 
-
     //Type* type = Type::GetType(_T("ExampleClass"));
     //if (type != nullptr) {
     //    cout << "yes" << endl;
     //}
     //auto types = Type::GetTypes();
-    EventTest e;
+    
+    //EventTest e;
+
+    String s(_T("我啊a,235  ASda是苏打水打算的请问人"));
+
+    auto c = StringUtil::At(s, 20);
+    auto st = Encoding::UTF8ToANSI(c.ToString());
+    cout << StringUtil::Length(s);
 
     return 0;
 
