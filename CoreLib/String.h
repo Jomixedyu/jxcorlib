@@ -1,3 +1,11 @@
+/*
+* @Moudule     : String
+* @Date        : 2021/05/24
+* @Author      : Jx
+* @Link        : https://github.com/Jayshonyves
+* @Description : 
+*/
+
 #ifndef CORELIB_STRING_H
 #define CORELIB_STRING_H
 
