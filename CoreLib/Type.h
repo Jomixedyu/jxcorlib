@@ -43,7 +43,7 @@ public:
     Object* CreateInstance(CreateInstParamData* v = nullptr);
 public:
     static Type* GetType(const String& str);
-    static Type* GetType(const StringPointer& str);
+    static Type* GetType(const char*& str);
     static Type* GetType(int id);
     static std::vector<Type*> GetTypes();
 public:

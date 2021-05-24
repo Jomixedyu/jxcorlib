@@ -145,7 +145,7 @@
     <ClCompile Include="CoreLib\Object.cpp" />
     <ClCompile Include="CoreLib\OOPCore.h" />
     <ClCompile Include="CoreLib\Path.cpp" />
-    <ClCompile Include="CoreLib\StringUtility.cpp" />
+    <ClCompile Include="CoreLib\String.cpp" />
     <ClCompile Include="CoreLib\Type.cpp" />
     <ClCompile Include="JxCode.CoreLib.cpp" />
   </ItemGroup>
@@ -158,7 +158,6 @@
     <ClInclude Include="CoreLib\Path.h" />
     <ClInclude Include="CoreLib\Property.h" />
     <ClInclude Include="CoreLib\String.h" />
-    <ClInclude Include="CoreLib\StringUtility.h" />
     <ClInclude Include="CoreLib\Type.h" />
   </ItemGroup>
   <ItemGroup>

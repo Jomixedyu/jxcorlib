@@ -48,7 +48,7 @@ Type* Type::GetType(const String& str)
     return nullptr;
 }
 
-Type* Type::GetType(const StringPointer& str)
+Type* Type::GetType(const char*& str)
 {
     for (auto& item : *g_types) {
         if (item->get_name() == str) {

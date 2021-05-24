@@ -3,7 +3,8 @@
 
 #include "String.h"
 
-namespace Path {
+namespace Path 
+{
     std::string AppPath();
 }
 
