@@ -117,6 +117,11 @@ StringIndexMapping::StringIndexMapping(const String& str, size_t block_size) : b
         throw std::invalid_argument("block_size");
     }
     size_t len = str.size();
+    if (len <= block_size) {
+        this->mapping.push_back(0);
+        return;
+    }
+
     size_t offset = 0;
     size_t index = 0;
 
