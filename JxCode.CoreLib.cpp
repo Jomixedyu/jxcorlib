@@ -4,6 +4,7 @@
 #include <functional>
 
 #include <filesystem>
+#include <time.h>
 
 #include "CoreLib/OOPCore.h"
 #include "CoreLib/Attribute.h"
@@ -103,7 +104,12 @@ public:
         e.RemoveAllListener();
     }
 };
-
+void TestString()
+{
+    String s(_T("叔叔我啊,真的生气了"));
+    size_t len = StringUtil::Length(s);
+    String ansi = Encoding::UTF8ToANSI(s);
+}
 int main()
 {
     using namespace std;
@@ -116,15 +122,33 @@ int main()
     
     //EventTest e;
 
-    String s(_T("叔叔我啊,真的生气了撒旦阿斯顿sadasdqwwqqwddqwxzc"));
+    String s;
+    for (size_t i = 0; i < 200000; i++)
+    {
+        s += _T("叔叔我啊,真的生气了撒旦阿斯顿sadasdqwwqqwddqwxzc");
+    }
+
+    clock_t s1 = clock();
 
     cout << StringUtil::Length(s) << endl;
     cout << Encoding::UTF8ToANSI(StringUtil::At(s, 20).ToString()) << endl;
     
-    StringIndexMapping map{ s, 4 };
+    clock_t e1 = clock();
 
+    clock_t s2 = clock();
+    StringIndexMapping map{ s, s.size() / 5 };
+    clock_t e2 = clock();
+
+
+    clock_t s3 = clock();
     cout << StringUtil::Length(s, map) << endl;
     cout << Encoding::UTF8ToANSI(StringUtil::At(s, 20, map).ToString()) << endl;
+    clock_t e3 = clock();
+
+    cout << "::::" << e1 - s1 << endl;
+    cout << "::::" << e2 - s2 << endl;
+    cout << "::::" << e3 - s3 << endl;
+
 
     return 0;
 
