@@ -2,8 +2,7 @@
 * @Moudule     : String
 * @Date        : 2021/05/24
 * @Author      : Jx
-* @Link        : https://github.com/Jayshonyves
-* @Description : 
+* @Description : This file is part of JxCode.CoreLib : https://github.com/Jayshonyves
 */
 
 #ifndef CORELIB_STRING_H
