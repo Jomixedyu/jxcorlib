@@ -109,6 +109,8 @@ void TestString()
     String s(_T("叔叔我啊,真的生气了"));
     size_t len = StringUtil::Length(s);
     String ansi = Encoding::UTF8ToANSI(s);
+
+
 }
 int main()
 {
