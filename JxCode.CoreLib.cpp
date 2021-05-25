@@ -116,11 +116,15 @@ int main()
     
     //EventTest e;
 
-    String s(_T("我啊a,235  ASda是苏打水打算的请问人"));
+    String s(_T("叔叔我啊,真的生气了撒旦阿斯顿sadasdqwwqqwddqwxzc"));
 
-    auto c = StringUtil::At(s, 20);
-    auto st = Encoding::UTF8ToANSI(c.ToString());
-    cout << StringUtil::Length(s);
+    cout << StringUtil::Length(s) << endl;
+    cout << Encoding::UTF8ToANSI(StringUtil::At(s, 20).ToString()) << endl;
+    
+    StringIndexMapping map{ s, 4 };
+
+    cout << StringUtil::Length(s, map) << endl;
+    cout << Encoding::UTF8ToANSI(StringUtil::At(s, 20, map).ToString()) << endl;
 
     return 0;
 
