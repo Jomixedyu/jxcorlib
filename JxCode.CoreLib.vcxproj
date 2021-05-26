@@ -144,7 +144,6 @@
     <ClCompile Include="CoreLib\File.cpp" />
     <ClCompile Include="CoreLib\Object.cpp" />
     <ClCompile Include="CoreLib\OOPCore.h" />
-    <ClCompile Include="CoreLib\Path.cpp" />
     <ClCompile Include="CoreLib\String.cpp" />
     <ClCompile Include="CoreLib\Type.cpp" />
     <ClCompile Include="JxCode.CoreLib.cpp" />
@@ -155,7 +154,6 @@
     <ClInclude Include="CoreLib\Exception.h" />
     <ClInclude Include="CoreLib\File.h" />
     <ClInclude Include="CoreLib\Object.h" />
-    <ClInclude Include="CoreLib\Path.h" />
     <ClInclude Include="CoreLib\Property.h" />
     <ClInclude Include="CoreLib\String.h" />
     <ClInclude Include="CoreLib\Type.h" />

@@ -4,16 +4,18 @@
 
 #include "File.h"
 
-
-std::string File::ReadAllText(const std::string& path)
+namespace JxCoreLib
 {
-    std::ifstream ifs;
-    std::stringstream ss;
-    ifs.open(path);
-    if (!ifs.is_open()) {
-        throw std::invalid_argument("Unable to open file");
+    std::string File::ReadAllText(const std::string& path)
+    {
+        std::ifstream ifs;
+        std::stringstream ss;
+        ifs.open(path);
+        if (!ifs.is_open()) {
+            throw std::invalid_argument("Unable to open file");
+        }
+        ss << ifs.rdbuf() << std::endl;
+        ifs.close();
+        return ss.str();
     }
-    ss << ifs.rdbuf() << std::endl;
-    ifs.close();
-    return ss.str();
 }
