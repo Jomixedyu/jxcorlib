@@ -1,10 +1,13 @@
 #pragma once
 #include <string>
 
-class File
+namespace JxCoreLib
 {
-public:
-    static std::string ReadAllText(const std::string& path);
+    class File
+    {
+    public:
+        static std::string ReadAllText(const std::string& path);
 
 
-};
+    };
+}

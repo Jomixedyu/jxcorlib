@@ -21,9 +21,6 @@
     <ClCompile Include="CoreLib\Object.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CoreLib\Path.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CoreLib\File.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -45,9 +42,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CoreLib\Object.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CoreLib\Path.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CoreLib\String.h">
