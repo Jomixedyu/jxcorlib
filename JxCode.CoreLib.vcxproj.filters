@@ -36,7 +36,13 @@
     <ClCompile Include="Example\TestString.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Example\OOPTest.cpp">
+    <ClCompile Include="Example\TestOOP.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Example\TestProperty.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Example\TestEvents.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
