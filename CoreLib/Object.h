@@ -18,12 +18,10 @@ namespace JxCoreLib
         Object();
     public:
         virtual String ToString() const;
-        static bool Equals(const Object* x, const Object* y);
-        virtual bool Equals(Object* target) const;
     };
 
 #ifdef CORELIB_AUTOINIT
-    DEF_TYPE_INIT(Object)
+    DEF_TYPE_INIT(Object);
 #endif
 
 }
