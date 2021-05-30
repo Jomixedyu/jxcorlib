@@ -252,16 +252,10 @@ namespace JxCoreLib
 
     inline static bool _StringEqualsChar(const Char& c, const String& str)
     {
-        if (str.size() > 6) {
+        if (str.size() > 6 || str.empty()) {
             return false;
         }
-        for (size_t i = 0; i < 6; i++)
-        {
-            if (c.value[i] != str[i]) {
-                return false;
-            }
-        }
-        return true;
+        return Char::Charcmp(c.value, str.c_str());
     }
     bool operator==(const Char& left, const String& right)
     {
