@@ -146,7 +146,9 @@
     <ClCompile Include="CoreLib\OOPCore.h" />
     <ClCompile Include="CoreLib\String.cpp" />
     <ClCompile Include="CoreLib\Type.cpp" />
-    <ClCompile Include="Example\OOPTest.cpp" />
+    <ClCompile Include="Example\TestEvents.cpp" />
+    <ClCompile Include="Example\TestOOP.cpp" />
+    <ClCompile Include="Example\TestProperty.cpp" />
     <ClCompile Include="Example\TestString.cpp" />
     <ClCompile Include="JxCode.CoreLib.cpp" />
   </ItemGroup>

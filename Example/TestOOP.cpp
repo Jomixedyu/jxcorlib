@@ -23,7 +23,7 @@ namespace space
     };
 }
 
-void OOPTest()
+void TestOOP()
 {
     using namespace std;
 
