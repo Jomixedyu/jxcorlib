@@ -8,7 +8,6 @@
 #include <bitset>
 
 #include "CoreLib/OOPCore.h"
-#include "CoreLib/Attribute.h"
 #include "CoreLib/Property.h"
 
 using namespace std;
@@ -18,7 +17,6 @@ class TestClass : public Object
 {
     DEF_OBJECT_META(TestClass, Object);
 private:
-    $ATTRIBUTE(TestClass::id, MemberType::Field, SerializableAttrubite);
     int id;
 
 public:
@@ -40,12 +38,6 @@ public:
         return _T("Str: ") + type->get_name();
     }
 
-    virtual bool Equals(Object* target) const override {
-        if (target->get_type() != typeof<TestClass>()) {
-            return false;
-        }
-        return this->id == (static_cast<TestClass*>(target))->id;
-    }
     DECL_OBJECT_DYNCREATEINSTANCE() {
         return new TestClass(0);
     }
@@ -107,19 +99,24 @@ public:
 };
 
 
+class ExampleClass{};
 
 
 int main()
 {
     using namespace std;
 
-    //Type* type = Type::GetType(_T("ExampleClass"));
-    //if (type != nullptr) {
-    //    cout << "yes" << endl;
-    //}
-    //auto types = Type::GetTypes();
+    /*
+    Type* type = Type::GetType(_T("ExampleClass"));
+    Object* obj = type->CreateInstance();
+    obj->get_type() == typeof<ExampleClass>();
+    */
+    
+    int a = 1176256512;
+    float* f = (float*)&a;
+    cout << *f;
 
-    EventTest e;
+    //EventTest e;
 
 
     return 0;

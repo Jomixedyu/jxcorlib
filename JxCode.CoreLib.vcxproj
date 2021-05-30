@@ -146,10 +146,12 @@
     <ClCompile Include="CoreLib\OOPCore.h" />
     <ClCompile Include="CoreLib\String.cpp" />
     <ClCompile Include="CoreLib\Type.cpp" />
+    <ClCompile Include="Example\OOPTest.cpp" />
+    <ClCompile Include="Example\TestString.cpp" />
     <ClCompile Include="JxCode.CoreLib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CoreLib\Attribute.h" />
+    <ClInclude Include="CoreLib\DebugTool.h" />
     <ClInclude Include="CoreLib\Events.hpp" />
     <ClInclude Include="CoreLib\Exception.h" />
     <ClInclude Include="CoreLib\File.h" />
@@ -157,9 +159,6 @@
     <ClInclude Include="CoreLib\Property.h" />
     <ClInclude Include="CoreLib\String.h" />
     <ClInclude Include="CoreLib\Type.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

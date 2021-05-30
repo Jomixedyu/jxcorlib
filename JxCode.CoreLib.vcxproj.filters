@@ -33,6 +33,12 @@
     <ClCompile Include="CoreLib\String.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Example\TestString.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Example\OOPTest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreLib\Events.hpp">
@@ -53,14 +59,11 @@
     <ClInclude Include="CoreLib\Property.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CoreLib\Attribute.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CoreLib\Exception.h">
       <Filter>头文件</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
+    <ClInclude Include="CoreLib\DebugTool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
