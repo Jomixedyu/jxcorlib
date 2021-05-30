@@ -177,7 +177,7 @@ namespace JxCoreLib
 
         //member lambda
         template<typename TObj>
-        void RemoveByInstance(TObj* obj) {
+        void RemoveListenerByInstance(TObj* obj) {
             for (auto it = this->event_list_.begin(); it != this->event_list_.end(); ) {
                 if ((
                     (*it)->type == FunctionInfoType::Member
