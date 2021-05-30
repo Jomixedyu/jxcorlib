@@ -45,7 +45,7 @@ namespace JxCoreLib
             {
             }
             virtual TReturn Invoke(TArgs... args) override {
-                return ptr(args...);
+                return (*ptr)(args...);
             }
         };
         class LambdaFunctionInfo : public FunctionInfo
@@ -85,10 +85,10 @@ namespace JxCoreLib
 
     protected:
         unsigned int index;
-        std::list<FunctionInfo*> eventList;
+        std::list<FunctionInfo*> event_list_;
     public:
         int Count() const {
-            return this->eventList.size();
+            return this->event_list_.size();
         }
     public:
         Events() : index(0) {}
@@ -99,10 +99,10 @@ namespace JxCoreLib
         }
     protected:
         void RemoveAllListener() {
-            for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
+            for (auto it = this->event_list_.begin(); it != this->event_list_.end(); it++) {
                 delete* it;
             }
-            this->eventList.clear();
+            this->event_list_.clear();
         }
     public:
         //static
@@ -110,7 +110,7 @@ namespace JxCoreLib
             if (funcPtr == nullptr) {
                 return 0;
             }
-            this->eventList.push_back(new StaticFunctionInfo(++this->index, funcPtr));
+            this->event_list_.push_back(new StaticFunctionInfo(++this->index, funcPtr));
             return this->index;
         }
         //member
@@ -119,24 +119,24 @@ namespace JxCoreLib
             if (obj == nullptr) {
                 return 0;
             }
-            this->eventList.push_back(new MemberFunctionInfo<TObj>(++this->index, obj, ptr));
+            this->event_list_.push_back(new MemberFunctionInfo<TObj>(++this->index, obj, ptr));
             return this->index;
         }
         //lambda
         template<typename TObj>
         unsigned int AddListener(TObj* obj, const FunctionType& func) {
-            this->eventList.push_back(new LambdaFunctionInfo(++this->index, obj, func));
+            this->event_list_.push_back(new LambdaFunctionInfo(++this->index, obj, func));
             return this->index;
         }
 
         //static
         unsigned int RemoveListener(FunctionPointer funcPtr) {
-            for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
+            for (auto it = this->event_list_.rbegin(); it != this->event_list_.rend(); it++) {
                 if ((*it)->type == FunctionInfoType::Static
                     && static_cast<StaticFunctionInfo*>(*it)->ptr == funcPtr) {
                     auto index = (*it)->index;
                     delete* it;
-                    this->eventList.erase(it);
+                    this->event_list_.erase((++it).base());
                     return index;
                 }
             }
@@ -145,7 +145,7 @@ namespace JxCoreLib
         //member
         template<typename TObj>
         unsigned int RemoveListener(TObj* obj, TReturn(TObj::* ptr)(TArgs...)) {
-            for (auto it = this->eventList.begin(); it != this->eventList.end(); it++)
+            for (auto it = this->event_list_.rbegin(); it != this->event_list_.rend(); it++)
             {
                 if ((*it)->type == FunctionInfoType::Member
                     && static_cast<MemberFunctionInfo<TObj>*>(*it)->instance == obj
@@ -153,7 +153,7 @@ namespace JxCoreLib
                 {
                     auto index = (*it)->index;
                     delete* it;
-                    this->eventList.erase(it);
+                    this->event_list_.erase((++it).base());
                     return index;
                 }
             }
@@ -165,10 +165,10 @@ namespace JxCoreLib
             if (index <= 0) {
                 return 0;
             }
-            for (auto it = this->eventList.begin(); it != this->eventList.end(); it++) {
+            for (auto it = this->event_list_.rbegin(); it != this->event_list_.rend(); it++) {
                 if ((*it)->index == index) {
                     delete* it;
-                    this->eventList.erase(it);
+                    this->event_list_.erase((++it).base());
                     return index;
                 }
             }
@@ -178,7 +178,7 @@ namespace JxCoreLib
         //member lambda
         template<typename TObj>
         void RemoveByInstance(TObj* obj) {
-            for (auto it = this->eventList.begin(); it != this->eventList.end(); ) {
+            for (auto it = this->event_list_.begin(); it != this->event_list_.end(); ) {
                 if ((
                     (*it)->type == FunctionInfoType::Member
                     && (static_cast<MemberFunctionInfo<TObj>*>(*it))->instance == obj
@@ -189,7 +189,7 @@ namespace JxCoreLib
                     )
                 {
                     delete* it;
-                    it = this->eventList.erase(it);
+                    it = this->event_list_.erase(it);
                 }
                 else {
                     it++;
@@ -212,7 +212,7 @@ namespace JxCoreLib
         using base = Events<TReturn, TArgs...>;
     public:
         void Invoke(TArgs... t) {
-            for (auto& item : this->eventList) {
+            for (auto& item : this->event_list_) {
                 item->Invoke(t...);
             }
         }
@@ -237,7 +237,7 @@ namespace JxCoreLib
     public:
         std::vector<TReturn> InvokeResult(TArgs... args) {
             std::vector<TReturn> retList;
-            for (auto& item : this->eventList) {
+            for (auto& item : this->event_list_) {
                 retList.push_back(item->Invoke(args...));
             }
             return retList;
@@ -250,7 +250,7 @@ namespace JxCoreLib
     public:
         std::vector<bool> InvokeResult() {
             std::vector<bool> retList;
-            for (auto& item : this->eventList) {
+            for (auto& item : this->event_list_) {
                 retList.push_back(item->Invoke());
             }
             return retList;

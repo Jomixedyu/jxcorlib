@@ -85,7 +85,7 @@ public:
 
         //静态函数
         e += static_method; //或 e.AddListener(static_method);
-        //e -= static_method; 或 e.RemoveListener(static_method);
+        //e -= static_method; //或 e.RemoveListener(static_method);
 
         //添加与移除闭包lambda方法，可以把lambda托管给this，然后最后按实例移除
         this->cb_index = e.AddListener(this, [this](int c) { this->lambda_inst(c); });
@@ -119,7 +119,7 @@ int main()
     //}
     //auto types = Type::GetTypes();
 
-    //EventTest e;
+    EventTest e;
 
 
     return 0;
