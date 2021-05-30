@@ -419,7 +419,7 @@ namespace JxCoreLib
     inline static size_t _StringUtil_Length(const String& src, const size_t& start = 0)
     {
         size_t size = _StringSize(src);
-        int index = start;
+        size_t index = start;
         size_t len = 0;
 
         while (index < size) {
