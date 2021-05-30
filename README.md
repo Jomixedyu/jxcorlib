@@ -12,7 +12,17 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
 - 调试信息工具
 
 ## Catalog
-- [](#)
+- [JxCode.CoreLib](#jxcodecorelib)
+  - [Feature](#feature)
+  - [Catalog](#catalog)
+  - [使用本基本库与工具的需求](#使用本基本库与工具的需求)
+  - [命名规范](#命名规范)
+  - [String字符串](#string字符串)
+    - [String与Char](#string与char)
+    - [索引与访问](#索引与访问)
+  - [Object类型](#object类型)
+  - [声明类型](#声明类型)
+  - [Type类型](#type类型)
 
 
 ## 使用本基本库与工具的需求
