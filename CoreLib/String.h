@@ -33,10 +33,11 @@ namespace JxCoreLib
         }
         static bool Charcmp(const char* l, const char* r)
         {
-            for (size_t i = 0; i < 8; i++) 
-                if(l[i] != r[i]) return false;
+            for (size_t i = 0; i < 8; i++)
+                if (l[i] != r[i]) return false;
             return true;
         }
+        Char() {}
         Char(const char* c)
         {
             Charcpy(this->value, c);
