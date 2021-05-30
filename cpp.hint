@@ -1,5 +1,0 @@
-// 提示文件帮助 Visual Studio IDE 解释 Visual C++ 标识符,
-// 如函数和宏的名称。
-// 有关详细信息，请参见 https://go.microsoft.com/fwlink/?linkid=865984
-#define DEF_OBJECT_TYPE(NAME, BASE) private: class _Type : public Type { public: _Type(__c_inst_ptr_t __c_inst_ptr) : Type(__c_inst_ptr) { } virtual int get_structure_size() const override { return sizeof(NAME); } }; public: inline static Type* __meta_type() { static int id = -1; if (id == -1) { Type* t = new _Type(DynCreateInstance); id = _Type_Register(t, Type::GetType(RefString(_T(#BASE))), _T(#NAME) ); } return Type::GetType(id); } public: inline virtual Type* get_type() const { return __meta_type(); } private: using base = BASE;
-#define $ATTRIBUTE(class, target)
