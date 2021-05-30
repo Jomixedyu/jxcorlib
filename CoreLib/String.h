@@ -15,21 +15,45 @@
 
 //Encoding: UTF-8
 
-#define _T(str) u8##str
-#define NAMEOF(NAME) u8#NAME
+#define _T(str) str
+#define NAMEOF(NAME) #NAME
 
 namespace JxCoreLib
 {
     using String = std::string;
-    using CRString = const std::string&;
     using StringStream = std::stringstream;
 
     struct Char
     {
         char value[8]{ 0 };
-        String ToString() {
+
+        static void Charcpy(char* dest, const char* src)
+        {
+            for (size_t i = 0; i < 8; i++) dest[0] = src[0];
+        }
+        static bool Charcmp(const char* l, const char* r)
+        {
+            for (size_t i = 0; i < 8; i++) 
+                if(l[i] != r[i]) return false;
+            return true;
+        }
+        Char(const char* c)
+        {
+            Charcpy(this->value, c);
+        }
+        bool operator==(const Char& r)
+        {
+            return Charcmp(this->value, r.value);
+        }
+        bool operator!=(const Char& r)
+        {
+            return !Charcmp(this->value, r.value);
+        }
+        String ToString()
+        {
             return String(value);
         }
+
     };
 
     bool operator==(const Char& left, const String& right);
