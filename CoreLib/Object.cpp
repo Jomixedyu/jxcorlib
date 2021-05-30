@@ -40,14 +40,4 @@ namespace JxCoreLib
         return this->get_type()->get_name();
     }
 
-    bool Object::Equals(const Object* x, const Object* y)
-    {
-        return x == y;
-    }
-
-    bool Object::Equals(Object* target) const
-    {
-        return Object::Equals(this, target);
-    }
-
 }
