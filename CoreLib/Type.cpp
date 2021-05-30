@@ -70,7 +70,7 @@ namespace JxCoreLib
         return *g_types;
     }
 
-    Type::Type(int id, CRString name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size)
+    Type::Type(int id, const String& name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size)
         : id_(id), name_(name), base_(base), c_inst_ptr_(c_inst_ptr), structure_size_(structure_size)
     {
     }

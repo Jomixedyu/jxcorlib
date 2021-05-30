@@ -8,7 +8,7 @@ namespace JxCoreLib
 {
     struct CreateInstParamData
     {
-        void** data;
+        std::vector<Object*> data;
         int len;
     };
 
@@ -24,7 +24,7 @@ namespace JxCoreLib
         c_inst_ptr_t c_inst_ptr_;
 
     private:
-        Type(int id, CRString name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size);
+        Type(int id, const String& name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size);
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
     public:
@@ -53,10 +53,10 @@ namespace JxCoreLib
     };
 
 #ifdef CORELIB_AUTOINIT
-    DEF_TYPE_INIT(Type)
+    DEF_TYPE_INIT(Type);
 #endif
 
-        template<typename T>
+    template<typename T>
     inline Type* typeof()
     {
         return T::__meta_type();
