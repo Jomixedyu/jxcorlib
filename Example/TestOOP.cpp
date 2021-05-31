@@ -16,10 +16,13 @@ namespace space
     {
         DEF_OBJECT_META(space::DynCreateClass, Object);
         DECL_OBJECT_DYNCREATEINSTANCE() {
-            return new DynCreateClass;
+            int p1 = params.Get<int>(0);
+            return new DynCreateClass(p1);
         }
+    private:
+        int id;
     public:
-
+        DynCreateClass(int id) : id(id) {}
     };
 }
 
@@ -32,7 +35,7 @@ void TestOOP()
     cout << exm->get_type()->get_name() << endl;
 
     Type* dyn_type = Type::GetType("space::DynCreateClass");
-    Object* dyn = dyn_type->CreateInstance();
+    Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 
     cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
 
