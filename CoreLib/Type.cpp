@@ -1,6 +1,7 @@
 #include "Type.h"
 #include <vector>
 #include <iostream>
+#include "Exception.h"
 
 namespace JxCoreLib
 {
@@ -32,12 +33,21 @@ namespace JxCoreLib
         return false;
     }
 
-    Object* Type::CreateInstance(CreateInstParamData* v)
+    Object* Type::CrearteInstance()
     {
         if (this->c_inst_ptr_ == nullptr) {
-            throw std::exception("the creation method is not implemented");
+            throw NotImplementException(this->get_name() + ": the creation method is not implemented");
         }
-        return this->c_inst_ptr_(v);
+
+        return (*this->c_inst_ptr_)({});
+    }
+
+    Object* Type::CreateInstance(const ParameterPackage& v)
+    {
+        if (this->c_inst_ptr_ == nullptr) {
+            throw NotImplementException(this->get_name() + ": the creation method is not implemented");
+        }
+        return (*this->c_inst_ptr_)(v);
     }
 
     Type* Type::GetType(const String& str)
@@ -112,10 +122,10 @@ namespace JxCoreLib
         return i;
     }
 
-    int Type::Register(Object* (*dynCreate)(CreateInstParamData*), Type* base, const String& name, int structure_size)
+    int Type::Register(c_inst_ptr_t dyncreate, Type* base, const String& name, int structure_size)
     {
         int id = _Type_Get_Index();
-        Type* type = new Type(id, name, base, dynCreate, structure_size);
+        Type* type = new Type(id, name, base, dyncreate, structure_size);
 
         static String object = _T("Object");
 

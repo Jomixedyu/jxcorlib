@@ -2,20 +2,37 @@
 #define CORELIB_TYPE_H
 
 #include <vector>
+#include <any>
+
+#include "CoreLibConfig.h"
 #include "Object.h"
 
 namespace JxCoreLib
 {
-    struct CreateInstParamData
+    struct ParameterPackage
     {
-        std::vector<Object*> data;
-        int len;
+    private:
+        std::vector<std::any> data;
+    public:
+        ParameterPackage() {}
+        ParameterPackage(std::initializer_list<std::any> lst) : data(lst.begin(), lst.end()) { }
+        template<typename T>
+        void Add(const T& v) {
+            data.push_back(std::any(v));
+        }
+        template<typename T>
+        T Get(const int& index) const {
+            return std::any_cast<T>(data[index]);
+        }
+        size_t Count() const {
+            return data.size();
+        }
     };
 
     class Type : public Object
     {
     private:
-        using c_inst_ptr_t = Object * (*)(CreateInstParamData*);
+        using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
     private:
         int id_;
         String name_;
@@ -42,14 +59,15 @@ namespace JxCoreLib
         * 确定当前 Type 表示的类是否是从指定的 Type 表示的类派生的。
         */
         bool IsSubclassOf(Type* type);
-        Object* CreateInstance(CreateInstParamData* v = nullptr);
+        Object* CrearteInstance();
+        Object* CreateInstance(const ParameterPackage& v);
     public:
         static Type* GetType(const String& str);
         static Type* GetType(const char*& str);
         static Type* GetType(int id);
         static std::vector<Type*> GetTypes();
     public:
-        static int Register(Object* (*dynCreate)(CreateInstParamData*), Type* base, const String& name, int structure_size);
+        static int Register(c_inst_ptr_t dyncreate, Type* base, const String& name, int structure_size);
     };
 
 #ifdef CORELIB_AUTOINIT
@@ -72,6 +90,36 @@ namespace JxCoreLib
     {
         typeof<T>();
     }
+
+
 }
+//元数据声明
+#define DEF_OBJECT_META(NAME, BASE) \
+public: \
+    inline static Type* __meta_type() { \
+        static int id = -1; \
+        if (id == -1) { \
+            id = Type::Register(DynCreateInstance, typeof<BASE>(), NAMEOF(NAME), sizeof(NAME)); \
+        } \
+        return Type::GetType(id); \
+    } \
+public: \
+    inline virtual Type* get_type() const override { \
+        return __meta_type(); \
+    } \
+private: \
+    using base = BASE; \
+    inline static struct _TypeInit{ \
+        _TypeInit() \
+        { \
+            if constexpr(CORELIB_AUTOINIT) {\
+                NAME::__meta_type(); \
+            }\
+        } \
+    } _type_init_; \
+
+//反射工厂创建函数声明
+#define DECL_OBJECT_DYNCREATEINSTANCE() \
+    static Object* DynCreateInstance(const ParameterPackage& params)
 
 #endif
