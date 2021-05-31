@@ -5,14 +5,8 @@
 
 namespace JxCoreLib
 {
-    class _Object_Type : public Type
-    {
-        virtual Object* CreateInstance() {
-            return new Object;
-        }
-    };
 
-    static Object* CreateInstance(CreateInstParamData*)
+    static Object* CreateInstance(const ParameterPackage&)
     {
         return new Object;
     }
