@@ -66,5 +66,12 @@ namespace JxCoreLib
         DEF_EXCEPTION_CTOR(NotImplementException);
     };
 
+    class NullPointerException : public ExceptionBase
+    {
+        DEF_OBJECT_META(NullPointerException, ExceptionBase);
+        DECL_OBJECT_DYNCREATEINSTANCE();
+    public:
+        DEF_EXCEPTION_CTOR(NullPointerException);
+    };
 }
 #endif // !CORELIB_EXCEPTION_H
