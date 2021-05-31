@@ -36,6 +36,7 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
     - [Lambda](#lambda)
     - [成员函数](#成员函数)
     - [执行](#执行)
+  - [异常类](#异常类)
   - [调试工具](#调试工具)
 
 
@@ -99,7 +100,7 @@ virtual String ToString() const;
 ```
 其中get_type不应该被用户所重写，重写由提供的定义宏来重写。  
 而ToString是常用的格式化方法，类型选择性重写。  
-
+如果你想说：`嘿！不应该还有个Equals方法吗？`，那你可以直接选择对它的指针比较，或者解指针对它的值使用operator==进行比较。
 ## 声明类型
 首先需要引入头文件`CoreLib/OOPCore.h`，然后进行类型声明：
 ```c++
@@ -175,7 +176,10 @@ namespace space
     {
         DEF_OBJECT_META(space::DynCreateClass, Object);
         DECL_OBJECT_DYNCREATEINSTANCE() {
-            int p1 = params->Get<int>(0);
+            if (!params.Check<int>()) {
+                return nullptr;
+            }
+            int p1 = params.Get<int>(0);
             return new DynCreateClass(p1);
         }
     private:
@@ -185,11 +189,13 @@ namespace space
     };
 }
 ```
-`ParameterPackage`是用一个any数组的封装类，成员函数原型为：
+`ParameterPackage`是用一个any数组的封装类，公共的成员函数为：
 ```c++
 template<typename T> void Add(const T& v)；
 template<typename T> T Get(const int& index) const；
 size_t Count() const；
+bool IsEmpty() const;
+template<typename... TArgs> bool Check() const;
 ```
 可以从外部向ParameterPackage对象添加参数，在传入工厂函数内。
 ```c++
@@ -202,7 +208,16 @@ Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 static Object* DynCreateInstance(const ParameterPackage& params)
 ```
 可以使用宏或者自行声明，如果使用宏，则`params`是传入的预定义变量。
-使用时可以先对`params`的长度进行判断，如果参数长度
+使用时可以先对`params`的长度进行判断，也可以使用Check进行类型匹配判断
+```c++
+if(!params.Check<int>()) {
+    return nullptr;
+}
+```
+使用Get按索引获取指定类型的值：
+```c++
+int p1 = params.Get<int>(0);
+```
 
 ## 属性模板
 属性是一种以类访问字段的方式来执行方法，主要使用括号重载operator()和类型转换operator T来实现。  
@@ -290,6 +305,20 @@ e.RemoveListenerByInstance(this);
 e.Invoke();
 ```
 
+## 异常类
+类库内内置了以下基本异常类
+- ExceptionBase
+  - RangeOutException
+  - ArgumentException
+    - ArgumentNullException
+  - NotImplementException
+  - NullPointerException
+
+其中作为类库中异常类的基类`ExceptionBase`是一个多继承的类
+```c++
+class ExceptionBase : public std::exception, public Object
+```
+这是为了保证可以使用统一的`std::exception`来进行捕获，还可以使用Object的特性。
 ## 调试工具
 引入DebugTool.h即可使用 (c++20)
 ```c++
