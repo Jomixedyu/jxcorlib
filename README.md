@@ -27,6 +27,7 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
   - [Object类型](#object类型)
   - [声明类型](#声明类型)
   - [Type类型](#type类型)
+  - [反射工厂创建实例](#反射工厂创建实例)
   - [属性模板](#属性模板)
   - [事件发送器与委托](#事件发送器与委托)
     - [事件类](#事件类)
@@ -102,12 +103,15 @@ virtual String ToString() const;
 ## 声明类型
 首先需要引入头文件`CoreLib/OOPCore.h`，然后进行类型声明：
 ```c++
-class ExampleClass : public Object
+namespace space
 {
-    DEF_OBJECT_TYPE(ExampleClass, Object);
-public:
+    class ExampleClass : public Object
+    {
+        DEF_OBJECT_TYPE(space::ExampleClass, Object);
+    public:
 
-};
+    };
+}
 ```
 或者
 ```c++
@@ -161,6 +165,44 @@ Object* dyn = dyn_type->CreateInstance();
 
 cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
 ```
+
+## 反射工厂创建实例
+首先声明一个带构造函数的类型，并用`DEF_OBJECT_META`和`DECL_OBJECT_DYNCREATEINSTANCE`宏声明元数据和反射的工厂函数。
+```c++
+namespace space
+{
+    class DynCreateClass : public Object
+    {
+        DEF_OBJECT_META(space::DynCreateClass, Object);
+        DECL_OBJECT_DYNCREATEINSTANCE() {
+            int p1 = params->Get<int>(0);
+            return new DynCreateClass(p1);
+        }
+    private:
+        int id;
+    public:
+        DynCreateClass(int id) : id(id) {}
+    };
+}
+```
+`ParameterPackage`是用一个any数组的封装类，成员函数原型为：
+```c++
+template<typename T> void Add(const T& v)；
+template<typename T> T Get(const int& index) const；
+size_t Count() const；
+```
+可以从外部向ParameterPackage对象添加参数，在传入工厂函数内。
+```c++
+Type* dyn_type = Type::GetType("space::DynCreateClass");
+Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
+```
+然后`CreateInstance`将会调用对应类型的工厂函数。  
+其中`DECL_OBJECT_DYNCREATEINSTANCE`宏的原型为：
+```c++
+static Object* DynCreateInstance(const ParameterPackage& params)
+```
+可以使用宏或者自行声明，如果使用宏，则`params`是传入的预定义变量。
+使用时可以先对`params`的长度进行判断，如果参数长度
 
 ## 属性模板
 属性是一种以类访问字段的方式来执行方法，主要使用括号重载operator()和类型转换operator T来实现。  

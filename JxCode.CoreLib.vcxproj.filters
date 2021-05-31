@@ -45,6 +45,9 @@
     <ClCompile Include="Example\TestEvents.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CoreLib\Exception.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreLib\Events.hpp">
@@ -69,6 +72,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CoreLib\DebugTool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreLib\CoreLibConfig.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
