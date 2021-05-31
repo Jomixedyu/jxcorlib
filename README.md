@@ -24,6 +24,7 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
   - [String字符串](#string字符串)
     - [String与Char](#string与char)
     - [索引与访问](#索引与访问)
+    - [编码转换](#编码转换)
   - [Object类型](#object类型)
   - [声明类型](#声明类型)
   - [Type类型](#type类型)
@@ -92,6 +93,13 @@ StringIndexMapping(const String& str, size_t block_size);
 - 块越小，映射数据多，空间开销大，索引速度快。
 
 
+### 编码转换
+因为项目规范使用Unicode字符集，并且以UTF8以基础字符串，所以编码转换仅提供UTF8与UTF16的互相转换。
+```c++
+static std::u16string Utf8ToUtf16(const String& str);
+static String Utf16ToUtf8(const std::u16string& str);
+```
+
 ## Object类型
 Object类型有两个虚函数：
 ```c++
@@ -134,7 +142,6 @@ namespace space
 - 使用宏声明本类与基类，本类需要使用完全限定名，即从根空间开始带有命名空间的完整路径。
 - 使用DEF_OBJECT_TYPE进行声明时无法使用反射创建对象。
 - 使用DEF_OBJECT_META进行声明时则需要额外使用DECL_OBJECT_DYNCREATEINSTANCE来声明反射用的工厂函数。
-
 
 ## Type类型
 三个属性：运行时获取类型的大小，获取类名，获取类型的基类Type
