@@ -24,8 +24,22 @@ namespace JxCoreLib
         T Get(const int& index) const {
             return std::any_cast<T>(data[index]);
         }
-        size_t Count() const {
-            return data.size();
+        size_t Count() const { return data.size(); }
+        bool IsEmpty() const { return this->data.empty(); }
+    private:
+        template<int I>  bool _Check() const { return true; }
+
+        template<int I, typename T, typename... TArgs>
+        bool _Check() const {
+            return (this->data[I].type() == typeid(T)) & _Check<I + 1, TArgs...>();
+        }
+    public:
+        template<typename... TArgs>
+        bool Check() const {
+            if (this->data.size() != sizeof...(TArgs)) {
+                return false;
+            }
+            return _Check<0, TArgs...>();
         }
     };
 

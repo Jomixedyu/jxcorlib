@@ -16,6 +16,9 @@ namespace space
     {
         DEF_OBJECT_META(space::DynCreateClass, Object);
         DECL_OBJECT_DYNCREATEINSTANCE() {
+            if (!params.Check<int>()) {
+                return nullptr;
+            }
             int p1 = params.Get<int>(0);
             return new DynCreateClass(p1);
         }
