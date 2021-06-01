@@ -7,7 +7,7 @@
 #include "Exception.h"
 
 #define DEF_OBJECT_DYNCREATEINSTANCE_FUNCBODY \
-        throw (__meta_type()->get_name() + ", the creation method is not implemented");
+        throw JxCoreLib::NotImplementException(__meta_type()->get_name() + ", the creation method is not implemented");
 
 #define DEF_OBJECT_DYNCREATEINSTANCE() \
         static Object* DynCreateInstance(const ParameterPackage& params) \
