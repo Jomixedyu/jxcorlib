@@ -28,7 +28,12 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
   - [Object类型](#object类型)
   - [声明类型](#声明类型)
   - [Type类型](#type类型)
+    - [基本成员](#基本成员)
+    - [typeof<>()模板函数](#typeof模板函数)
+    - [样例](#样例)
   - [反射工厂创建实例](#反射工厂创建实例)
+    - [反射工厂的声明与使用](#反射工厂的声明与使用)
+    - [参数包与变长验证模板函数](#参数包与变长验证模板函数)
   - [属性模板](#属性模板)
   - [事件发送器与委托](#事件发送器与委托)
     - [事件类](#事件类)
@@ -144,6 +149,7 @@ namespace space
 - 使用DEF_OBJECT_META进行声明时则需要额外使用DECL_OBJECT_DYNCREATEINSTANCE来声明反射用的工厂函数。
 
 ## Type类型
+### 基本成员
 三个属性：运行时获取类型的大小，获取类名，获取类型的基类Type
 ```c++
 virtual int get_structure_size() const;
@@ -156,12 +162,22 @@ bool IsInstanceOfType(Object* object);
 bool IsSubclassOf(Type* type);
 static Type* GetType(const String& str);
 ```
-全局函数：获取类型的Type，指定Object是否为指定Type的实例（包含派生关系）
+全局函数istype：指定Object是否为指定Type的实例（包含派生关系）
 ```c++
-template<typename T>
-inline Type* typeof();
 inline bool istype(Object* obj, Type* type);
 ```
+### typeof<>()模板函数
+typeof的实现
+```c++
+template<typename T>
+inline Type* typeof()
+{
+    return T::__meta_type();
+}
+```
+typeof本质返回的是每个类型预定义宏创建的`__meta_type()`静态函数，虽然用户可以使用`__meta_type()`，但实际不应该使用，以免在以后的更新中有改动导致编译错误。
+
+### 样例
 样例：（类型声明在了[声明类型](#声明类型)中）
 ```c++
 ExampleClass* exm = new ExampleClass;
@@ -175,6 +191,7 @@ cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
 ```
 
 ## 反射工厂创建实例
+### 反射工厂的声明与使用
 首先声明一个带构造函数的类型，并用`DEF_OBJECT_META`和`DECL_OBJECT_DYNCREATEINSTANCE`宏声明元数据和反射的工厂函数。
 ```c++
 namespace space
@@ -183,11 +200,7 @@ namespace space
     {
         DEF_OBJECT_META(space::DynCreateClass, Object);
         DECL_OBJECT_DYNCREATEINSTANCE() {
-            if (!params.Check<int>()) {
-                return nullptr;
-            }
-            int p1 = params.Get<int>(0);
-            return new DynCreateClass(p1);
+            return new DynCreateClass(0);
         }
     private:
         int id;
@@ -196,6 +209,18 @@ namespace space
     };
 }
 ```
+可以使用类名来获取Type对象，使用`CreateInstance`创建
+```c++
+Type* dyn_type = Type::GetType("space::DynCreateClass");
+Object* dyn = dyn_type->CreateInstance();
+```
+创建后会执行反射工厂函数：
+其中`DECL_OBJECT_DYNCREATEINSTANCE`宏的原型为：
+```c++
+static Object* DynCreateInstance(const ParameterPackage& params)
+```
+可以使用该宏或者自行声明。
+### 参数包与变长验证模板函数
 `ParameterPackage`是用一个any数组的封装类，公共的成员函数为：
 ```c++
 template<typename T> void Add(const T& v)；
@@ -209,22 +234,26 @@ template<typename... TArgs> bool Check() const;
 Type* dyn_type = Type::GetType("space::DynCreateClass");
 Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 ```
-然后`CreateInstance`将会调用对应类型的工厂函数。  
-其中`DECL_OBJECT_DYNCREATEINSTANCE`宏的原型为：
-```c++
-static Object* DynCreateInstance(const ParameterPackage& params)
-```
-可以使用宏或者自行声明，如果使用宏，则`params`是传入的预定义变量。
-使用时可以先对`params`的长度进行判断，也可以使用Check进行类型匹配判断
+之后`CreateInstance`将会调用对应类型的工厂函数。  
+这里需要注意的是，即使外部并没有传入参数包，这里依然会得到一个空参数包的引用。  
+在使用外部传入的参数包时，可以使用`IsEmpty()`或者`Count()`进行简单的验证，
+也可以使用可变长参数模板来对参数类型进行验证：
 ```c++
 if(!params.Check<int>()) {
-    return nullptr;
+    return /*...*/;
+}
+if(!params.Check<int, float>()) {
+    return /*...*/;
+}
+if(!params.Check<int, float, String>()) {
+    return /*...*/;
 }
 ```
 使用Get按索引获取指定类型的值：
 ```c++
 int p1 = params.Get<int>(0);
 ```
+如果索引值不在正确的范围内，std::vector将会抛出错误，所以总应该在函数最开始的地方对传入的数据进行验证。
 
 ## 属性模板
 属性是一种以类访问字段的方式来执行方法，主要使用括号重载operator()和类型转换operator T来实现。  
