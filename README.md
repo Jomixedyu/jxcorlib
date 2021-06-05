@@ -61,13 +61,13 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
 ## String字符串
 ### String与Char
 ```c++
-String s("a word 一个字");
+string s("a word 一个字");
 ```
 字符串使用了别名引用，它的原型为
 ```c++
-using String = std::string;
+using string = std::string;
 ```
-由此可见String并不继承Object，这也是为了能和其他使用标准库的类库与工具可以同时使用。  
+由此可见string并不继承Object，这也是为了能和其他使用标准库的类库与工具可以同时使用。  
 项目应采用的所有字符串都应该是UTF8的，可以使用StringUtil来查询UTF8字符串长度，索引字符，编码转换。  
 因为UTF8是不定长的字符编码，所以在处理字符时采用的Char是一个八字节大小的类型。  
 ```c++

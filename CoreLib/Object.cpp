@@ -35,3 +35,8 @@ namespace JxCoreLib
     }
 
 }
+
+std::string std::to_string(JxCoreLib::Object* obj)
+{
+    return obj->ToString();
+}
