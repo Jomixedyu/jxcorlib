@@ -91,7 +91,7 @@ Char c2 = StringUtil::CharAt(s, 9, mapping);
 ```
 构造函数原型
 ```
-StringIndexMapping(const String& str, size_t block_size);
+StringIndexMapping(const string& str, size_t block_size);
 ```
 第一个参数是字符串引用，第二个参数是块的大小：  
 - 块越大，映射数据少，空间开销小，索引速度慢。
@@ -101,7 +101,7 @@ StringIndexMapping(const String& str, size_t block_size);
 ### 编码转换
 因为项目规范使用Unicode字符集，并且以UTF8以基础字符串，所以编码转换仅提供UTF8与UTF16的互相转换。
 ```c++
-static std::u16string Utf8ToUtf16(const String& str);
+static std::u16string Utf8ToUtf16(const string& str);
 static String Utf16ToUtf8(const std::u16string& str);
 ```
 
@@ -153,14 +153,14 @@ namespace space
 三个属性：运行时获取类型的大小，获取类名，获取类型的基类Type
 ```c++
 virtual int get_structure_size() const;
-const String& get_name() const;
+const string& get_name() const;
 Type* get_base() const;
 ```
 三个方法：判断实例是否为该类型，指定Type是否为本类的子类，按字符串获取指定类的Type。
 ```c++
 bool IsInstanceOfType(Object* object);
 bool IsSubclassOf(Type* type);
-static Type* GetType(const String& str);
+static Type* GetType(const string& str);
 ```
 全局函数istype：指定Object是否为指定Type的实例（包含派生关系）
 ```c++

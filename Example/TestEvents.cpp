@@ -1,10 +1,10 @@
-#include "../CoreLib/Events.hpp"
+ï»¿#include "../CoreLib/Events.hpp"
 
 #include <iostream>
 
 using namespace JxCoreLib;
 
-class TestEvents
+class TestEventsClass
 {
 public:
     int cb_index;
@@ -20,32 +20,36 @@ public:
         std::cout << "static_method callback" << std::endl;
     }
 
-    TestEvents()
+    TestEventsClass()
     {
-        //¾²Ì¬lambdaÁ½ÖÖ·½Ê½
+        //é™æ€lambdaä¸¤ç§æ–¹å¼
         e.AddListener([](int c) { std::cout << "static lambda1 callback" << std::endl; });
         e += [](int c) { std::cout << "static lambda2 callback" << std::endl; };
 
-        //¾²Ì¬º¯Êı
-        e += static_method; //»ò e.AddListener(static_method);
-        //e -= static_method; //»ò e.RemoveListener(static_method);
+        //é™æ€å‡½æ•°
+        e += static_method; //æˆ– e.AddListener(static_method);
+        //e -= static_method; //æˆ– e.RemoveListener(static_method);
 
-        //Ìí¼ÓÓëÒÆ³ı±Õ°ülambda·½·¨£¬¿ÉÒÔ°ÑlambdaÍĞ¹Ü¸øthis£¬È»ºó×îºó°´ÊµÀıÒÆ³ı
+        //æ·»åŠ ä¸ç§»é™¤é—­åŒ…lambdaæ–¹æ³•ï¼Œå¯ä»¥æŠŠlambdaæ‰˜ç®¡ç»™thisï¼Œç„¶åæœ€åæŒ‰å®ä¾‹ç§»é™¤
         this->cb_index = e.AddListener(this, [this](int c) { this->lambda_inst(c); });
         //e.RemoveListenerByIndex(this->cb_index);
 
-        //Ìí¼ÓÓëÒÆ³ı³ÉÔ±·½·¨
-        e.AddListener(this, &TestEvents::bind_inst);
+        //æ·»åŠ ä¸ç§»é™¤æˆå‘˜æ–¹æ³•
+        e.AddListener(this, &TestEventsClass::bind_inst);
         //e.RemoveListener(this, &EventTest::bind_inst);
 
-        //Ö´ĞĞ
+        //æ‰§è¡Œ
         e.Invoke(3);
 
-        //ÒÆ³ıÊµÀıÖĞµÄËùÓĞÊÂ¼ş
+        //ç§»é™¤å®ä¾‹ä¸­çš„æ‰€æœ‰äº‹ä»¶
         e.RemoveListenerByInstance(this);
 
-        //ÒÆ³ıÈ«²¿ÊÂ¼ş
+        //ç§»é™¤å…¨éƒ¨äº‹ä»¶
         e.RemoveAllListener();
     }
 };
 
+void TestEvents()
+{
+    TestEventsClass c;
+}

@@ -1,16 +1,21 @@
-#include "../CoreLib/String.h"
+ï»¿#include "../CoreLib/String.h"
+#include <cassert>
 
 using namespace JxCoreLib;
 
 void TestString()
 {
-    String s("a word Ò»¸ö×Ö");
+    string s("a word ä¸€ä¸ªå­—");
+    assert(StringUtil::Length(s) == 10);
+
     Char c = StringUtil::CharAt(s, 9);
+    assert(c == Char{ "å­—" });
 
     StringIndexMapping mapping(s, 2); // use cache
     Char c2 = StringUtil::CharAt(s, 9, mapping);
+    assert(c2 == Char{ "å­—" });
 
-    Char nc("¸ö");
+    Char nc("ä¸ª");
     nc.ToString();
-
+    assert(nc.ToString() == string("ä¸ª"));
 }
