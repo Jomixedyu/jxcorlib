@@ -3,7 +3,7 @@
 ![](https://img.shields.io/github/license/Jayshonyves/JxCode.CoreLib?style=for-the-badge)
 ![](https://img.shields.io/github/v/release/Jayshonyves/JxCode.CoreLib?style=for-the-badge)
 ![](https://img.shields.io/github/release-date/Jayshonyves/JxCode.CoreLib?style=for-the-badge)
-![](https://img.shields.io/badge/LangVer-C++20-blueviolet.svg?style=for-the-badge&logo=c%2B%2B)
+![](https://img.shields.io/badge/StdVer-C++20-blueviolet.svg?style=for-the-badge&logo=c%2B%2B)
 
 C++对象框架与常用函数库，实现部分运行期反射功能，在运行时判断类与对象继承关系，动态字符串创建类对象，拥有统一的类型基类、事件模板等实用工具。
 
