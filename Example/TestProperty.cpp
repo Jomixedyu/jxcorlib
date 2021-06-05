@@ -1,11 +1,12 @@
 ﻿#include "../CoreLib/Property.h"
 #include "../CoreLib/OOPCore.h"
+#include <cassert>
 
 using namespace JxCoreLib;
 
 class PropertyClass
 {
-private:
+public:
     int i_;
 public:
     Property<int> i{
@@ -23,6 +24,8 @@ void TestProperty()
     PropertyClass c;
     
     c.i = 3;
-    int num = c.i;
+    assert(c.i_ == 3);
 
+    int num = c.i;
+    assert(num == 3);
 }
