@@ -42,5 +42,4 @@ void TestOOP()
 
     cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
 
-
 }

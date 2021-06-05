@@ -26,4 +26,8 @@ namespace JxCoreLib
 #endif
 
 }
+namespace std
+{
+    string to_string(JxCoreLib::Object* obj);
+}
 #endif // !CORELIB_OBJECT_H
