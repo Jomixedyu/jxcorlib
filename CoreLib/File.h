@@ -5,7 +5,7 @@
 
 namespace JxCoreLib
 {
-    class File
+    class File final
     {
     public:
         static std::string ReadAllText(const std::string& path);

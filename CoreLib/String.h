@@ -23,7 +23,7 @@ namespace JxCoreLib
     using string = std::string;
     using StringStream = std::stringstream;
 
-    struct Char
+    struct Char final
     {
         char value[8]{ 0 };
         inline static int CharLen(const char* c)
@@ -81,7 +81,7 @@ namespace JxCoreLib
     string operator+(const Char& left, const string& right);
     string operator+(const string& left, const Char& right);
 
-    struct StringIndexMapping
+    struct StringIndexMapping final
     {
     private:
         size_t block_size_;
@@ -96,7 +96,7 @@ namespace JxCoreLib
         size_t GetBlockPos(const size_t& pos) const noexcept(false);
     };
 
-    class StringUtil
+    class StringUtil final
     {
     private:
         StringUtil() = delete;
