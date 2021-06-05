@@ -113,7 +113,17 @@ virtual String ToString() const;
 ```
 其中get_type不应该被用户所重写，重写由提供的定义宏来重写。  
 而ToString是常用的格式化方法，类型选择性重写。  
-如果你想说：`嘿！不应该还有个Equals方法吗？`，那你可以直接选择对它的指针比较，或者解指针对它的值使用operator==进行比较。
+如果你想说：`嘿！不应该还有个Equals方法吗？`，那你可以直接选择对它的指针比较，或者解指针对它的值使用operator==进行比较。  
+
+另外，增加了一个std::to_string的新重载，函数为
+```c++
+std::string std::to_string(JxCoreLib::Object* obj)
+{
+    return obj->ToString();
+}
+```
+该函数可以用标准库的字符串格式化函数对所有继承于Object的类型使用。
+
 ## 声明类型
 首先需要引入头文件`CoreLib/OOPCore.h`，然后进行类型声明：
 ```c++
@@ -167,15 +177,14 @@ static Type* GetType(const string& str);
 inline bool istype(Object* obj, Type* type);
 ```
 ### typeof<>()模板函数
-typeof的实现
+typeof是对Type::Typeof的调用，可以获取一个唯一的Type实例
 ```c++
 template<typename T>
 inline Type* typeof()
 {
-    return T::__meta_type();
+    return Type::Typeof<T>();
 }
 ```
-typeof本质返回的是每个类型预定义宏创建的`__meta_type()`静态函数，虽然用户可以使用`__meta_type()`，但实际不应该使用，以免在以后的更新中有改动导致编译错误。
 
 ### 样例
 样例：（类型声明在了[声明类型](#声明类型)中）
