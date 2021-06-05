@@ -1,3 +1,7 @@
+/*
+* require c++11
+*/
+
 #ifndef CORELIB_EVENTS_HPP
 #define CORELIB_EVENTS_HPP
 

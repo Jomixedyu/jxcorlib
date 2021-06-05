@@ -2,6 +2,7 @@
 * @Moudule     : String
 * @Date        : 2021/05/24
 * @Author      : Jx
+* @Require     : C++14
 * @Description : This file is part of JxCode.CoreLib : https://github.com/Jayshonyves
 */
 

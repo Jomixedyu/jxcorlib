@@ -4,7 +4,6 @@
 #include <vector>
 #include <any>
 
-#include "CoreLibConfig.h"
 #include "Object.h"
 
 //元数据声明
@@ -27,9 +26,7 @@ private: \
     static inline struct _TypeInit{ \
         _TypeInit() \
         { \
-            if constexpr(CORELIB_AUTOINIT) {\
-                NAME::__meta_type(); \
-            }\
+            NAME::__meta_type(); \
         } \
     } __type_init_; \
 
@@ -57,9 +54,11 @@ namespace JxCoreLib
         Type(int id, const string& name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size);
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
-#ifdef CORELIB_AUTOINIT
-        DEF_TYPE_INIT(Type);
-#endif
+        static inline struct _TypeInit {
+            _TypeInit() {
+                Type::__meta_type();
+            }
+        } _type_init_;
     public:
         static Type* __meta_type();
         virtual Type* get_type() const;
@@ -75,8 +74,8 @@ namespace JxCoreLib
         * 确定当前 Type 表示的类是否是从指定的 Type 表示的类派生的。
         */
         bool IsSubclassOf(Type* type);
-        Object* CrearteInstance();
-        Object* CreateInstance(const ParameterPackage& v);
+        [[nodiscard]] Object* CrearteInstance();
+        [[nodiscard]] Object* CreateInstance(const ParameterPackage& v);
     public:
         static Type* GetType(const string& str);
         static Type* GetType(const char*& str);

@@ -9,7 +9,6 @@ namespace JxCoreLib
     {
     public:
         static std::string ReadAllText(const std::string& path);
-
     };
 }
 

@@ -5,7 +5,7 @@
 
 namespace JxCoreLib
 {
-    static std::vector<Type*>* g_types;
+    static std::vector<Type*>* g_types = nullptr;
 
     string Type::ToString() const
     {
@@ -122,25 +122,35 @@ namespace JxCoreLib
         return i;
     }
 
+    static struct _ObjectTypeRegister
+    {
+        _ObjectTypeRegister()
+        {
+            g_types = new std::vector<Type*>;
+
+        }
+    };
 
     int Type::Register(c_inst_ptr_t dyncreate, Type* base, const string& name, int structure_size)
     {
         int id = _Type_Get_Index();
         Type* type = new Type(id, name, nullptr, dyncreate, structure_size);
 
-        static string object = _T("JxCoreLib::Object");
+        static bool is_init = false;
+        static _ObjectTypeRegister obj_reg;
 
-        if (base == nullptr && name != object) {
-            base = typeof<Object>();
+        if (is_init)
+        {
+            if (base == nullptr) {
+                base = typeof<Object>();
+            }
+            type->base_ = base;
+        }
+        else [[unlikely]]
+        {
+            is_init = true;
         }
 
-        type->base_ = base;
-
-        //std::cout << name << std::endl;
-
-        if (g_types == nullptr) {
-            g_types = new std::vector<Type*>;
-        }
         g_types->push_back(type);
         return id;
     }

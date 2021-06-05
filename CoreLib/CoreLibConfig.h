@@ -1,7 +1,0 @@
-﻿#ifndef CORELIB_CORELIBCONFIG_H
-#define CORELIB_CORELIBCONFIG_H
-
-//是否在程序启动时自动加载全部类型对象
-#define CORELIB_AUTOINIT 1 
-
-#endif // !CORELIB_CORELIBCONFIG_H
