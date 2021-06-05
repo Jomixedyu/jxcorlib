@@ -14,14 +14,18 @@ using namespace std;
 using namespace JxCoreLib;
 
 extern void TestOOP();
-
+extern void TestProperty();
+extern void TestString();
+extern void TestEvents();
 
 
 int main()
 {
     using namespace std;
     TestOOP();
-
+    TestProperty();
+    TestString();
+    TestEvents();
 
     return 0;
 

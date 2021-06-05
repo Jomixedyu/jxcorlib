@@ -1,4 +1,4 @@
-#include "../CoreLib/Property.h"
+﻿#include "../CoreLib/Property.h"
 #include "../CoreLib/OOPCore.h"
 
 using namespace JxCoreLib;

@@ -1,4 +1,4 @@
-#include "../CoreLib/OOPCore.h"
+﻿#include "../CoreLib/OOPCore.h"
 #include <iostream>
 
 using namespace JxCoreLib;

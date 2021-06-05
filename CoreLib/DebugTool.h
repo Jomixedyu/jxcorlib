@@ -1,4 +1,4 @@
-#ifndef CORELIB_DEBUGTOOL
+﻿#ifndef CORELIB_DEBUGTOOL
 #define CORELIB_DEBUGTOOL
 
 //C++20
