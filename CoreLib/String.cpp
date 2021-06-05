@@ -1,4 +1,4 @@
-#include "String.h"
+ï»¿#include "String.h"
 
 
 static inline uint16_t _ByteSwapInt16(uint16_t number)
@@ -13,7 +13,7 @@ static std::string _Utf16LEToUtf8(const std::u16string& u16str)
     std::u16string::size_type len = u16str.length();
 
     if (p[0] == 0xFEFF) {
-        p += 1;	//´øÓĞbom±ê¼Ç£¬ºóÒÆ
+        p += 1;	//å¸¦æœ‰bomæ ‡è®°ï¼Œåç§»
         len -= 1;
     }
 
@@ -24,41 +24,41 @@ static std::string _Utf16LEToUtf8(const std::u16string& u16str)
     for (std::u16string::size_type i = 0; i < len; ++i)
     {
         u16char = p[i];
-        // 1×Ö½Ú±íÊ¾²¿·Ö
+        // 1å­—èŠ‚è¡¨ç¤ºéƒ¨åˆ†
         if (u16char < 0x0080) {
             // u16char <= 0x007f
             // U- 0000 0000 ~ 0000 07ff : 0xxx xxxx
-            u8str.push_back((char)(u16char & 0x00FF));	// È¡µÍ8bit
+            u8str.push_back((char)(u16char & 0x00FF));	// å–ä½8bit
             continue;
         }
-        // 2 ×Ö½ÚÄÜ±íÊ¾²¿·Ö
+        // 2 å­—èŠ‚èƒ½è¡¨ç¤ºéƒ¨åˆ†
         if (u16char >= 0x0080 && u16char <= 0x07FF) {
             // * U-00000080 - U-000007FF:  110xxxxx 10xxxxxx
             u8str.push_back((char)(((u16char >> 6) & 0x1F) | 0xC0));
             u8str.push_back((char)((u16char & 0x3F) | 0x80));
             continue;
         }
-        // ´úÀíÏî¶Ô²¿·Ö(4×Ö½Ú±íÊ¾)
+        // ä»£ç†é¡¹å¯¹éƒ¨åˆ†(4å­—èŠ‚è¡¨ç¤º)
         if (u16char >= 0xD800 && u16char <= 0xDBFF) {
             // * U-00010000 - U-001FFFFF: 1111 0xxx 10xxxxxx 10xxxxxx 10xxxxxx
             uint32_t highSur = u16char;
             uint32_t lowSur = p[++i];
-            // ´Ó´úÀíÏî¶Ôµ½UNICODE´úÂëµã×ª»»
-            // 1¡¢´Ó¸ß´úÀíÏî¼õÈ¥0xD800£¬»ñÈ¡ÓĞĞ§10bit
-            // 2¡¢´ÓµÍ´úÀíÏî¼õÈ¥0xDC00£¬»ñÈ¡ÓĞĞ§10bit
-            // 3¡¢¼ÓÉÏ0x10000£¬»ñÈ¡UNICODE´úÂëµãÖµ
+            // ä»ä»£ç†é¡¹å¯¹åˆ°UNICODEä»£ç ç‚¹è½¬æ¢
+            // 1ã€ä»é«˜ä»£ç†é¡¹å‡å»0xD800ï¼Œè·å–æœ‰æ•ˆ10bit
+            // 2ã€ä»ä½ä»£ç†é¡¹å‡å»0xDC00ï¼Œè·å–æœ‰æ•ˆ10bit
+            // 3ã€åŠ ä¸Š0x10000ï¼Œè·å–UNICODEä»£ç ç‚¹å€¼
             uint32_t codePoint = highSur - 0xD800;
             codePoint <<= 10;
             codePoint |= lowSur - 0xDC00;
             codePoint += 0x10000;
-            // ×ªÎª4×Ö½ÚUTF8±àÂë±íÊ¾
+            // è½¬ä¸º4å­—èŠ‚UTF8ç¼–ç è¡¨ç¤º
             u8str.push_back((char)((codePoint >> 18) | 0xF0));
             u8str.push_back((char)(((codePoint >> 12) & 0x3F) | 0x80));
             u8str.push_back((char)(((codePoint >> 06) & 0x3F) | 0x80));
             u8str.push_back((char)((codePoint & 0x3F) | 0x80));
             continue;
         }
-        // 3 ×Ö½Ú±íÊ¾²¿·Ö
+        // 3 å­—èŠ‚è¡¨ç¤ºéƒ¨åˆ†
         {
             // * U-0000E000 - U-0000FFFF:  1110xxxx 10xxxxxx 10xxxxxx
             u8str.push_back((char)(((u16char >> 12) & 0x0F) | 0xE0));
@@ -77,55 +77,55 @@ static std::string _Utf16BEToUtf8(const std::u16string& u16str)
     const char16_t* p = u16str.data();
     std::u16string::size_type len = u16str.length();
     if (p[0] == 0xFEFF) {
-        p += 1;	//´øÓĞbom±ê¼Ç£¬ºóÒÆ
+        p += 1;	//å¸¦æœ‰bomæ ‡è®°ï¼Œåç§»
         len -= 1;
     }
 
-    // ¿ªÊ¼×ª»»
+    // å¼€å§‹è½¬æ¢
     std::string u8str;
     u8str.reserve(len * 2);
-    char16_t u16char;	//u16le µÍ×Ö½Ú´æµÍÎ»£¬¸ß×Ö½Ú´æ¸ßÎ»
+    char16_t u16char;	//u16le ä½å­—èŠ‚å­˜ä½ä½ï¼Œé«˜å­—èŠ‚å­˜é«˜ä½
     for (std::u16string::size_type i = 0; i < len; ++i) {
-        // ÕâÀï¼ÙÉèÊÇÔÚĞ¡¶ËĞòÏÂ(´ó¶ËĞò²»ÊÊÓÃ)
+        // è¿™é‡Œå‡è®¾æ˜¯åœ¨å°ç«¯åºä¸‹(å¤§ç«¯åºä¸é€‚ç”¨)
         u16char = p[i];
-        // ½«´ó¶ËĞò×ªÎªĞ¡¶ËĞò
+        // å°†å¤§ç«¯åºè½¬ä¸ºå°ç«¯åº
         u16char = _ByteSwapInt16(u16char);
 
-        // 1×Ö½Ú±íÊ¾²¿·Ö
+        // 1å­—èŠ‚è¡¨ç¤ºéƒ¨åˆ†
         if (u16char < 0x0080) {
             // u16char <= 0x007f
             // U- 0000 0000 ~ 0000 07ff : 0xxx xxxx
             u8str.push_back((char)(u16char & 0x00FF));
             continue;
         }
-        // 2 ×Ö½ÚÄÜ±íÊ¾²¿·Ö
+        // 2 å­—èŠ‚èƒ½è¡¨ç¤ºéƒ¨åˆ†
         if (u16char >= 0x0080 && u16char <= 0x07FF) {
             // * U-00000080 - U-000007FF:  110xxxxx 10xxxxxx
             u8str.push_back((char)(((u16char >> 6) & 0x1F) | 0xC0));
             u8str.push_back((char)((u16char & 0x3F) | 0x80));
             continue;
         }
-        // ´úÀíÏî¶Ô²¿·Ö(4×Ö½Ú±íÊ¾)
+        // ä»£ç†é¡¹å¯¹éƒ¨åˆ†(4å­—èŠ‚è¡¨ç¤º)
         if (u16char >= 0xD800 && u16char <= 0xDBFF) {
             // * U-00010000 - U-001FFFFF: 1111 0xxx 10xxxxxx 10xxxxxx 10xxxxxx
             uint32_t highSur = u16char;
             uint32_t lowSur = _ByteSwapInt16(p[++i]);
-            // ´Ó´úÀíÏî¶Ôµ½UNICODE´úÂëµã×ª»»
-            // 1¡¢´Ó¸ß´úÀíÏî¼õÈ¥0xD800£¬»ñÈ¡ÓĞĞ§10bit
-            // 2¡¢´ÓµÍ´úÀíÏî¼õÈ¥0xDC00£¬»ñÈ¡ÓĞĞ§10bit
-            // 3¡¢¼ÓÉÏ0x10000£¬»ñÈ¡UNICODE´úÂëµãÖµ
+            // ä»ä»£ç†é¡¹å¯¹åˆ°UNICODEä»£ç ç‚¹è½¬æ¢
+            // 1ã€ä»é«˜ä»£ç†é¡¹å‡å»0xD800ï¼Œè·å–æœ‰æ•ˆ10bit
+            // 2ã€ä»ä½ä»£ç†é¡¹å‡å»0xDC00ï¼Œè·å–æœ‰æ•ˆ10bit
+            // 3ã€åŠ ä¸Š0x10000ï¼Œè·å–UNICODEä»£ç ç‚¹å€¼
             uint32_t codePoint = highSur - 0xD800;
             codePoint <<= 10;
             codePoint |= lowSur - 0xDC00;
             codePoint += 0x10000;
-            // ×ªÎª4×Ö½ÚUTF8±àÂë±íÊ¾
+            // è½¬ä¸º4å­—èŠ‚UTF8ç¼–ç è¡¨ç¤º
             u8str.push_back((char)((codePoint >> 18) | 0xF0));
             u8str.push_back((char)(((codePoint >> 12) & 0x3F) | 0x80));
             u8str.push_back((char)(((codePoint >> 06) & 0x3F) | 0x80));
             u8str.push_back((char)((codePoint & 0x3F) | 0x80));
             continue;
         }
-        // 3 ×Ö½Ú±íÊ¾²¿·Ö
+        // 3 å­—èŠ‚è¡¨ç¤ºéƒ¨åˆ†
         {
             // * U-0000E000 - U-0000FFFF:  1110xxxx 10xxxxxx 10xxxxxx
             u8str.push_back((char)(((u16char >> 12) & 0x0F) | 0xE0));
@@ -152,72 +152,72 @@ static std::u16string _Utf8ToUtf16LE(const std::string& u8str, bool addbom, bool
     std::u16string u16str;
     u16str.reserve(u8str.size());
     if (addbom) {
-        u16str.push_back(0xFEFF);	//bom (×Ö½Ú±íÊ¾Îª FF FE)
+        u16str.push_back(0xFEFF);	//bom (å­—èŠ‚è¡¨ç¤ºä¸º FF FE)
     }
     std::string::size_type len = u8str.length();
 
     const unsigned char* p = (unsigned char*)(u8str.data());
-    // ÅĞ¶ÏÊÇ·ñ¾ßÓĞBOM(ÅĞ¶Ï³¤¶ÈĞ¡ÓÚ3×Ö½ÚµÄÇé¿ö)
+    // åˆ¤æ–­æ˜¯å¦å…·æœ‰BOM(åˆ¤æ–­é•¿åº¦å°äº3å­—èŠ‚çš„æƒ…å†µ)
     if (len > 3 && p[0] == 0xEF && p[1] == 0xBB && p[2] == 0xBF) {
         p += 3;
         len -= 3;
     }
 
     bool is_ok = true;
-    // ¿ªÊ¼×ª»»
+    // å¼€å§‹è½¬æ¢
     for (std::string::size_type i = 0; i < len; ++i) {
-        uint32_t ch = p[i];	// È¡³öUTF8ĞòÁĞÊ××Ö½Ú
+        uint32_t ch = p[i];	// å–å‡ºUTF8åºåˆ—é¦–å­—èŠ‚
         if ((ch & 0x80) == 0) {
-            // ×î¸ßÎ»Îª0£¬Ö»ÓĞ1×Ö½Ú±íÊ¾UNICODE´úÂëµã
+            // æœ€é«˜ä½ä¸º0ï¼Œåªæœ‰1å­—èŠ‚è¡¨ç¤ºUNICODEä»£ç ç‚¹
             u16str.push_back((char16_t)ch);
             continue;
         }
         switch (ch & 0xF0)
         {
-            case 0xF0: // 4 ×Ö½Ú×Ö·û, 0x10000 µ½ 0x10FFFF
+            case 0xF0: // 4 å­—èŠ‚å­—ç¬¦, 0x10000 åˆ° 0x10FFFF
             {
                 uint32_t c2 = p[++i];
                 uint32_t c3 = p[++i];
                 uint32_t c4 = p[++i];
-                // ¼ÆËãUNICODE´úÂëµãÖµ(µÚÒ»¸ö×Ö½ÚÈ¡µÍ3bit£¬ÆäÓàÈ¡6bit)
+                // è®¡ç®—UNICODEä»£ç ç‚¹å€¼(ç¬¬ä¸€ä¸ªå­—èŠ‚å–ä½3bitï¼Œå…¶ä½™å–6bit)
                 uint32_t codePoint = ((ch & 0x07U) << 18) | ((c2 & 0x3FU) << 12) | ((c3 & 0x3FU) << 6) | (c4 & 0x3FU);
                 if (codePoint >= 0x10000)
                 {
-                    // ÔÚUTF-16ÖĞ U+10000 µ½ U+10FFFF ÓÃÁ½¸ö16bitµ¥Ôª±íÊ¾, ´úÀíÏî¶Ô.
-                    // 1¡¢½«´úÂëµã¼õÈ¥0x10000(µÃµ½³¤¶ÈÎª20bitµÄÖµ)
-                    // 2¡¢high ´úÀíÏî ÊÇ½«ÄÇ20bitÖĞµÄ¸ß10bit¼ÓÉÏ0xD800(110110 00 00000000)
-                    // 3¡¢low  ´úÀíÏî ÊÇ½«ÄÇ20bitÖĞµÄµÍ10bit¼ÓÉÏ0xDC00(110111 00 00000000)
+                    // åœ¨UTF-16ä¸­ U+10000 åˆ° U+10FFFF ç”¨ä¸¤ä¸ª16bitå•å…ƒè¡¨ç¤º, ä»£ç†é¡¹å¯¹.
+                    // 1ã€å°†ä»£ç ç‚¹å‡å»0x10000(å¾—åˆ°é•¿åº¦ä¸º20bitçš„å€¼)
+                    // 2ã€high ä»£ç†é¡¹ æ˜¯å°†é‚£20bitä¸­çš„é«˜10bitåŠ ä¸Š0xD800(110110 00 00000000)
+                    // 3ã€low  ä»£ç†é¡¹ æ˜¯å°†é‚£20bitä¸­çš„ä½10bitåŠ ä¸Š0xDC00(110111 00 00000000)
                     codePoint -= 0x10000;
                     u16str.push_back((char16_t)((codePoint >> 10) | 0xD800U));
                     u16str.push_back((char16_t)((codePoint & 0x03FFU) | 0xDC00U));
                 }
                 else
                 {
-                    // ÔÚUTF-16ÖĞ U+0000 µ½ U+D7FF ÒÔ¼° U+E000 µ½ U+FFFF ÓëUnicode´úÂëµãÖµÏàÍ¬.
-                    // U+D800 µ½ U+DFFF ÊÇÎŞĞ§×Ö·û, ÎªÁË¼òµ¥Æğ¼û£¬ÕâÀï¼ÙÉèËü²»´æÔÚ(Èç¹ûÓĞÔò²»±àÂë)
+                    // åœ¨UTF-16ä¸­ U+0000 åˆ° U+D7FF ä»¥åŠ U+E000 åˆ° U+FFFF ä¸Unicodeä»£ç ç‚¹å€¼ç›¸åŒ.
+                    // U+D800 åˆ° U+DFFF æ˜¯æ— æ•ˆå­—ç¬¦, ä¸ºäº†ç®€å•èµ·è§ï¼Œè¿™é‡Œå‡è®¾å®ƒä¸å­˜åœ¨(å¦‚æœæœ‰åˆ™ä¸ç¼–ç )
                     u16str.push_back((char16_t)codePoint);
                 }
             }
             break;
-            case 0xE0: // 3 ×Ö½Ú×Ö·û, 0x800 µ½ 0xFFFF
+            case 0xE0: // 3 å­—èŠ‚å­—ç¬¦, 0x800 åˆ° 0xFFFF
             {
                 uint32_t c2 = p[++i];
                 uint32_t c3 = p[++i];
-                // ¼ÆËãUNICODE´úÂëµãÖµ(µÚÒ»¸ö×Ö½ÚÈ¡µÍ4bit£¬ÆäÓàÈ¡6bit)
+                // è®¡ç®—UNICODEä»£ç ç‚¹å€¼(ç¬¬ä¸€ä¸ªå­—èŠ‚å–ä½4bitï¼Œå…¶ä½™å–6bit)
                 uint32_t codePoint = ((ch & 0x0FU) << 12) | ((c2 & 0x3FU) << 6) | (c3 & 0x3FU);
                 u16str.push_back((char16_t)codePoint);
             }
             break;
-            case 0xD0: // 2 ×Ö½Ú×Ö·û, 0x80 µ½ 0x7FF
+            case 0xD0: // 2 å­—èŠ‚å­—ç¬¦, 0x80 åˆ° 0x7FF
             case 0xC0:
             {
                 uint32_t c2 = p[++i];
-                // ¼ÆËãUNICODE´úÂëµãÖµ(µÚÒ»¸ö×Ö½ÚÈ¡µÍ5bit£¬ÆäÓàÈ¡6bit)
+                // è®¡ç®—UNICODEä»£ç ç‚¹å€¼(ç¬¬ä¸€ä¸ªå­—èŠ‚å–ä½5bitï¼Œå…¶ä½™å–6bit)
                 uint32_t codePoint = ((ch & 0x1FU) << 12) | ((c2 & 0x3FU) << 6);
                 u16str.push_back((char16_t)codePoint);
             }
             break;
-            default:	// µ¥×Ö½Ú²¿·Ö(Ç°ÃæÒÑ¾­´¦Àí£¬ËùÒÔ²»Ó¦¸Ã½øÀ´)
+            default:	// å•å­—èŠ‚éƒ¨åˆ†(å‰é¢å·²ç»å¤„ç†ï¼Œæ‰€ä»¥ä¸åº”è¯¥è¿›æ¥)
                 is_ok = false;
                 break;
         }
@@ -250,44 +250,44 @@ static std::u16string _Utf8ToUtf16(const std::string& u8str)
 namespace JxCoreLib
 {
 
-    inline static bool _StringEqualsChar(const Char& c, const String& str)
+    inline static bool _StringEqualsChar(const Char& c, const string& str)
     {
         if (str.size() > 6 || str.empty()) {
             return false;
         }
         return Char::Charcmp(c.value, str.c_str());
     }
-    bool operator==(const Char& left, const String& right)
+    bool operator==(const Char& left, const string& right)
     {
         return _StringEqualsChar(left, right);
     }
 
-    bool operator==(const String& left, const Char& right)
+    bool operator==(const string& left, const Char& right)
     {
         return _StringEqualsChar(right, left);
     }
 
-    bool operator!=(const Char& left, const String& right)
+    bool operator!=(const Char& left, const string& right)
     {
         return _StringEqualsChar(left, right);
     }
 
-    bool operator!=(const String& left, const Char& right)
+    bool operator!=(const string& left, const Char& right)
     {
         return _StringEqualsChar(right, left);
     }
 
-    String operator+(const Char& left, const String& right)
+    string operator+(const Char& left, const string& right)
     {
         return left.value + right;
     }
 
-    String operator+(const String& left, const Char& right)
+    string operator+(const string& left, const Char& right)
     {
         return left + right.value;
     }
 
-    StringIndexMapping::StringIndexMapping(const String& str, size_t block_size) : block_size_(block_size)
+    StringIndexMapping::StringIndexMapping(const string& str, size_t block_size) : block_size_(block_size)
     {
         if (block_size <= 0) {
             throw std::invalid_argument("block_size");
@@ -334,7 +334,7 @@ namespace JxCoreLib
         return pos / this->block_size_;
     }
 
-    inline static size_t _StringSize(const String& str)
+    inline static size_t _StringSize(const string& str)
     {
         return str.size();
     }
@@ -346,7 +346,7 @@ namespace JxCoreLib
         return b;
     }
 
-    size_t StringUtil::CharLen(const String& str, const size_t& pos)
+    size_t StringUtil::CharLen(const string& str, const size_t& pos)
     {
         unsigned char c = static_cast<unsigned char>(str[pos]);
         if ((c & 0b10000000) == 0b00000000)  return 1;
@@ -358,15 +358,15 @@ namespace JxCoreLib
         throw std::invalid_argument("string is invalid");
     }
 
-    inline String StringUtil::Replace(const String& src, const String& find, const String& target)
+    inline string StringUtil::Replace(const string& src, const string& find, const string& target)
     {
-        String nstr(src);
+        string nstr(src);
         nstr.replace(nstr.find(find), _StringSize(find), target);
         return nstr;
     }
 
     inline static Char _StringUtil_At(
-        const String& src, const size_t& pos,
+        const string& src, const size_t& pos,
         const size_t& start_offset = 0, const size_t& start_char_count = 0)
     {
         size_t size = _StringSize(src);
@@ -383,7 +383,7 @@ namespace JxCoreLib
         }
         return ch;
     }
-    Char StringUtil::PosAt(const String& src, const size_t& bytepos)
+    Char StringUtil::PosAt(const string& src, const size_t& bytepos)
     {
         Char ch;
         size_t len = StringUtil::CharLen(src, bytepos);
@@ -393,24 +393,24 @@ namespace JxCoreLib
         }
         return ch;
     }
-    Char StringUtil::CharAt(const String& src, const size_t& charpos)
+    Char StringUtil::CharAt(const string& src, const size_t& charpos)
     {
         return _StringUtil_At(src, charpos);
     }
 
-    Char StringUtil::CharAt(const String& src, const size_t& charpos, const StringIndexMapping& mapping)
+    Char StringUtil::CharAt(const string& src, const size_t& charpos, const StringIndexMapping& mapping)
     {
         size_t block_size = mapping.get_block_size();
         if (block_size == 0) {
             return _StringUtil_At(src, charpos);
         }
         size_t block_pos = mapping.GetOffset(charpos);
-        //Î»ÖÃÇ°ÃæµÄÒÑÓĞ¿é*¿é´óĞ¡=¿ªÊ¼×Ö·ûÊı
+        //ä½ç½®å‰é¢çš„å·²æœ‰å—*å—å¤§å°=å¼€å§‹å­—ç¬¦æ•°
         size_t start_char_count = mapping.GetBlockPos(charpos) * mapping.get_block_size();
         return _StringUtil_At(src, charpos, mapping.GetOffset(charpos), start_char_count);
     }
 
-    inline static size_t _StringUtil_Length(const String& src, const size_t& start = 0)
+    inline static size_t _StringUtil_Length(const string& src, const size_t& start = 0)
     {
         size_t size = _StringSize(src);
         size_t index = start;
@@ -423,18 +423,18 @@ namespace JxCoreLib
         return len;
     }
 
-    size_t StringUtil::Length(const String& src)
+    size_t StringUtil::Length(const string& src)
     {
         return _StringUtil_Length(src);
     }
 
-    size_t StringUtil::Length(const String& src, const StringIndexMapping& mapping)
+    size_t StringUtil::Length(const string& src, const StringIndexMapping& mapping)
     {
         return (mapping.get_block_count() - 1) * mapping.get_block_size()
             + _StringUtil_Length(src, mapping.mapping[mapping.get_block_count() - 1]);
     }
 
-    std::vector<uint8_t> StringUtil::GetBytes(const String& str)
+    std::vector<uint8_t> StringUtil::GetBytes(const string& str)
     {
         std::vector<uint8_t> c;
         c.reserve(str.size());
@@ -442,12 +442,12 @@ namespace JxCoreLib
         return c;
     }
 
-    std::u16string StringUtil::Utf8ToUtf16(const String& str)
+    std::u16string StringUtil::Utf8ToUtf16(const string& str)
     {
         return _Utf8ToUtf16(str);
     }
 
-    String StringUtil::Utf16ToUtf8(const std::u16string& str)
+    string StringUtil::Utf16ToUtf8(const std::u16string& str)
     {
         return _Utf16ToUtf8(str);
     }
