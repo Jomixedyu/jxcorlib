@@ -42,7 +42,7 @@ namespace JxCoreLib
 {
     struct ParameterPackage;
 
-    class Type : public Object
+    class Type final : public Object
     {
     private:
         using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
