@@ -7,36 +7,36 @@
 
 #define DEF_EXCEPTION_CTOR(class) \
 class() {} \
-class(const String& message) : base(message) {}
+class(const string& message) : base(message) {}
 
 namespace JxCoreLib
 {
     class ExceptionBase : public std::exception, public Object
     {
-        DEF_OBJECT_META(ExceptionBase, Object);
+        DEF_OBJECT_META(JxCoreLib::ExceptionBase, Object);
         DECL_OBJECT_DYNCREATEINSTANCE();
     protected:
-        String message_;
-        mutable String whatcache_;
+        string message_;
+        mutable string whatcache_;
     public:
         ExceptionBase() {}
-        ExceptionBase(const String& message) : message_(message) {}
+        ExceptionBase(const string& message) : message_(message) {}
     public:
-        virtual String get_message() const {
+        virtual string get_message() const {
             return this->message_;
         }
         virtual const char* what() const override {
-            this->whatcache_ = String(this->get_type()->get_name() + _T(": ") + this->message_);
+            this->whatcache_ = string(this->get_type()->get_name() + _T(": ") + this->message_);
             return this->whatcache_.c_str();
         }
-        virtual String ToString() const override {
+        virtual string ToString() const override {
             return this->what();
         }
     };
 
     class RangeOutException : public ExceptionBase
     {
-        DEF_OBJECT_META(RangeOutException, ExceptionBase);
+        DEF_OBJECT_META(JxCoreLib::RangeOutException, ExceptionBase);
         DECL_OBJECT_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(RangeOutException)
@@ -44,7 +44,7 @@ namespace JxCoreLib
 
     class ArgumentException : public ExceptionBase
     {
-        DEF_OBJECT_META(ArgumentException, ExceptionBase);
+        DEF_OBJECT_META(JxCoreLib::ArgumentException, ExceptionBase);
         DECL_OBJECT_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(ArgumentException)
@@ -52,7 +52,7 @@ namespace JxCoreLib
 
     class ArgumentNullException : public ArgumentException
     {
-        DEF_OBJECT_META(ArgumentNullException, ArgumentException);
+        DEF_OBJECT_META(JxCoreLib::ArgumentNullException, ArgumentException);
         DECL_OBJECT_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(ArgumentNullException);
@@ -60,7 +60,7 @@ namespace JxCoreLib
 
     class NotImplementException : public ArgumentException
     {
-        DEF_OBJECT_META(NotImplementException, ArgumentException);
+        DEF_OBJECT_META(JxCoreLib::NotImplementException, ArgumentException);
         DECL_OBJECT_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(NotImplementException);
@@ -68,7 +68,7 @@ namespace JxCoreLib
 
     class NullPointerException : public ExceptionBase
     {
-        DEF_OBJECT_META(NullPointerException, ExceptionBase);
+        DEF_OBJECT_META(JxCoreLib::NullPointerException, ExceptionBase);
         DECL_OBJECT_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(NullPointerException);
