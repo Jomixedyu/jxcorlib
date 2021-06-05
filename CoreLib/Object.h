@@ -1,10 +1,11 @@
+/*
+* require c++17
+*/
+
 #ifndef CORELIB_OBJECT_H
 #define CORELIB_OBJECT_H
 
 #include "String.h"
-#include "CoreLibConfig.h"
-
-#define DEF_TYPE_INIT(NAME) static inline struct NAME##_Init{NAME##_Init(){NAME::__meta_type();}} __##NAME##_Init_;
 
 namespace JxCoreLib
 {
@@ -14,9 +15,11 @@ namespace JxCoreLib
     {
     private:
         static Type* __meta_type();
-#ifdef CORELIB_AUTOINIT
-        DEF_TYPE_INIT(Object);
-#endif
+        static inline struct _ObjectInit {
+            _ObjectInit() {
+                Object::__meta_type();
+            }
+        } _object_init_;
     public:
         virtual Type* get_type() const;
         friend class Type;
