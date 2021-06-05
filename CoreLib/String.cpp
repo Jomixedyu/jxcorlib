@@ -304,7 +304,7 @@ namespace JxCoreLib
         while (offset < len)
         {
             if ((index % block_size) == 0 || index == 0) {
-                this->mapping.push_back(offset);
+                this->mapping.push_back(static_cast<int>(offset));
             }
 
             offset += StringUtil::CharLen(str, offset);
