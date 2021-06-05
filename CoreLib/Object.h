@@ -4,7 +4,7 @@
 #include "String.h"
 #include "CoreLibConfig.h"
 
-#define DEF_TYPE_INIT(NAME) static struct NAME##_Init{NAME##_Init(){NAME::__meta_type();}} NAME##_Init_;
+#define DEF_TYPE_INIT(NAME) static struct NAME##_Init{NAME##_Init(){NAME::__meta_type();}} __##NAME##_Init_;
 
 namespace JxCoreLib
 {
@@ -18,7 +18,7 @@ namespace JxCoreLib
     public:
         Object();
     public:
-        virtual String ToString() const;
+        virtual string ToString() const;
     };
 
 #ifdef CORELIB_AUTOINIT

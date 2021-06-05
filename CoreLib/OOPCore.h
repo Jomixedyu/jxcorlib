@@ -6,12 +6,12 @@
 #include "Type.h"
 #include "Exception.h"
 
-#define DEF_OBJECT_DYNCREATEINSTANCE_FUNCBODY \
-        throw JxCoreLib::NotImplementException(__meta_type()->get_name() + ", the creation method is not implemented");
+#define DEF_OBJECT_DYNCREATEINSTANCE_FUNCBODY() \
+        throw JxCoreLib::NotImplementException(__meta_type()->get_name() + ", the creation method is not implemented")
 
 #define DEF_OBJECT_DYNCREATEINSTANCE() \
         static Object* DynCreateInstance(const ParameterPackage& params) \
-        { DEF_OBJECT_DYNCREATEINSTANCE_FUNCBODY }
+        { DEF_OBJECT_DYNCREATEINSTANCE_FUNCBODY(); }
 
 #define DEF_OBJECT_TYPE(name, base) \
         DEF_OBJECT_META(name, base) \

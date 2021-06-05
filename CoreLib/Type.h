@@ -1,4 +1,4 @@
-#ifndef CORELIB_TYPE_H
+ï»¿#ifndef CORELIB_TYPE_H
 #define CORELIB_TYPE_H
 
 #include <vector>
@@ -7,10 +7,106 @@
 #include "CoreLibConfig.h"
 #include "Object.h"
 
+//å…ƒæ•°æ®å£°æ˜
+#define DEF_OBJECT_META(NAME, BASE) \
+public: \
+    inline static Type* __meta_type() { \
+        static int id = -1; \
+        if (id == -1) { \
+            id = Type::Register(DynCreateInstance, typeof<BASE>(), NAMEOF(NAME), sizeof(NAME)); \
+        } \
+        return Type::GetType(id); \
+    } \
+public: \
+    inline virtual Type* get_type() const override { \
+        return __meta_type(); \
+    } \
+private: \
+    using base = BASE; \
+    inline static struct _TypeInit{ \
+        _TypeInit() \
+        { \
+            if constexpr(CORELIB_AUTOINIT) {\
+                NAME::__meta_type(); \
+            }\
+        } \
+    } _type_init_; \
+
+//åå°„å·¥å‚åˆ›å»ºå‡½æ•°å£°æ˜
+#define DECL_OBJECT_DYNCREATEINSTANCE() \
+    static Object* DynCreateInstance(const ParameterPackage& params)
+
+
 namespace JxCoreLib
 {
-    struct ParameterPackage
+    struct ParameterPackage;
+
+    class Type : public Object
     {
+    private:
+        using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
+    private:
+        int id_;
+        string name_;
+        int structure_size_;
+        Type* base_;
+        c_inst_ptr_t c_inst_ptr_;
+
+    private:
+        Type(int id, const string& name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size);
+        Type(const Type& r) = delete;
+        Type(Type&& r) = delete;
+    public:
+        static Type* __meta_type();
+        virtual Type* get_type() const;
+    public:
+        virtual int get_structure_size() const;
+        const string& get_name() const;
+        Type* get_base() const;
+    public:
+        virtual string ToString() const override;
+    public:
+        bool IsInstanceOfType(Object* object);
+        /*
+        * ç¡®å®šå½“å‰ Type è¡¨ç¤ºçš„ç±»æ˜¯å¦æ˜¯ä»æŒ‡å®šçš„ Type è¡¨ç¤ºçš„ç±»æ´¾ç”Ÿçš„ã€‚
+        */
+        bool IsSubclassOf(Type* type);
+        Object* CrearteInstance();
+        Object* CreateInstance(const ParameterPackage& v);
+    public:
+        static Type* GetType(const string& str);
+        static Type* GetType(const char*& str);
+        static Type* GetType(int id);
+        static std::vector<Type*> GetTypes();
+    public:
+        static int Register(c_inst_ptr_t dyncreate, Type* base, const string& name, int structure_size);
+    };
+
+#ifdef CORELIB_AUTOINIT
+    DEF_TYPE_INIT(Type);
+#endif
+
+    template<typename T>
+    inline Type* typeof()
+    {
+        return T::__meta_type();
+    }
+
+    inline bool istype(Object* obj, Type* type)
+    {
+        return type->IsInstanceOfType(obj);
+    }
+
+    template<typename T>
+    inline void RegisterClass()
+    {
+        typeof<T>();
+    }
+
+    struct ParameterPackage : public Object
+    {
+        DEF_OBJECT_META(JxCoreLib::ParameterPackage, Object);
+        DECL_OBJECT_DYNCREATEINSTANCE();
     private:
         std::vector<std::any> data;
     public:
@@ -42,98 +138,6 @@ namespace JxCoreLib
             return _Check<0, TArgs...>();
         }
     };
-
-    class Type : public Object
-    {
-    private:
-        using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
-    private:
-        int id_;
-        String name_;
-        int structure_size_;
-        Type* base_;
-        c_inst_ptr_t c_inst_ptr_;
-
-    private:
-        Type(int id, const String& name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size);
-        Type(const Type& r) = delete;
-        Type(Type&& r) = delete;
-    public:
-        static Type* __meta_type();
-        virtual Type* get_type() const;
-    public:
-        virtual int get_structure_size() const;
-        const String& get_name() const;
-        Type* get_base() const;
-    public:
-        virtual String ToString() const override;
-    public:
-        bool IsInstanceOfType(Object* object);
-        /*
-        * È·¶¨µ±Ç° Type ±íÊ¾µÄÀàÊÇ·ñÊÇ´ÓÖ¸¶¨µÄ Type ±íÊ¾µÄÀàÅÉÉúµÄ¡£
-        */
-        bool IsSubclassOf(Type* type);
-        Object* CrearteInstance();
-        Object* CreateInstance(const ParameterPackage& v);
-    public:
-        static Type* GetType(const String& str);
-        static Type* GetType(const char*& str);
-        static Type* GetType(int id);
-        static std::vector<Type*> GetTypes();
-    public:
-        static int Register(c_inst_ptr_t dyncreate, Type* base, const String& name, int structure_size);
-    };
-
-#ifdef CORELIB_AUTOINIT
-    DEF_TYPE_INIT(Type);
-#endif
-
-    template<typename T>
-    inline Type* typeof()
-    {
-        return T::__meta_type();
-    }
-
-    inline bool istype(Object* obj, Type* type)
-    {
-        return type->IsInstanceOfType(obj);
-    }
-
-    template<typename T>
-    inline void RegisterClass()
-    {
-        typeof<T>();
-    }
-
-
 }
-//ÔªÊı¾İÉùÃ÷
-#define DEF_OBJECT_META(NAME, BASE) \
-public: \
-    inline static Type* __meta_type() { \
-        static int id = -1; \
-        if (id == -1) { \
-            id = Type::Register(DynCreateInstance, typeof<BASE>(), NAMEOF(NAME), sizeof(NAME)); \
-        } \
-        return Type::GetType(id); \
-    } \
-public: \
-    inline virtual Type* get_type() const override { \
-        return __meta_type(); \
-    } \
-private: \
-    using base = BASE; \
-    inline static struct _TypeInit{ \
-        _TypeInit() \
-        { \
-            if constexpr(CORELIB_AUTOINIT) {\
-                NAME::__meta_type(); \
-            }\
-        } \
-    } _type_init_; \
-
-//·´Éä¹¤³§´´½¨º¯ÊıÉùÃ÷
-#define DECL_OBJECT_DYNCREATEINSTANCE() \
-    static Object* DynCreateInstance(const ParameterPackage& params)
 
 #endif
