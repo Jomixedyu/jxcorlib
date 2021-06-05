@@ -1,13 +1,13 @@
 #include "Type.h"
 #include <vector>
 #include <iostream>
-#include "Exception.h"
+#include "OOPCore.h"
 
 namespace JxCoreLib
 {
     static std::vector<Type*>* g_types;
 
-    String Type::ToString() const
+    string Type::ToString() const
     {
         return this->name_;
     }
@@ -50,7 +50,7 @@ namespace JxCoreLib
         return (*this->c_inst_ptr_)(v);
     }
 
-    Type* Type::GetType(const String& str)
+    Type* Type::GetType(const string& str)
     {
         for (auto& item : *g_types) {
             if (item->get_name() == str) {
@@ -80,7 +80,7 @@ namespace JxCoreLib
         return *g_types;
     }
 
-    Type::Type(int id, const String& name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size)
+    Type::Type(int id, const string& name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size)
         : id_(id), name_(name), base_(base), c_inst_ptr_(c_inst_ptr), structure_size_(structure_size)
     {
     }
@@ -89,7 +89,7 @@ namespace JxCoreLib
     {
         static int id = -1;
         if (id == -1) {
-            id = Type::Register(nullptr, typeof<Object>(), _T("Type"), sizeof(Type));
+            id = Type::Register(nullptr, typeof<Object>(), _T("JxCoreLib::Type"), sizeof(Type));
         }
         return Type::GetType(id);
     }
@@ -104,7 +104,7 @@ namespace JxCoreLib
         return sizeof(Type);
     }
 
-    const String& Type::get_name() const
+    const string& Type::get_name() const
     {
         return this->name_;
     }
@@ -122,12 +122,13 @@ namespace JxCoreLib
         return i;
     }
 
-    int Type::Register(c_inst_ptr_t dyncreate, Type* base, const String& name, int structure_size)
+
+    int Type::Register(c_inst_ptr_t dyncreate, Type* base, const string& name, int structure_size)
     {
         int id = _Type_Get_Index();
-        Type* type = new Type(id, name, base, dyncreate, structure_size);
+        Type* type = new Type(id, name, nullptr, dyncreate, structure_size);
 
-        static String object = _T("Object");
+        static string object = _T("JxCoreLib::Object");
 
         if (base == nullptr && name != object) {
             base = typeof<Object>();
@@ -142,5 +143,10 @@ namespace JxCoreLib
         }
         g_types->push_back(type);
         return id;
+    }
+
+    Object* ParameterPackage::DynCreateInstance(const ParameterPackage& params)
+    {
+        DEF_OBJECT_DYNCREATEINSTANCE_FUNCBODY();
     }
 }

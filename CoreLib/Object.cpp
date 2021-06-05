@@ -15,7 +15,7 @@ namespace JxCoreLib
     {
         static int id = -1;
         if (id == -1) {
-            id = Type::Register(CreateInstance, nullptr, _T("Object"), sizeof(Object));
+            id = Type::Register(CreateInstance, nullptr, _T("JxCoreLib::Object"), sizeof(Object));
         }
         return Type::GetType(id);
     }
@@ -29,7 +29,7 @@ namespace JxCoreLib
     {
     }
 
-    String Object::ToString() const
+    string Object::ToString() const
     {
         return this->get_type()->get_name();
     }
