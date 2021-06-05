@@ -1,5 +1,6 @@
 ﻿#include "../CoreLib/OOPCore.h"
 #include <iostream>
+#include <cassert>
 
 using namespace JxCoreLib;
 
@@ -35,11 +36,11 @@ void TestOOP()
 
     ExampleClass* exm = new ExampleClass;
 
-    cout << exm->get_type()->get_name() << endl;
+    assert(exm->get_type()->get_name() == string("ExampleClass"));
 
     Type* dyn_type = Type::GetType("space::DynCreateClass");
     Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
-
-    cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
+    
+    assert(dyn->get_type() == typeof<space::DynCreateClass>());
 
 }

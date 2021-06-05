@@ -9,8 +9,9 @@
 
 //元数据声明
 #define DEF_OBJECT_META(NAME, BASE) \
-public: \
-    inline static Type* __meta_type() { \
+private: \
+    friend class Type; \
+    static inline Type* __meta_type() { \
         static int id = -1; \
         if (id == -1) { \
             id = Type::Register(DynCreateInstance, typeof<BASE>(), NAMEOF(NAME), sizeof(NAME)); \
@@ -23,14 +24,14 @@ public: \
     } \
 private: \
     using base = BASE; \
-    inline static struct _TypeInit{ \
+    static inline struct _TypeInit{ \
         _TypeInit() \
         { \
             if constexpr(CORELIB_AUTOINIT) {\
                 NAME::__meta_type(); \
             }\
         } \
-    } _type_init_; \
+    } __type_init_; \
 
 //反射工厂创建函数声明
 #define DECL_OBJECT_DYNCREATEINSTANCE() \
@@ -56,6 +57,9 @@ namespace JxCoreLib
         Type(int id, const string& name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size);
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
+#ifdef CORELIB_AUTOINIT
+        DEF_TYPE_INIT(Type);
+#endif
     public:
         static Type* __meta_type();
         virtual Type* get_type() const;
@@ -80,16 +84,19 @@ namespace JxCoreLib
         static std::vector<Type*> GetTypes();
     public:
         static int Register(c_inst_ptr_t dyncreate, Type* base, const string& name, int structure_size);
+        template<typename T>
+        static inline Type* Typeof()
+        {
+            return T::__meta_type();
+        }
     };
 
-#ifdef CORELIB_AUTOINIT
-    DEF_TYPE_INIT(Type);
-#endif
+
 
     template<typename T>
     inline Type* typeof()
     {
-        return T::__meta_type();
+        return Type::Typeof<T>();
     }
 
     inline bool istype(Object* obj, Type* type)
