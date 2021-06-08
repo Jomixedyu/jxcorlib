@@ -36,6 +36,8 @@ void TestOOP()
 
     ExampleClass* exm = new ExampleClass;
 
+    assert(exm->get_type()->get_base() == typeof<Object>());
+
     assert(exm->get_type()->get_name() == string("ExampleClass"));
 
     Type* dyn_type = Type::GetType("space::DynCreateClass");
