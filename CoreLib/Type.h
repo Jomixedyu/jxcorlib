@@ -54,13 +54,13 @@ namespace JxCoreLib
         Type(int id, const string& name, Type* base, c_inst_ptr_t c_inst_ptr, int structure_size);
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
+        static Type* __meta_type();
         static inline struct _TypeInit {
             _TypeInit() {
                 Type::__meta_type();
             }
         } _type_init_;
     public:
-        static Type* __meta_type();
         virtual Type* get_type() const;
     public:
         virtual int get_structure_size() const;
