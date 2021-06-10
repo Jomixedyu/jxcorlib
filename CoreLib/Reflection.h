@@ -17,7 +17,7 @@ namespace JxCoreLib
     public:
 
     };
-    class FieldInfo : public MemberInfo
+    class FieldInfo final : public MemberInfo
     {
         CORELIB_DEF_TYPE(JxCoreLib::FieldInfo, MemberInfo);
     private:
@@ -27,7 +27,7 @@ namespace JxCoreLib
         void SetValue(const string& name, const std::any& value);
         std::any GetValue(const string& name) const;
     };
-    class MethodInfo : public MemberInfo
+    class MethodInfo final : public MemberInfo
     {
         CORELIB_DEF_TYPE(JxCoreLib::MethodInfo, MemberInfo);
     public:

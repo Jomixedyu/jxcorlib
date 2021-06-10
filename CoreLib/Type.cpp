@@ -15,8 +15,7 @@ namespace JxCoreLib
 
     bool Type::IsInstanceOfType(Object* object)
     {
-        Type* type = object->get_type();
-        return type->IsSubclassOf(this);
+        return object->get_type()->IsSubclassOf(this);
     }
 
     bool Type::IsSubclassOf(Type* type)

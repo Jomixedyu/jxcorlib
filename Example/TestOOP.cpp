@@ -25,5 +25,5 @@ void TestOOP()
 
     assert(typeof<Object>()->IsInstanceOfType(exm));
 
-    assert(typeof<Object>()->IsSubclassOf(typeof<ExampleClass>()));
+    assert(typeof<ExampleClass>()->IsSubclassOf(typeof<Object>()));
 }
