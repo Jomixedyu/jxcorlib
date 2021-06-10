@@ -145,12 +145,14 @@
     <ClCompile Include="CoreLib\Exception.cpp" />
     <ClCompile Include="CoreLib\File.cpp" />
     <ClCompile Include="CoreLib\Object.cpp" />
-    <ClCompile Include="CoreLib\OOPCore.h" />
+    <ClCompile Include="CoreLib\CoreLib.h" />
+    <ClCompile Include="CoreLib\Reflection.cpp" />
     <ClCompile Include="CoreLib\String.cpp" />
     <ClCompile Include="CoreLib\Type.cpp" />
     <ClCompile Include="Example\TestEvents.cpp" />
     <ClCompile Include="Example\TestOOP.cpp" />
     <ClCompile Include="Example\TestProperty.cpp" />
+    <ClCompile Include="Example\TestReflection.cpp" />
     <ClCompile Include="Example\TestString.cpp" />
     <ClCompile Include="JxCode.CoreLib.cpp" />
   </ItemGroup>
@@ -161,6 +163,7 @@
     <ClInclude Include="CoreLib\File.h" />
     <ClInclude Include="CoreLib\Object.h" />
     <ClInclude Include="CoreLib\Property.h" />
+    <ClInclude Include="CoreLib\Reflection.h" />
     <ClInclude Include="CoreLib\String.h" />
     <ClInclude Include="CoreLib\Type.h" />
   </ItemGroup>

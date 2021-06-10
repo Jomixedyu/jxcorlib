@@ -128,13 +128,13 @@ std::string std::to_string(JxCoreLib::Object* obj)
 该函数可以用标准库的字符串格式化函数对所有继承于Object的类型使用。
 
 ## 声明类型
-首先需要引入头文件`CoreLib/OOPCore.h`，然后进行类型声明：
+首先需要引入头文件`CoreLib/CoreLib.h`，然后进行类型声明：
 ```c++
 namespace space
 {
     class ExampleClass : public Object
     {
-        DEF_OBJECT_TYPE(space::ExampleClass, Object);
+        CORELIB_DEF_TYPE(space::ExampleClass, Object);
     public:
 
     };
@@ -146,8 +146,8 @@ namespace space
 {
     class DynCreateClass : public Object
     {
-        DEF_OBJECT_META(space::DynCreateClass, Object);
-        DECL_OBJECT_DYNCREATEINSTANCE() {
+        CORELIB_DEF_META(space::DynCreateClass, Object);
+        CORELIB_DECL_DYNCREATEINSTANCE() {
             return new DynCreateClass;
         }
     public:
@@ -158,8 +158,8 @@ namespace space
 声明类型需要遵循以下几点：
 - 继承于Object需要显式继承，并且总是public继承
 - 使用宏声明本类与基类，本类需要使用完全限定名，即从根空间开始带有命名空间的完整路径。
-- 使用DEF_OBJECT_TYPE进行声明时无法使用反射创建对象。
-- 使用DEF_OBJECT_META进行声明时则需要额外使用DECL_OBJECT_DYNCREATEINSTANCE来声明反射用的工厂函数。
+- 使用CORELIB_DEF_TYPE进行声明时无法使用反射创建对象。
+- 使用CORELIB_DEF_META进行声明时则需要额外使用CORELIB_DECL_DYNCREATEINSTANCE来声明反射用的工厂函数。
 
 ## Type类型
 ### 基本成员
@@ -204,14 +204,14 @@ cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
 
 ## 反射工厂创建实例
 ### 反射工厂的声明与使用
-首先声明一个带构造函数的类型，并用`DEF_OBJECT_META`和`DECL_OBJECT_DYNCREATEINSTANCE`宏声明元数据和反射的工厂函数。
+首先声明一个带构造函数的类型，并用`CORELIB_DEF_META`和`CORELIB_DECL_DYNCREATEINSTANCE`宏声明元数据和反射的工厂函数。
 ```c++
 namespace space
 {
     class DynCreateClass : public Object
     {
-        DEF_OBJECT_META(space::DynCreateClass, Object);
-        DECL_OBJECT_DYNCREATEINSTANCE() {
+        CORELIB_DEF_META(space::DynCreateClass, Object);
+        CORELIB_DECL_DYNCREATEINSTANCE() {
             return new DynCreateClass(0);
         }
     private:
@@ -227,7 +227,7 @@ Type* dyn_type = Type::GetType("space::DynCreateClass");
 Object* dyn = dyn_type->CreateInstance();
 ```
 创建后会执行反射工厂函数：
-其中`DECL_OBJECT_DYNCREATEINSTANCE`宏的原型为：
+其中`CORELIB_DECL_DYNCREATEINSTANCE`宏的原型为：
 ```c++
 static Object* DynCreateInstance(const ParameterPackage& params)
 ```

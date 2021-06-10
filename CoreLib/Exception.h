@@ -13,8 +13,8 @@ namespace JxCoreLib
 {
     class ExceptionBase : public std::exception, public Object
     {
-        DEF_OBJECT_META(JxCoreLib::ExceptionBase, Object);
-        DECL_OBJECT_DYNCREATEINSTANCE();
+        CORELIB_DEF_META(JxCoreLib::ExceptionBase, Object);
+        CORELIB_DECL_DYNCREATEINSTANCE();
     protected:
         string message_;
         mutable string whatcache_;
@@ -36,40 +36,40 @@ namespace JxCoreLib
 
     class RangeOutException : public ExceptionBase
     {
-        DEF_OBJECT_META(JxCoreLib::RangeOutException, ExceptionBase);
-        DECL_OBJECT_DYNCREATEINSTANCE();
+        CORELIB_DEF_META(JxCoreLib::RangeOutException, ExceptionBase);
+        CORELIB_DECL_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(RangeOutException)
     };
 
     class ArgumentException : public ExceptionBase
     {
-        DEF_OBJECT_META(JxCoreLib::ArgumentException, ExceptionBase);
-        DECL_OBJECT_DYNCREATEINSTANCE();
+        CORELIB_DEF_META(JxCoreLib::ArgumentException, ExceptionBase);
+        CORELIB_DECL_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(ArgumentException)
     };
 
     class ArgumentNullException : public ArgumentException
     {
-        DEF_OBJECT_META(JxCoreLib::ArgumentNullException, ArgumentException);
-        DECL_OBJECT_DYNCREATEINSTANCE();
+        CORELIB_DEF_META(JxCoreLib::ArgumentNullException, ArgumentException);
+        CORELIB_DECL_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(ArgumentNullException);
     };
 
     class NotImplementException : public ArgumentException
     {
-        DEF_OBJECT_META(JxCoreLib::NotImplementException, ArgumentException);
-        DECL_OBJECT_DYNCREATEINSTANCE();
+        CORELIB_DEF_META(JxCoreLib::NotImplementException, ArgumentException);
+        CORELIB_DECL_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(NotImplementException);
     };
 
     class NullPointerException : public ExceptionBase
     {
-        DEF_OBJECT_META(JxCoreLib::NullPointerException, ExceptionBase);
-        DECL_OBJECT_DYNCREATEINSTANCE();
+        CORELIB_DEF_META(JxCoreLib::NullPointerException, ExceptionBase);
+        CORELIB_DECL_DYNCREATEINSTANCE();
     public:
         DEF_EXCEPTION_CTOR(NullPointerException);
     };

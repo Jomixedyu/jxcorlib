@@ -27,7 +27,7 @@
     <ClCompile Include="CoreLib\Type.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CoreLib\OOPCore.h">
+    <ClCompile Include="CoreLib\CoreLib.h">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CoreLib\String.cpp">
@@ -46,6 +46,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CoreLib\Exception.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Example\TestReflection.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreLib\Reflection.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -72,6 +78,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CoreLib\DebugTool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreLib\Reflection.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

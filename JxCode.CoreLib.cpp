@@ -7,7 +7,7 @@
 #include <time.h>
 #include <bitset>
 
-#include "CoreLib/OOPCore.h"
+#include "CoreLib/CoreLib.h"
 #include "CoreLib/Property.h"
 
 using namespace std;

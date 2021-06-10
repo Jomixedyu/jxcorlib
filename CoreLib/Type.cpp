@@ -1,7 +1,8 @@
 #include "Type.h"
 #include <vector>
 #include <iostream>
-#include "OOPCore.h"
+
+#include "CoreLib.h"
 
 namespace JxCoreLib
 {
@@ -157,6 +158,6 @@ namespace JxCoreLib
 
     Object* ParameterPackage::DynCreateInstance(const ParameterPackage& params)
     {
-        DEF_OBJECT_DYNCREATEINSTANCE_FUNCBODY();
+        CORELIB_IMPL_DYNCREATEINSTANCE_FUNCBODY();
     }
 }

@@ -6,8 +6,8 @@
 
 #include "Object.h"
 
-//元数据声明
-#define DEF_OBJECT_META(NAME, BASE) \
+//声明CoreLib元数据
+#define CORELIB_DEF_META(NAME, BASE) \
 private: \
     friend class Type; \
     static inline Type* __meta_type() { \
@@ -31,9 +31,22 @@ private: \
     } __type_init_; \
 
 //反射工厂创建函数声明
-#define DECL_OBJECT_DYNCREATEINSTANCE() \
+#define CORELIB_DECL_DYNCREATEINSTANCE() \
     static Object* DynCreateInstance(const ParameterPackage& params)
 
+//反射工厂默认实现
+#define CORELIB_IMPL_DYNCREATEINSTANCE_FUNCBODY() \
+        throw JxCoreLib::NotImplementException(__meta_type()->get_name() + ", the creation method is not implemented")
+
+//反射工厂默认定义
+#define CORELIB_DEF_DYNCREATEINSTANCE() \
+        CORELIB_DECL_DYNCREATEINSTANCE() \
+        { CORELIB_IMPL_DYNCREATEINSTANCE_FUNCBODY(); }
+
+//定义CoreLib类型
+#define CORELIB_DEF_TYPE(name, base) \
+        CORELIB_DEF_META(name, base) \
+        CORELIB_DEF_DYNCREATEINSTANCE()
 
 namespace JxCoreLib
 {
@@ -111,23 +124,23 @@ namespace JxCoreLib
 
     struct ParameterPackage : public Object
     {
-        DEF_OBJECT_META(JxCoreLib::ParameterPackage, Object);
-        DECL_OBJECT_DYNCREATEINSTANCE();
+        CORELIB_DEF_META(JxCoreLib::ParameterPackage, Object);
+        CORELIB_DECL_DYNCREATEINSTANCE();
     private:
         std::vector<std::any> data;
     public:
         ParameterPackage() {}
         ParameterPackage(std::initializer_list<std::any> lst) : data(lst.begin(), lst.end()) { }
         template<typename T>
-        void Add(const T& v) {
+        inline void Add(const T& v) {
             data.push_back(std::any(v));
         }
         template<typename T>
-        T Get(const int& index) const {
+        inline T Get(const int& index) const {
             return std::any_cast<T>(data[index]);
         }
-        size_t Count() const { return data.size(); }
-        bool IsEmpty() const { return this->data.empty(); }
+        inline size_t Count() const { return data.size(); }
+        inline bool IsEmpty() const { return this->data.empty(); }
     private:
         template<int I>  bool _Check() const { return true; }
 
@@ -137,7 +150,7 @@ namespace JxCoreLib
         }
     public:
         template<typename... TArgs>
-        bool Check() const {
+        inline bool Check() const {
             if (this->data.size() != sizeof...(TArgs)) {
                 return false;
             }

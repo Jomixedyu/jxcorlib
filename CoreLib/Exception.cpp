@@ -1,5 +1,5 @@
 #include "Exception.h"
-#include "OOPCore.h"
+#include "CoreLib.h"
 
 #define DECL_FUNC_NAME() DynCreateInstance(const ParameterPackage& params)
 
