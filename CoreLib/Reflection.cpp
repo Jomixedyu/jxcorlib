@@ -1,37 +1,39 @@
-#include "Reflection.h"
+﻿#include "Reflection.h"
 
 
 namespace JxCoreLib
 {
-
-
-
-    Type* JxCoreLib::FieldInfo::GetFieldType() const
+    FieldInfo::FieldInfo(
+        const string& name, bool is_public, bool is_static,
+        Type* field_type, 
+        const std::function<std::any(void* p)> getter, 
+        std::function<void(void* p, const std::any& value)> setter
+    )
+        : base(name, is_public, is_static),
+        field_type_(field_type), getter_(getter), setter_(setter)
     {
-        return nullptr;
-    }
 
-    void FieldInfo::SetValue(const string& name, const std::any& value)
-    {
-    }
-
-    std::any FieldInfo::GetValue(const string& name) const
-    {
-        return std::any();
     }
 
 
-    std::vector<Type*> MethodInfo::GetParametersType() const
+    void FieldInfo::SetValue(void* instance, const std::any& value)
     {
-        return std::vector<Type*>();
+        this->setter_(instance, value);
     }
 
-    Type* MethodInfo::GetReturnType() const
+    std::any FieldInfo::GetValue(void* instance) const
     {
-        return nullptr;
+        return this->getter_(instance);
     }
 
-    std::any MethodInfo::Invoke(const ParameterPackage& params) const
+
+
+    MemberInfo::MemberInfo(const string& name, bool is_public, bool is_static)
+        : name_(name), is_public_(is_public), is_static_(is_static)
+    {
+    }
+
+    std::any MethodInfo::Invoke(void* instance, const ParameterPackage& params) const
     {
         return std::any();
     }

@@ -17,7 +17,7 @@ extern void TestOOP();
 extern void TestProperty();
 extern void TestString();
 extern void TestEvents();
-
+extern void TestReflection();
 
 int main()
 {
@@ -26,6 +26,7 @@ int main()
     TestProperty();
     TestString();
     TestEvents();
+    TestReflection();
 
     return 0;
 
