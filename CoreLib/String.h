@@ -114,6 +114,44 @@ namespace JxCoreLib
 
         static std::u16string Utf8ToUtf16(const string& str);
         static string Utf16ToUtf8(const std::u16string& str);
+
+        static size_t Size(const string& str) {
+            return str.size();
+        }
+        static size_t Size(const char* str) {
+            return ::strlen(str);
+        }
+    private:
+        static int _Sum() { return 0; }
+        template<typename T, typename... TArgs>
+        static int _Sum(T t, TArgs... args) { return t + _Sum(args...); }
+
+        static void _AppendStr(string& str, const char* nstr)
+        {
+            str.append(nstr);
+        }
+        static void _AppendStr(string& str, const string nstr)
+        {
+            str.append(nstr.c_str());
+        }
+
+        static void _Append(string& str) {}
+
+        template<typename T, typename... TArgs>
+        static void _Append(string& str, const T& nstr, TArgs&&... args)
+        {
+            _AppendStr(str, nstr);
+            _Append(str, args...);
+        }
+    public:
+        template<typename... T>
+        static string Concat(const T&... args) {
+            size_t size = _Sum(Size(args)...);
+            string str;
+            str.reserve(size + 1);
+            _Append(str, args...);
+            return str;
+        }
     };
 
 }
