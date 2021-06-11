@@ -11,7 +11,13 @@ public:
 
 };
 
+template<typename T>
+class TemplateClass : public Object
+{
+    CORELIB_DEF_TEMPLATE_TYPE(TemplateClass, Object, T);
+public:
 
+};
 
 void TestOOP()
 {
@@ -26,4 +32,11 @@ void TestOOP()
     assert(typeof<Object>()->IsInstanceOfType(exm));
 
     assert(typeof<ExampleClass>()->IsSubclassOf(typeof<Object>()));
+
+    TemplateClass<int>* templc = new TemplateClass<int>;
+    Type* templc_type = templc->get_type();
+    assert(templc_type->get_name() == "TemplateClass<int>");
+
+    assert(templc->get_type()->get_typeinfo() == typeid(TemplateClass<int>));
+
 }

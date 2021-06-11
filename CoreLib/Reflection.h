@@ -34,7 +34,7 @@ namespace JxCoreLib
 {
     class MemberInfo : public Object
     {
-        CORELIB_DEF_TYPE(JxCoreLib::MemberInfo, Object);
+        CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(JxCoreLib::MemberInfo, Object);
     protected:
         string name_;
         bool is_static_;
@@ -51,7 +51,7 @@ namespace JxCoreLib
 
     class FieldInfo final : public MemberInfo
     {
-        CORELIB_DEF_TYPE(JxCoreLib::FieldInfo, MemberInfo);
+        CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(JxCoreLib::FieldInfo, MemberInfo);
     protected:
         Type* field_type_;
 
@@ -78,7 +78,7 @@ namespace JxCoreLib
     //TODO
     class MethodInfo final : public MemberInfo
     {
-        CORELIB_DEF_TYPE(JxCoreLib::MethodInfo, MemberInfo);
+        CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(JxCoreLib::MethodInfo, MemberInfo);
     protected:
         std::vector<Type*> param_types_;
         Type* ret_type_;

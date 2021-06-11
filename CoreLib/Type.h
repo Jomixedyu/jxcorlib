@@ -5,6 +5,7 @@
 #include <map>
 #include <any>
 
+#include "String.h"
 #include "Object.h"
 
 #define CORELIB_DEF_BASETYPE_META(NAME, BASE) \
@@ -15,6 +16,7 @@ public: \
     } \
 private: \
     using base = BASE; \
+    using __corelib_curclass = NAME; \
     static inline struct _TypeInit{ \
         _TypeInit() \
         { \
@@ -33,35 +35,59 @@ private: \
             return Type::GetType(id); \
         } \
     CORELIB_DEF_BASETYPE_META(NAME, BASE)
-
+//声明CoreLib模板元数据
 #define CORELIB_DEF_TEMPLATE_META(NAME, BASE, ...) \
     private: \
         static inline Type* __meta_type() { \
             static int id = -1; \
             if (id == -1) { \
-                    id = Type::Register(DynCreateInstance, typeof<BASE>(), JxCoreLib::string(#NAME) + "<"+#__VA_ARGS__+">", typeid(NAME##<__VA_ARGS__>), sizeof(NAME##<__VA_ARGS__>)); \
+                    id = Type::Register(DynCreateInstance, typeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(__VA_ARGS__).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
             } \
             return Type::GetType(id); \
         } \
     CORELIB_DEF_BASETYPE_META(NAME, BASE)
 
 //反射工厂创建函数声明
-#define CORELIB_DECL_DYNCREATEINSTANCE() \
+#define CORELIB_DECL_DYNCINST() \
     static Object* DynCreateInstance(const ParameterPackage& params)
 
-//反射工厂默认实现
-#define CORELIB_IMPL_DYNCREATEINSTANCE_FUNCBODY() \
+//反射工厂没实现的函数体
+#define CORELIB_IMPL_DYNCINST_NOTIMPL_FUNCBODY() \
         throw JxCoreLib::NotImplementException(__meta_type()->get_name() + ", the creation method is not implemented")
 
-//反射工厂默认定义
-#define CORELIB_DEF_DYNCREATEINSTANCE() \
-        CORELIB_DECL_DYNCREATEINSTANCE() \
-        { CORELIB_IMPL_DYNCREATEINSTANCE_FUNCBODY(); }
+//反射工厂使用无参构造函数的默认函数体
+#define CORELIB_IMPL_DYNCINST_DEFAULTIMPL_FUNBODY() \
+        return new __corelib_curclass;
 
-//定义CoreLib类型
+//反射工厂没实现定义
+#define CORELIB_DEF_DYNCINST_NOTIMPL() \
+        CORELIB_DECL_DYNCINST() \
+        { CORELIB_IMPL_DYNCINST_NOTIMPL_FUNCBODY(); }
+
+//反射工厂默认定义
+#define CORELIB_DEF_DYNCINST() \
+        CORELIB_DECL_DYNCINST() \
+        { CORELIB_IMPL_DYNCINST_DEFAULTIMPL_FUNBODY(); }
+
+//定义没实现反射工厂函数的CoreLib类型
+#define CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(name, base) \
+        CORELIB_DEF_META(name, base) \
+        CORELIB_DEF_DYNCINST_NOTIMPL()
+
+//定义使用默认无参构造函数的CoreLib类型
 #define CORELIB_DEF_TYPE(name, base) \
         CORELIB_DEF_META(name, base) \
-        CORELIB_DEF_DYNCREATEINSTANCE()
+        CORELIB_DEF_DYNCINST()
+
+//定义没实现反射工厂函数的CoreLib模板类型
+#define CORELIB_DEF_TEMPLATE_TYPE_NOTIMPL_DYNCINST(name, base, ...) \
+        CORELIB_DEF_TEMPLATE_META(name, base, __VA_ARGS__) \
+        CORELIB_DEF_DYNCINST_NOTIMPL()
+
+//定义使用默认无参构造函数的CoreLib模板类型
+#define CORELIB_DEF_TEMPLATE_TYPE(name, base, ...) \
+        CORELIB_DEF_TEMPLATE_META(name, base, __VA_ARGS__) \
+        CORELIB_DEF_DYNCINST()
 
 namespace JxCoreLib
 {
@@ -173,7 +199,7 @@ namespace JxCoreLib
     struct ParameterPackage : public Object
     {
         CORELIB_DEF_META(JxCoreLib::ParameterPackage, Object);
-        CORELIB_DECL_DYNCREATEINSTANCE();
+        CORELIB_DECL_DYNCINST();
     private:
         std::vector<std::any> data;
     public:
@@ -221,7 +247,7 @@ namespace JxCoreLib
                 return Type::GetType(id);
     }
         CORELIB_DEF_BASETYPE_META(AnyPackage, Object)
-        CORELIB_DECL_DYNCREATEINSTANCE() { return nullptr; }
+        CORELIB_DECL_DYNCINST() { return nullptr; }
     public:
         T value;
         AnyPackage(const T& v) : value(v)
@@ -236,7 +262,7 @@ namespace JxCoreLib
     class Integer32 : public Object
     {
         CORELIB_DEF_META(JxCoreLib::Integer32, Object);
-        CORELIB_DECL_DYNCREATEINSTANCE();
+        CORELIB_DECL_DYNCINST();
     public:
         int32_t value;
         Integer32(int32_t value) : value(value) { }
@@ -246,7 +272,7 @@ namespace JxCoreLib
     class Single32 : public Object
     {
         CORELIB_DEF_META(JxCoreLib::Single32, Object);
-        CORELIB_DECL_DYNCREATEINSTANCE();
+        CORELIB_DECL_DYNCINST();
     public:
         float value;
         Single32(float value) : value(value) { }
@@ -256,7 +282,7 @@ namespace JxCoreLib
     class Double64 : public Object
     {
         CORELIB_DEF_META(JxCoreLib::Double64, Object);
-        CORELIB_DECL_DYNCREATEINSTANCE();
+        CORELIB_DECL_DYNCINST();
     public:
         double value;
         Double64(double value) : value(value) { }
@@ -266,7 +292,7 @@ namespace JxCoreLib
     class Boolean : public Object
     {
         CORELIB_DEF_META(JxCoreLib::Boolean, Object);
-        CORELIB_DECL_DYNCREATEINSTANCE();
+        CORELIB_DECL_DYNCINST();
     public:
         bool value;
         Boolean(bool value) : value(value) { }

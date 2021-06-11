@@ -170,7 +170,7 @@ namespace JxCoreLib
 
     Object* ParameterPackage::DynCreateInstance(const ParameterPackage& params)
     {
-        CORELIB_IMPL_DYNCREATEINSTANCE_FUNCBODY();
+        CORELIB_IMPL_DYNCINST_NOTIMPL_FUNCBODY();
     }
 
 
