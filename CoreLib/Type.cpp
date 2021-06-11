@@ -135,7 +135,7 @@ namespace JxCoreLib
         return i;
     }
 
-    static struct _ObjectTypeRegister
+    struct _ObjectTypeRegister
     {
         _ObjectTypeRegister()
         {
