@@ -24,22 +24,7 @@ namespace space
         DynCreateClass(int id) : id(id) {}
     };
 }
-#define CORELIB_REFL_DECL_FIELD(IsPublic, IsStatic, Class, Type, Name) \
-    static inline struct __corelib_refl_##Name \
-    { \
-        __corelib_refl_##Name() \
-        { \
-            ReflectionFieldBuilder::AddFieldInfo(typeof<Class>(), \
-                ReflectionFieldBuilder::CreateFieldInfo( \
-                #Name, IsPublic, IsStatic, typeof<std::remove_pointer<Type>::type>(), \
-                [](void* p) -> std::any { \
-                    return ((Class*)p)->Name; \
-                }, \
-                [](void* p, const std::any& value) { \
-                    ((Class*)p)->Name = std::any_cast<Type>(value); \
-                })); \
-        } \
-    } __corelib_refl_##Name##_;
+
 
 
 class DataModel : public Object
@@ -88,6 +73,5 @@ void TestReflection()
 
     Object* value = name_field->GetValue<Object*>(model);
     assert(value == obj);
-    
 
 }

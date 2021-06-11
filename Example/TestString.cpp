@@ -18,4 +18,7 @@ void TestString()
     Char nc("个");
     nc.ToString();
     assert(nc.ToString() == string("个"));
+
+    string str_concat = StringUtil::Concat("123", "abas", string("ddd"));
+    
 }
