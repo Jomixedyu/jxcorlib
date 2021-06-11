@@ -69,7 +69,7 @@ private: \
         CORELIB_DECL_DYNCINST() \
         { CORELIB_IMPL_DYNCINST_DEFAULTIMPL_FUNBODY(); }
 
-//定义没实现反射工厂函数的CoreLib类型
+//带有一个未实现（会抛出NotImplmentException异常）的反射工厂函数 的CoreLib类型
 #define CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(name, base) \
         CORELIB_DEF_META(name, base) \
         CORELIB_DEF_DYNCINST_NOTIMPL()
@@ -79,7 +79,7 @@ private: \
         CORELIB_DEF_META(name, base) \
         CORELIB_DEF_DYNCINST()
 
-//定义没实现反射工厂函数的CoreLib模板类型
+//带有一个未实现（会抛出NotImplmentException异常）的反射工厂函数 的CoreLib模板类型
 #define CORELIB_DEF_TEMPLATE_TYPE_NOTIMPL_DYNCINST(name, base, ...) \
         CORELIB_DEF_TEMPLATE_META(name, base, __VA_ARGS__) \
         CORELIB_DEF_DYNCINST_NOTIMPL()
@@ -231,33 +231,6 @@ namespace JxCoreLib
             return _Check<0, TArgs...>();
         }
     };
-    /*
-    template<typename T>
-    class AnyPackage : public Object
-    {
-        //CORELIB_DEF_TEMPLATE_META(JxCoreLib::AnyPackage, Object, T);
-    private:
-        static inline Type* __meta_type() {
-
-            static int id = -1;
-            if (id == -1) {
-
-                    id = Type::Register(DynCreateInstance, typeof<Object>(), JxCoreLib::string("JxCoreLib::AnyPackage") + "<" + "T" + ">", typeid(JxCoreLib::AnyPackage<T>), sizeof(JxCoreLib::AnyPackage<T>));
-            }
-                return Type::GetType(id);
-    }
-        CORELIB_DEF_BASETYPE_META(AnyPackage, Object)
-        CORELIB_DECL_DYNCINST() { return nullptr; }
-    public:
-        T value;
-        AnyPackage(const T& v) : value(v)
-        {
-            sizeof(AnyPackage<T>);
-            typeid(AnyPackage<T>);
-            typeid(AnyPackage);
-        }
-    };
-    */
 
     class Integer32 : public Object
     {

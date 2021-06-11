@@ -8,24 +8,39 @@
 #include <functional>
 #include <map>
 
-#define CORE_REFL_PUBLIC true
-#define CORE_REFL_NONPUBLIC false
-#define CORE_REFL_STATIC true
-#define CORE_REFL_NONSTATIC false
+#define CORELIB_REFL_PUBLIC true
+#define CORELIB_REFL_NONPUBLIC false
 
-#define CORELIB_REFL_DECL_FIELD(IsPublic, IsStatic, Class, Type, Name) \
+#define CORELIB_REFL_DECL_FIELD(IsPublic, Class, Type, Name) \
     static inline struct __corelib_refl_##Name \
     { \
         __corelib_refl_##Name() \
         { \
             ReflectionFieldBuilder::AddFieldInfo(typeof<Class>(), \
                 ReflectionFieldBuilder::CreateFieldInfo( \
-                #Name, IsPublic, IsStatic, typeof<std::remove_pointer<Type>::type>(), \
+                #Name, IsPublic, false, typeof<std::remove_pointer<Type>::type>(), \
                 [](void* p) -> std::any { \
                     return ((Class*)p)->Name; \
                 }, \
                 [](void* p, const std::any& value) { \
                     ((Class*)p)->Name = std::any_cast<Type>(value); \
+                })); \
+        } \
+    } __corelib_refl_##Name##_;
+
+#define COERLIB_REFL_DECL_FIELD_STATIC(IsPublic, Class, Type, Name) \
+    static inline struct __corelib_refl_##Name \
+    { \
+        __corelib_refl_##Name() \
+        { \
+            ReflectionFieldBuilder::AddFieldInfo(typeof<Class>(), \
+                ReflectionFieldBuilder::CreateFieldInfo( \
+                #Name, IsPublic, true, typeof<std::remove_pointer<Type>::type>(), \
+                [](void* p) -> std::any { \
+                    return Class::Name; \
+                }, \
+                [](void* p, const std::any& value) { \
+                    Class::Name = std::any_cast<Type>(value); \
                 })); \
         } \
     } __corelib_refl_##Name##_;

@@ -32,11 +32,11 @@ class DataModel : public Object
     CORELIB_DEF_TYPE(DataModel, Object);
 public:
 
-    CORELIB_REFL_DECL_FIELD(CORE_REFL_PUBLIC, CORE_REFL_NONSTATIC, DataModel, int, id);
+    CORELIB_REFL_DECL_FIELD(CORELIB_REFL_PUBLIC, DataModel, int, id);
     int id;
 
-    CORELIB_REFL_DECL_FIELD(CORE_REFL_PUBLIC, CORE_REFL_NONSTATIC, DataModel, Object*, name);
-    Object* name;
+    COERLIB_REFL_DECL_FIELD_STATIC(CORELIB_REFL_PUBLIC, DataModel, Object*, name);
+    static inline Object* name;
 };
 
 
@@ -69,9 +69,9 @@ void TestReflection()
     FieldInfo* name_field = model_type->get_fieldinfo("name");
 
     auto obj = new Object;
-    name_field->SetValue(model, obj);
+    name_field->SetValue(nullptr, obj);
 
-    Object* value = name_field->GetValue<Object*>(model);
+    Object* value = name_field->GetValue<Object*>(nullptr);
     assert(value == obj);
 
 }
