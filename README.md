@@ -28,15 +28,20 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
     - [String与Char](#string与char)
     - [索引与访问](#索引与访问)
     - [编码转换](#编码转换)
+    - [字符串工具类](#字符串工具类)
   - [Object类型](#object类型)
   - [声明类型](#声明类型)
+    - [普通类型声明](#普通类型声明)
+    - [模板类型声明](#模板类型声明)
   - [Type类型](#type类型)
     - [基本成员](#基本成员)
     - [typeof<>()模板函数](#typeof模板函数)
     - [样例](#样例)
-  - [反射工厂创建实例](#反射工厂创建实例)
-    - [反射工厂的声明与使用](#反射工厂的声明与使用)
+  - [反射系统](#反射系统)
+    - [反射工厂动态创建对象](#反射工厂动态创建对象)
     - [参数包与变长验证模板函数](#参数包与变长验证模板函数)
+    - [字段反射](#字段反射)
+    - [方法反射](#方法反射)
   - [属性模板](#属性模板)
   - [事件发送器与委托](#事件发送器与委托)
     - [事件类](#事件类)
@@ -108,6 +113,9 @@ static std::u16string Utf8ToUtf16(const string& str);
 static String Utf16ToUtf8(const std::u16string& str);
 ```
 
+### 字符串工具类
+StringUtil类中有常用的`Replace`，`Concat`等函数，具体查看`String.h`中的`StingUtil`类
+
 ## Object类型
 Object类型有两个虚函数：
 ```c++
@@ -128,6 +136,7 @@ std::string std::to_string(JxCoreLib::Object* obj)
 该函数可以用标准库的字符串格式化函数对所有继承于Object的类型使用。
 
 ## 声明类型
+### 普通类型声明
 首先需要引入头文件`CoreLib/CoreLib.h`，然后进行类型声明：
 ```c++
 namespace space
@@ -147,7 +156,7 @@ namespace space
     class DynCreateClass : public Object
     {
         CORELIB_DEF_META(space::DynCreateClass, Object);
-        CORELIB_DECL_DYNCREATEINSTANCE() {
+        CORELIB_DECL_DYNCINST() {
             return new DynCreateClass;
         }
     public:
@@ -155,11 +164,55 @@ namespace space
     };
 }
 ```
+`CORELIB_DEF_META`可以为声明该类型的元数据，除此之外还需要声明用于反射工厂的函数。  
+可以声明`CORELIB_DEF_META`元数据后声明`CORELIB_DECL_DYNCINST`并自行实现实现反射工厂函数体。  
+如果不想自己实现反射用工厂，可以使用以下类型声明宏替代。  
+- 定义一个未实现（会抛出NotImplmentException异常）的反射工厂函数 的CoreLib类型
+  - CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(name, base)
+- 定义使用默认无参构造函数的CoreLib类型
+  - CORELIB_DEF_TYPE(name, base)
+
+样例使用：
+```c++
+class ExampleClass : public Object
+{
+    CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(ExampleClass, Object);
+public:
+}
+```
+
 声明类型需要遵循以下几点：
 - 继承于Object需要显式继承，并且总是public继承
-- 使用宏声明本类与基类，本类需要使用完全限定名，即从根空间开始带有命名空间的完整路径。
-- 使用CORELIB_DEF_TYPE进行声明时无法使用反射创建对象。
-- 使用CORELIB_DEF_META进行声明时则需要额外使用CORELIB_DECL_DYNCREATEINSTANCE来声明反射用的工厂函数。
+- 使用宏定义本类与基类，本类需要使用完全限定名，即从根空间开始带有命名空间的完整路径。
+
+### 模板类型声明
+除了普通的类型定义外，模板类型使用的定义宏与一些细节是不一样的。  
+一个模板类的声明：
+```c++
+template<typename T>
+class TemplateClass : public Object
+{
+    CORELIB_DEF_TEMPLATE_META(TemplateClass, Object, T);
+    CORELIB_DECL_DYNCINST() {
+        return new TemplateClass<T>;
+    }
+public:
+
+};
+```
+在普通的类型中使用`CORELIB_DEF_META`去定义元数据，而模板类则使用`CORELIB_DEF_TEMPLATE_META`来定义。  
+类型定义的后面是一个变长列表，依次按照模板顺序添加。  
+同时，模板类型和普通类型一样，也有两个预制的类型定义宏：
+- 带有一个未实现（会抛出NotImplmentException异常）的反射工厂函数 的CoreLib模板类型
+  - CORELIB_DEF_TEMPLATE_TYPE_NOTIMPL_DYNCINST
+- 定义使用默认无参构造函数的CoreLib模板类型
+  - CORELIB_DEF_TEMPLATE_TYPE
+
+关于模板类型获取Type名字：
+当获取模板类型`Type*`的`get_name()`时，这个名字并不会像普通类型固定，而是会到编译器的影响。  
+如`TemplateClass<int>`类型，在msvc下，它的名字是`TemplateClass<int>`，而在gcc下则是`TemplateClass<i>`。  
+模板类中的名字取决于类型的`std::type_info`中的`name()`。  
+综上所述，因为编译器实现的不同，模板类的反射工厂无法通用。
 
 ## Type类型
 ### 基本成员
@@ -202,16 +255,16 @@ Object* dyn = dyn_type->CreateInstance();
 cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
 ```
 
-## 反射工厂创建实例
-### 反射工厂的声明与使用
-首先声明一个带构造函数的类型，并用`CORELIB_DEF_META`和`CORELIB_DECL_DYNCREATEINSTANCE`宏声明元数据和反射的工厂函数。
+## 反射系统
+### 反射工厂动态创建对象
+首先声明一个带构造函数的类型，并用`CORELIB_DEF_META`和`CORELIB_DECL_DYNCINST`宏声明元数据和反射的工厂函数。
 ```c++
 namespace space
 {
     class DynCreateClass : public Object
     {
         CORELIB_DEF_META(space::DynCreateClass, Object);
-        CORELIB_DECL_DYNCREATEINSTANCE() {
+        CORELIB_DECL_DYNCINST() {
             return new DynCreateClass(0);
         }
     private:
@@ -227,7 +280,7 @@ Type* dyn_type = Type::GetType("space::DynCreateClass");
 Object* dyn = dyn_type->CreateInstance();
 ```
 创建后会执行反射工厂函数：
-其中`CORELIB_DECL_DYNCREATEINSTANCE`宏的原型为：
+其中`CORELIB_DECL_DYNCINST`宏的原型为：
 ```c++
 static Object* DynCreateInstance(const ParameterPackage& params)
 ```
@@ -266,6 +319,61 @@ if(!params.Check<int, float, String>()) {
 int p1 = params.Get<int>(0);
 ```
 如果索引值不在正确的范围内，std::vector将会抛出错误，所以总应该在函数最开始的地方对传入的数据进行验证。
+### 字段反射
+字段反射定义宏：实例字段和静态字段的两种声明。
+```c++
+#define CORELIB_REFL_DECL_FIELD(IsPublic, Class, Type, Name)
+#define COERLIB_REFL_DECL_FIELD_STATIC(IsPublic, Class, Type, Name)
+```
+
+样例类：
+```c++
+class DataModel : public Object
+{
+    CORELIB_DEF_TYPE(DataModel, Object);
+public:
+
+    CORELIB_REFL_DECL_FIELD(CORELIB_REFL_PUBLIC, DataModel, int, id);
+    int id;
+
+    COERLIB_REFL_DECL_FIELD_STATIC(CORELIB_REFL_PUBLIC, DataModel, Object*, name);
+    static inline Object* name;
+};
+```
+前两个参数可以直接写bool的true或false，或使用提供的宏：
+```c++
+#define CORELIB_REFL_PUBLIC true
+#define CORELIB_REFL_NONPUBLIC false
+```
+
+字段的反射信息存在类型`Type`中，使用`get_fieldinfo(sting&)`来获取一个`FieldInfo*`。  
+```c++
+    Type* model_type = typeof<DataModel>();
+    //id : int
+    FieldInfo* id_field = model_type->get_fieldinfo("id");
+    assert(id_field->get_is_public() == true);
+    assert(id_field->get_is_static() == false);
+    assert(id_field->get_name() == "id");
+
+    id_field->SetValue(model, 3);
+
+    assert(id_field->GetValue(model).type() == typeid(int));
+    int id_value = id_field->GetValue<int>(model);
+    assert(id_value == 3);
+
+    //name : Object*
+    FieldInfo* name_field = model_type->get_fieldinfo("name");
+
+    auto obj = new Object;
+    name_field->SetValue(nullptr, obj);
+
+    Object* value = name_field->GetValue<Object*>(nullptr);
+    assert(value == obj);
+```
+使用GetValue和SetValue获取和设置值。如果字段为静态，实例指针传入nullptr即可。
+
+### 方法反射
+TODO
 
 ## 属性模板
 属性是一种以类访问字段的方式来执行方法，主要使用括号重载operator()和类型转换operator T来实现。  
