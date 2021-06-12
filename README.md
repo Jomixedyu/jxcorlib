@@ -11,7 +11,9 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
 - 拥有统一的基类型Object。
 - 拥有可以在运行时判断继承关系的Type。
 - 在main函数执行前完成所有初始化。
+- 类型全退化等模板工具
 - 当类型实现了重写了指定的方法后，可以从运行时反射创建改类型的对象。
+- 反射获取字段与方法信息，修改字段内容与执行方法。
 - UTF8字符串工具类，查找，替换，编码转换等实用功能
 - 事件委托类，接受静态函数，静态lambda，成员函数，闭包lambda监听器。
 - 属性模板，Get与Set访问器
@@ -36,7 +38,10 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
   - [Type类型](#type类型)
     - [基本成员](#基本成员)
     - [typeof<>()模板函数](#typeof模板函数)
+    - [内建类型的Type](#内建类型的type)
     - [样例](#样例)
+  - [类型工具](#类型工具)
+    - [类型全退化](#类型全退化)
   - [反射系统](#反射系统)
     - [反射工厂动态创建对象](#反射工厂动态创建对象)
     - [参数包与变长验证模板函数](#参数包与变长验证模板函数)
@@ -241,6 +246,29 @@ inline Type* typeof()
     return Type::Typeof<T>();
 }
 ```
+### 内建类型的Type
+一些内建类型拥有一个对应继承于Object的类型，同时也对应拥有一个Type。
+| 原类型   | 对应类型   |
+| -------- | ---------- |
+| int8_t   | Integer8   |
+| uint8_t  | UInteger8  |
+| int16_t  | Integer16  |
+| uint16_t | UInteger16 |
+| int32_t  | Integer32  |
+| uint32_t | UInteger32 |
+| int64_t  | Integer64  |
+| uint64_t | UInteger64 |
+| float    | Single32   |
+| double   | Double64   |
+| bool     | Boolean    |
+
+除了这些基础类型之外，还有一些其他的类型与之对应。
+| 原类型   | 对应类型 |
+| -------- | -------- |
+| string   | String   |
+| std::any | Any      |
+
+以上类型都会有一个typeof的偏特化版本，`typeof<int32_t>() == typeof<Integer32>()`
 
 ### 样例
 样例：（类型声明在了[声明类型](#声明类型)中）
@@ -254,6 +282,11 @@ Object* dyn = dyn_type->CreateInstance();
 
 cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
 ```
+
+## 类型工具
+### 类型全退化
+在类型系统中很多时候都需要用到原始类型，使用`JxCoreLib::fulldecay<>`来做全退化。  
+如`fulldecay<const int* const>::type`，`type`的类型为`int`。
 
 ## 反射系统
 ### 反射工厂动态创建对象
@@ -322,8 +355,8 @@ int p1 = params.Get<int>(0);
 ### 字段反射
 字段反射定义宏：实例字段和静态字段的两种声明。
 ```c++
-#define CORELIB_REFL_DECL_FIELD(IsPublic, Class, Type, Name)
-#define COERLIB_REFL_DECL_FIELD_STATIC(IsPublic, Class, Type, Name)
+#define CORELIB_REFL_DECL_FIELD(IS_PUBLIC, TYPE, NAME)
+#define COERLIB_REFL_DECL_FIELD_STATIC(IS_PUBLIC, TYPE, NAME)
 ```
 
 样例类：
@@ -332,15 +365,17 @@ class DataModel : public Object
 {
     CORELIB_DEF_TYPE(DataModel, Object);
 public:
+    CORELIB_REFL_DECL_FIELD(true, const int, id);
+    const int id = 0;
 
-    CORELIB_REFL_DECL_FIELD(CORELIB_REFL_PUBLIC, DataModel, int, id);
-    int id;
+    CORELIB_REFL_DEF_FIELD(true, bool, is_hunman) = true;
 
-    COERLIB_REFL_DECL_FIELD_STATIC(CORELIB_REFL_PUBLIC, DataModel, Object*, name);
+    COERLIB_REFL_DECL_FIELD_STATIC(true, Object*, name);
     static inline Object* name;
 };
+
 ```
-前两个参数可以直接写bool的true或false，或使用提供的宏：
+第一个参数指定该类型是否为public，可以直接写bool的true或false，或使用提供的宏：
 ```c++
 #define CORELIB_REFL_PUBLIC true
 #define CORELIB_REFL_NONPUBLIC false
@@ -348,11 +383,19 @@ public:
 
 字段的反射信息存在类型`Type`中，使用`get_fieldinfo(sting&)`来获取一个`FieldInfo*`。  
 ```c++
+    //field reflection
+    DataModel* model = new DataModel;
+
     Type* model_type = typeof<DataModel>();
-    //id : int
+
+    //id : const int
     FieldInfo* id_field = model_type->get_fieldinfo("id");
-    assert(id_field->get_is_public() == true);
-    assert(id_field->get_is_static() == false);
+    assert(id_field->is_public() == true);
+    assert(id_field->is_static() == false);
+    assert(id_field->is_const() == true);
+    assert(id_field->is_pointer() == false);
+    assert(id_field->is_reference() == false);
+    assert(id_field->is_volatile() == false);
     assert(id_field->get_name() == "id");
 
     id_field->SetValue(model, 3);
