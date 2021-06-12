@@ -168,8 +168,11 @@ namespace JxCoreLib
         friend class MethodInfo;
         friend class ReflectionFieldBuilder;
     public:
+        std::vector<MemberInfo*> get_memberinfos(bool is_public = true, bool is_static = false);
         MemberInfo* get_memberinfo(const string& name);
+        std::vector<FieldInfo*> get_fieldinfos(bool is_public = true, bool is_static = false);
         FieldInfo* get_fieldinfo(const string& name);
+        std::vector<MethodInfo*> get_methodinfos(bool is_public = true, bool is_static = false);
         MethodInfo* get_methodinfo(const string& name);
     private:
         std::map<string, MemberInfo*> member_infos_;

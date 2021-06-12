@@ -159,7 +159,7 @@ namespace JxCoreLib
             }
             type->base_ = base;
         }
-        else [[unlikely]]
+        else
         {
             is_init = true;
         }
@@ -174,6 +174,20 @@ namespace JxCoreLib
     }
 
 
+    std::vector<MemberInfo*> Type::get_memberinfos(bool is_public, bool is_static)
+    {
+        std::vector<MemberInfo*> v;
+        v.reserve(this->member_infos_.size());
+        for (auto& item : this->member_infos_)
+        {
+            if ((item.second->get_is_public() == is_public)
+                && (item.second->get_is_static() == is_static))
+            {
+                v.push_back(item.second);
+            }
+        }
+        return v;
+    }
 
     MemberInfo* Type::get_memberinfo(const string& name)
     {
@@ -182,6 +196,23 @@ namespace JxCoreLib
             return nullptr;
         }
         return this->member_infos_.at(name);
+    }
+
+    std::vector<FieldInfo*> Type::get_fieldinfos(bool is_public, bool is_static)
+    {
+        std::vector<FieldInfo*> v;
+        v.reserve(this->member_infos_.size());
+        for (auto& item : this->member_infos_)
+        {
+            if ((item.second->get_type()->IsSubclassOf(typeof<FieldInfo>()))
+                && (item.second->get_is_public() == is_public)
+                && (item.second->get_is_static() == is_static)
+                )
+            {
+                v.push_back(static_cast<FieldInfo*>(item.second));
+            }
+        }
+        return v;
     }
 
     FieldInfo* Type::get_fieldinfo(const string& name)
@@ -196,6 +227,23 @@ namespace JxCoreLib
             return nullptr;
         }
         return static_cast<FieldInfo*>(info);
+    }
+
+    std::vector<MethodInfo*> Type::get_methodinfos(bool is_public, bool is_static)
+    {
+        std::vector<MethodInfo*> v;
+        v.reserve(this->member_infos_.size());
+        for (auto& item : this->member_infos_)
+        {
+            if ((item.second->get_type()->IsSubclassOf(typeof<MethodInfo>()))
+                && (item.second->get_is_public() == is_public)
+                && (item.second->get_is_static() == is_static)
+                )
+            {
+                v.push_back(static_cast<MethodInfo*>(item.second));
+            }
+        }
+        return v;
     }
 
     MethodInfo* Type::get_methodinfo(const string& name)
