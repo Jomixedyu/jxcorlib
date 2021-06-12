@@ -27,7 +27,7 @@ namespace JxCoreLib
     struct Char final
     {
         char value[8]{ 0 };
-        inline static int CharLen(const char* c)
+        inline static int U8Length(const char* c)
         {
             for (int i = 0; i < 8; i++)
             {
@@ -43,8 +43,8 @@ namespace JxCoreLib
         }
         inline static bool Charcmp(const char* l, const char* r)
         {
-            int len = CharLen(l);
-            if (len != CharLen(r))
+            int len = U8Length(l);
+            if (len != U8Length(r))
             {
                 return false;
             }
@@ -103,8 +103,14 @@ namespace JxCoreLib
         StringUtil() = delete;
     public:
         static bool IsLittleEndian() noexcept;
-        static size_t CharLen(const string& str, const size_t& pos) noexcept(false);
-        static string Replace(const string& src, const string& find, const string& target);
+        static size_t U8Length(const string& str, const size_t& pos) noexcept(false);
+    private:
+        static string _Replace(const char* src, const char* oldstr, const char* newstr);
+    public:
+        template<typename TStr, typename Toldstr, typename Tnewstr>
+        static auto Replace(const TStr& src, const Toldstr& oldstr, const Tnewstr& newstr) {
+            return _Replace(ToCharPointer(src), ToCharPointer(oldstr), ToCharPointer(newstr));
+        }
         static Char PosAt(const string& src, const size_t& bytepos);
         static Char CharAt(const string& src, const size_t& charpos);
         static Char CharAt(const string& src, const size_t& charpos, const StringIndexMapping& mapping);
@@ -115,6 +121,12 @@ namespace JxCoreLib
         static std::u16string Utf8ToUtf16(const string& str);
         static string Utf16ToUtf8(const std::u16string& str);
 
+        static const char* ToCharPointer(const char* c) {
+            return c;
+        }
+        static const char* ToCharPointer(const string& str) {
+            return str.c_str();
+        }
         static size_t Size(const string& str) {
             return str.size();
         }

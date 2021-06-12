@@ -307,7 +307,7 @@ namespace JxCoreLib
                 this->mapping.push_back(static_cast<int>(offset));
             }
 
-            offset += StringUtil::CharLen(str, offset);
+            offset += StringUtil::U8Length(str, offset);
             index++;
         }
     }
@@ -334,11 +334,6 @@ namespace JxCoreLib
         return pos / this->block_size_;
     }
 
-    inline static size_t _StringSize(const string& str)
-    {
-        return str.size();
-    }
-
     bool StringUtil::IsLittleEndian() noexcept
     {
         static int i = 1;
@@ -346,7 +341,7 @@ namespace JxCoreLib
         return b;
     }
 
-    size_t StringUtil::CharLen(const string& str, const size_t& pos)
+    size_t StringUtil::U8Length(const string& str, const size_t& pos)
     {
         unsigned char c = static_cast<unsigned char>(str[pos]);
         if ((c & 0b10000000) == 0b00000000)  return 1;
@@ -358,10 +353,15 @@ namespace JxCoreLib
         throw std::invalid_argument("string is invalid");
     }
 
-    inline string StringUtil::Replace(const string& src, const string& find, const string& target)
+    string StringUtil::_Replace(const char* src, const char* oldstr, const char* newstr)
     {
         string nstr(src);
-        nstr.replace(nstr.find(find), _StringSize(find), target);
+        size_t pos = 0;
+        while ((pos <= nstr.size()) && ((pos = nstr.find(oldstr, pos)) != nstr.npos))
+        {
+            nstr.replace(pos, Size(oldstr), newstr);
+            pos += Size(newstr);
+        }
         return nstr;
     }
 
@@ -369,14 +369,14 @@ namespace JxCoreLib
         const string& src, const size_t& pos,
         const size_t& start_offset = 0, const size_t& start_char_count = 0)
     {
-        size_t size = _StringSize(src);
+        size_t size = StringUtil::Size(src);
         size_t offset = start_offset;
         for (size_t i = start_char_count; i < pos; i++)
         {
-            offset += StringUtil::CharLen(src, offset);
+            offset += StringUtil::U8Length(src, offset);
         }
         Char ch;
-        size_t len = StringUtil::CharLen(src, offset);
+        size_t len = StringUtil::U8Length(src, offset);
         for (size_t i = 0; i < len; i++)
         {
             ch.value[i] = src[offset + i];
@@ -386,7 +386,7 @@ namespace JxCoreLib
     Char StringUtil::PosAt(const string& src, const size_t& bytepos)
     {
         Char ch;
-        size_t len = StringUtil::CharLen(src, bytepos);
+        size_t len = StringUtil::U8Length(src, bytepos);
         for (size_t i = 0; i < len; i++)
         {
             ch.value[i] = src[bytepos + i];
@@ -410,14 +410,14 @@ namespace JxCoreLib
         return _StringUtil_At(src, charpos, mapping.GetOffset(charpos), start_char_count);
     }
 
-    inline static size_t _StringUtil_Length(const string& src, const size_t& start = 0)
+    inline static size_t _StringUtil_U8Length_Internal(const string& src, const size_t& start = 0)
     {
-        size_t size = _StringSize(src);
+        size_t size = StringUtil::Size(src);
         size_t index = start;
         size_t len = 0;
 
         while (index < size) {
-            index += StringUtil::CharLen(src, index);
+            index += StringUtil::U8Length(src, index);
             len++;
         }
         return len;
@@ -425,13 +425,13 @@ namespace JxCoreLib
 
     size_t StringUtil::Length(const string& src)
     {
-        return _StringUtil_Length(src);
+        return _StringUtil_U8Length_Internal(src);
     }
 
     size_t StringUtil::Length(const string& src, const StringIndexMapping& mapping)
     {
         return (mapping.get_block_count() - 1) * mapping.get_block_size()
-            + _StringUtil_Length(src, mapping.mapping[mapping.get_block_count() - 1]);
+            + _StringUtil_U8Length_Internal(src, mapping.mapping[mapping.get_block_count() - 1]);
     }
 
     std::vector<uint8_t> StringUtil::GetBytes(const string& str)

@@ -19,6 +19,9 @@ void TestString()
     nc.ToString();
     assert(nc.ToString() == string("个"));
 
-    string str_concat = StringUtil::Concat("123", "abas", string("ddd"));
-    
+    string str_concat = StringUtil::Concat("123", "ab", string("ba"));
+    assert(str_concat == "123abba");
+
+    string newstr = StringUtil::Replace(str_concat, "ab", "b");
+    assert(newstr == "123bba");
 }
