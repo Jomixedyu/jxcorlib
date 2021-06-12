@@ -134,9 +134,9 @@ namespace JxCoreLib
             return ::strlen(str);
         }
     private:
-        static int _Sum() { return 0; }
+        static auto _Sum() { return 0; }
         template<typename T, typename... TArgs>
-        static int _Sum(T t, TArgs... args) { return t + _Sum(args...); }
+        static auto _Sum(T t, TArgs... args) { return t + _Sum(args...); }
 
         static void _AppendStr(string& str, const char* nstr)
         {
