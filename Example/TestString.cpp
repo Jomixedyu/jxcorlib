@@ -22,6 +22,6 @@ void TestString()
     string str_concat = StringUtil::Concat("123", "ab", string("ba"));
     assert(str_concat == "123abba");
 
-    string newstr = StringUtil::Replace(str_concat, "ab", "b");
-    assert(newstr == "123bba");
+    string newstr = StringUtil::Replace(str_concat, "ab", "a");
+    assert(newstr == "123aba");
 }
