@@ -31,11 +31,12 @@ class DataModel : public Object
 {
     CORELIB_DEF_TYPE(DataModel, Object);
 public:
+    CORELIB_REFL_DECL_FIELD(true, const int, id);
+    const int id = 0;
 
-    CORELIB_REFL_DECL_FIELD(CORELIB_REFL_PUBLIC, DataModel, int, id);
-    int id;
+    CORELIB_REFL_DEF_FIELD(true, bool, is_hunman) = true;
 
-    COERLIB_REFL_DECL_FIELD_STATIC(CORELIB_REFL_PUBLIC, DataModel, Object*, name);
+    COERLIB_REFL_DECL_FIELD_STATIC(true, Object*, name);
     static inline Object* name;
 };
 
@@ -47,16 +48,20 @@ void TestReflection()
     Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 
     assert(dyn->get_type() == typeof<space::DynCreateClass>());
-    
+
     //field reflection
     DataModel* model = new DataModel;
 
     Type* model_type = typeof<DataModel>();
 
-    //id : int
+    //id : const int
     FieldInfo* id_field = model_type->get_fieldinfo("id");
-    assert(id_field->get_is_public() == true);
-    assert(id_field->get_is_static() == false);
+    assert(id_field->is_public() == true);
+    assert(id_field->is_static() == false);
+    assert(id_field->is_const() == true);
+    assert(id_field->is_pointer() == false);
+    assert(id_field->is_reference() == false);
+    assert(id_field->is_volatile() == false);
     assert(id_field->get_name() == "id");
 
     id_field->SetValue(model, 3);

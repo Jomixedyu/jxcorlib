@@ -180,8 +180,8 @@ namespace JxCoreLib
         v.reserve(this->member_infos_.size());
         for (auto& item : this->member_infos_)
         {
-            if ((item.second->get_is_public() == is_public)
-                && (item.second->get_is_static() == is_static))
+            if ((item.second->is_public() == is_public)
+                && (item.second->is_static() == is_static))
             {
                 v.push_back(item.second);
             }
@@ -205,8 +205,8 @@ namespace JxCoreLib
         for (auto& item : this->member_infos_)
         {
             if ((item.second->get_type()->IsSubclassOf(typeof<FieldInfo>()))
-                && (item.second->get_is_public() == is_public)
-                && (item.second->get_is_static() == is_static)
+                && (item.second->is_public() == is_public)
+                && (item.second->is_static() == is_static)
                 )
             {
                 v.push_back(static_cast<FieldInfo*>(item.second));
@@ -236,8 +236,8 @@ namespace JxCoreLib
         for (auto& item : this->member_infos_)
         {
             if ((item.second->get_type()->IsSubclassOf(typeof<MethodInfo>()))
-                && (item.second->get_is_public() == is_public)
-                && (item.second->get_is_static() == is_static)
+                && (item.second->is_public() == is_public)
+                && (item.second->is_static() == is_static)
                 )
             {
                 v.push_back(static_cast<MethodInfo*>(item.second));
@@ -262,41 +262,6 @@ namespace JxCoreLib
     void Type::_AddMemberInfo(MemberInfo* info)
     {
         this->member_infos_.insert({ info->get_name(), info });
-    }
-
-
-    Object* Integer32::DynCreateInstance(const ParameterPackage& params)
-    {
-        if (params.Count() != 1 || !params.Check<int32_t>())
-        {
-            return nullptr;
-        }
-        return new Integer32{ params.Get<int32_t>(0) };
-    }
-
-    Object* Single32::DynCreateInstance(const ParameterPackage& params)
-    {
-        if (params.Count() != 1 || !params.Check<float>())
-        {
-            return nullptr;
-        }
-        return new Single32{ params.Get<float>(0) };
-    }
-    Object* Double64::DynCreateInstance(const ParameterPackage& params)
-    {
-        if (params.Count() != 1 || !params.Check<double>())
-        {
-            return nullptr;
-        }
-        return new Double64{ params.Get<double>(0) };
-    }
-    Object* Boolean::DynCreateInstance(const ParameterPackage& params)
-    {
-        if (params.Count() != 1 || !params.Check<bool>())
-        {
-            return nullptr;
-        }
-        return new Boolean{ params.Get<bool>(0) };
     }
 
 }

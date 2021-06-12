@@ -96,7 +96,7 @@ namespace JxCoreLib
     class MemberInfo;
     class FieldInfo;
     class MethodInfo;
-    class ReflectionFieldBuilder;
+    class ReflectionBuilder;
 
     class Type final : public Object
     {
@@ -166,7 +166,7 @@ namespace JxCoreLib
         friend class MemberInfo;
         friend class FieldInfo;
         friend class MethodInfo;
-        friend class ReflectionFieldBuilder;
+        friend class ReflectionBuilder;
     public:
         std::vector<MemberInfo*> get_memberinfos(bool is_public = true, bool is_static = false);
         MemberInfo* get_memberinfo(const string& name);
@@ -180,7 +180,13 @@ namespace JxCoreLib
         void _AddMemberInfo(MemberInfo* info);
     };
 
-
+    template<typename T> struct fulldecay { using type = T; };
+    template<typename T> struct fulldecay<const T> : fulldecay<T> { };
+    template<typename T> struct fulldecay<T&> : fulldecay<T> { };
+    template<typename T> struct fulldecay<T*> : fulldecay<T> { };
+    template<typename T> struct fulldecay<volatile T> : fulldecay<T> { };
+    template<typename T> struct fulldecay<T[]> : fulldecay<T> { };
+    template<typename T, int I>  struct fulldecay<T[I]> : fulldecay<T> { };
 
     template<typename T>
     inline Type* typeof()
@@ -235,64 +241,74 @@ namespace JxCoreLib
         }
     };
 
-    class Integer32 : public Object
-    {
-        CORELIB_DEF_META(JxCoreLib::Integer32, Object);
-        CORELIB_DECL_DYNCINST();
-    public:
-        int32_t value;
-        Integer32(int32_t value) : value(value) { }
-        operator int32_t() { return value; }
-        virtual string ToString() const override { return std::to_string(value); }
-    };
-    class Single32 : public Object
-    {
-        CORELIB_DEF_META(JxCoreLib::Single32, Object);
-        CORELIB_DECL_DYNCINST();
-    public:
-        float value;
-        Single32(float value) : value(value) { }
-        operator float() { return value; }
-        virtual string ToString() const override { return std::to_string(value); }
-    };
-    class Double64 : public Object
-    {
-        CORELIB_DEF_META(JxCoreLib::Double64, Object);
-        CORELIB_DECL_DYNCINST();
-    public:
-        double value;
-        Double64(double value) : value(value) { }
-        operator double() { return value; }
-        virtual string ToString() const override { return std::to_string(value); }
-    };
-    class Boolean : public Object
-    {
-        CORELIB_DEF_META(JxCoreLib::Boolean, Object);
-        CORELIB_DECL_DYNCINST();
-    public:
-        bool value;
-        Boolean(bool value) : value(value) { }
-        operator bool() { return value; }
-        virtual string ToString() const override { return std::to_string(value); }
-    };
+#define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
+    class Class : public Object \
+    { \
+        CORELIB_DEF_META(JxCoreLib::Class, Object);\
+        CORELIB_DECL_DYNCINST() { \
+            if (params.Count() != 1 || !params.Check<DataType>()) \
+            { \
+                return nullptr; \
+            } \
+            return new Class{ params.Get<DataType>(0) }; \
+        } \
+    public: \
+        DataType value; \
+        Class(DataType value) : value(value) { } \
+        operator DataType() { return value; } \
+        DataType operator()() { \
+            return value; \
+        } \
+        virtual string ToString() const override { return std::to_string(value); } \
+    }; \
+    template<> inline Type* typeof<DataType>() { return typeof<Class>(); }
 
+    __CORELIB_DEF_BASE_TYPE(Integer8, int8_t);
+    __CORELIB_DEF_BASE_TYPE(UInteger8, uint8_t);
+    __CORELIB_DEF_BASE_TYPE(Integer16, int16_t);
+    __CORELIB_DEF_BASE_TYPE(UInteger16, uint16_t);
+    __CORELIB_DEF_BASE_TYPE(Integer32, int32_t);
+    __CORELIB_DEF_BASE_TYPE(UInteger32, uint32_t);
+    __CORELIB_DEF_BASE_TYPE(Single32, float);
+    __CORELIB_DEF_BASE_TYPE(Double64, double);
+    __CORELIB_DEF_BASE_TYPE(Boolean, bool);
 
-
-    template<>
-    inline Type* typeof<string>()
+    class String : public Object
     {
-        static int string_id = Type::Register(
-            [](const ParameterPackage& str)->Object* {
+        CORELIB_DEF_META(JxCoreLib::String, Object);
+        CORELIB_DECL_DYNCINST()
+        {
+            if (params.Count() != 1 || !params.Check<const char*>())
+            {
                 return nullptr;
-            }, typeof<Object>(), "string", typeid(string), sizeof(string));
+            }
+            return new String{ params.Get<const char*>(0) };
+        }
+    private:
+        string str_;
+    public:
+        String(const string& str) : str_(str) {}
+        String(const char* str) : str_(str) {}
+        operator string() { return str_; }
+        string operator()() { return str_; }
+        virtual string ToString() const override { return str_; }
+    };
 
-        return Type::GetType(string_id);
-    }
+    template<> inline Type* typeof<string>() { return typeof<String>(); }
 
-    template<> inline Type* typeof<int32_t>() { return typeof<Integer32>(); }
-    template<> inline Type* typeof<float>() { return typeof<Single32>(); }
-    template<> inline Type* typeof<double>() { return typeof<Double64>(); }
-    template<> inline Type* typeof<bool>() { return typeof<Boolean>(); }
+    class Any : public Object
+    {
+        CORELIB_DEF_META(JxCoreLib::Any, Object);
+        CORELIB_DECL_DYNCINST() {
+            return nullptr;
+        }
+    public:
+        std::any value_;
+        Any(std::any value) : value_(value) { }
+        operator std::any() { return this->value_; }
+    };
+    template<> inline Type* typeof<std::any>() { return typeof<Any>(); }
+
 }
 
 #endif

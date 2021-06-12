@@ -11,55 +11,71 @@
 #define CORELIB_REFL_PUBLIC true
 #define CORELIB_REFL_NONPUBLIC false
 
-#define CORELIB_REFL_DECL_FIELD(IsPublic, Class, Type, Name) \
-    static inline struct __corelib_refl_##Name \
-    { \
-        __corelib_refl_##Name() \
-        { \
-            ReflectionFieldBuilder::AddFieldInfo(typeof<Class>(), \
-                ReflectionFieldBuilder::CreateFieldInfo( \
-                #Name, IsPublic, false, typeof<std::remove_pointer<Type>::type>(), \
-                [](void* p) -> std::any { \
-                    return ((Class*)p)->Name; \
-                }, \
-                [](void* p, const std::any& value) { \
-                    ((Class*)p)->Name = std::any_cast<Type>(value); \
-                })); \
-        } \
-    } __corelib_refl_##Name##_;
 
-#define COERLIB_REFL_DECL_FIELD_STATIC(IsPublic, Class, Type, Name) \
-    static inline struct __corelib_refl_##Name \
+#define CORELIB_REFL_DECL_FIELD(IS_PUBLIC, TYPE, NAME) \
+    static inline struct __corelib_refl_##NAME \
     { \
-        __corelib_refl_##Name() \
+        __corelib_refl_##NAME() \
         { \
-            ReflectionFieldBuilder::AddFieldInfo(typeof<Class>(), \
-                ReflectionFieldBuilder::CreateFieldInfo( \
-                #Name, IsPublic, true, typeof<std::remove_pointer<Type>::type>(), \
+            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, TYPE>( \
+                #NAME, false, IS_PUBLIC, \
                 [](void* p) -> std::any { \
-                    return Class::Name; \
+                    return ((__corelib_curclass*)p)->id; \
                 }, \
                 [](void* p, const std::any& value) { \
-                    Class::Name = std::any_cast<Type>(value); \
-                })); \
+                    auto dp = const_cast<std::remove_const<const int>::type*>(&((__corelib_curclass*)p)->id); \
+                    *dp = std::any_cast<std::remove_reference<const int>::type>(value); \
+                }); \
         } \
-    } __corelib_refl_##Name##_;
+    } __corelib_refl_##NAME##_;
+
+#define CORELIB_REFL_DEF_FIELD(IS_PUBLIC, TYPE, NAME) \
+    CORELIB_REFL_DECL_FIELD(IS_PUBLIC, TYPE, NAME) \
+    TYPE NAME
+
+#define COERLIB_REFL_DECL_FIELD_STATIC(IS_PUBLIC, TYPE, NAME) \
+    static inline struct __corelib_refl_##NAME \
+    { \
+        __corelib_refl_##NAME() \
+        { \
+            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, TYPE>( \
+                #NAME, true, IS_PUBLIC, \
+                [](void* p) -> std::any { \
+                    return __corelib_curclass::NAME; \
+                }, \
+                [](void*, const std::any& value) { \
+                    auto p = const_cast<std::remove_const<TYPE>::type*>(&__corelib_curclass::NAME); \
+                    *p = std::any_cast<std::remove_reference<TYPE>::type>(value); \
+                }); \
+        } \
+    } __corelib_refl_##NAME##_;
+
+#define CORELIB_REFL_DEF_FIELD_STATIC(IS_PUBLIC, TYPE, NAME) \
+    COERLIB_REFL_DECL_FIELD_STATIC(IS_PUBLIC, TYPE, NAME) \
+    TYPE NAME
 
 namespace JxCoreLib
 {
+    class TypeInfo : public Object
+    {
+        CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(JxCoreLib::TypeInfo, Object);
+    public:
+        TypeInfo(const TypeInfo&) = delete;
+        TypeInfo(TypeInfo&&) = delete;
+    };
     class MemberInfo : public Object
     {
-        CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(JxCoreLib::MemberInfo, Object);
+        CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(JxCoreLib::MemberInfo, TypeInfo);
     protected:
         string name_;
         bool is_static_;
         bool is_public_;
     public:
         const string& get_name() const { return this->name_; }
-        bool get_is_static() const { return this->is_static_; }
-        bool get_is_public() const { return this->is_public_; }
+        bool is_static() const { return this->is_static_; }
+        bool is_public() const { return this->is_public_; }
     public:
-        MemberInfo(const string& name, bool is_public, bool is_static);
+        MemberInfo(const string& name, bool is_static, bool is_public);
         MemberInfo(const MemberInfo& right) = delete;
         MemberInfo(MemberInfo&& right) = delete;
     };
@@ -67,19 +83,32 @@ namespace JxCoreLib
     class FieldInfo final : public MemberInfo
     {
         CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(JxCoreLib::FieldInfo, MemberInfo);
+    public:
+        struct FieldTypeInfo
+        {
+            bool is_pointer;
+            bool is_const;
+            bool is_reference;
+            bool is_volatile;
+        };
     protected:
+        FieldTypeInfo info_;
         Type* field_type_;
-
         std::function<std::any(void* p)> getter_;
         std::function<void(void* p, const std::any& value)> setter_;
     public:
         Type* get_field_type() const { return this->field_type_; }
+        bool is_pointer() const { return this->info_.is_pointer; }
+        bool is_const() const { return this->info_.is_const; }
+        bool is_reference() const { return this->info_.is_reference; }
+        bool is_volatile() const { return this->info_.is_volatile; }
     public:
         FieldInfo(
-            const string& name, bool is_public, bool is_static,
-            Type* field_type,
+            const string& name, bool is_static, bool is_public,
+            FieldTypeInfo info, Type* field_type,
             const std::function<std::any(void* p)> getter,
             std::function<void(void* p, const std::any& value)> setter);
+
         FieldInfo(const FieldInfo& right) = delete;
         FieldInfo(FieldInfo&& right) = delete;
     public:
@@ -90,18 +119,48 @@ namespace JxCoreLib
             return std::any_cast<T>(this->GetValue(instance));
         }
     };
+    class ParameterInfo : public TypeInfo
+    {
+        CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(JxCoreLib::ParameterInfo, TypeInfo);
+    protected:
+        Type* param_type_;
+        bool is_pointer_;
+        bool is_const_;
+        bool is_reference_;
+        bool is_rreference_;
+    public:
+        Type* get_param_type() const { return this->param_type_; }
+        bool is_pointer() const { return this->is_pointer_; }
+        bool is_const() const { return this->is_const_; }
+        bool is_reference() const { return this->is_reference_; }
+        bool is_rreference() const { return this->is_rreference_; }
+    public:
+        ParameterInfo(const ParameterInfo&) = delete;
+        ParameterInfo(ParameterInfo&&) = delete;
+        ParameterInfo(
+            Type* param_type,
+            bool is_pointer,
+            bool is_const,
+            bool is_reference,
+            bool is_rreference);
+    };
+
     //TODO
     class MethodInfo final : public MemberInfo
     {
         CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(JxCoreLib::MethodInfo, MemberInfo);
     protected:
-        std::vector<Type*> param_types_;
-        Type* ret_type_;
+        std::vector<ParameterInfo*> param_types_;
+        ParameterInfo* ret_type_;
+        bool is_abstract_;
     public:
-        const std::vector<Type*>& get_parameter_types() const noexcept { return this->param_types_; }
-        Type* get_return_type() const noexcept { return this->ret_type_; }
+        const std::vector<ParameterInfo*>& get_parameter_infos() const noexcept { return this->param_types_; }
+        ParameterInfo* get_return_type() const noexcept { return this->ret_type_; }
+        bool is_abstract() const { return this->is_abstract_; }
     public:
-        MethodInfo();
+        MethodInfo(
+            const string& name, bool is_static, bool is_public,
+            ParameterInfo* ret_type, std::vector<ParameterInfo*>& params_infos, bool is_abstract);
         MethodInfo(const MethodInfo& right) = delete;
         MethodInfo(MethodInfo&& right) = delete;
     public:
@@ -109,25 +168,28 @@ namespace JxCoreLib
     };
 
 
-    class ReflectionFieldBuilder
+    class ReflectionBuilder
     {
     private:
 
     public:
-        static inline FieldInfo* CreateFieldInfo(
+        template<typename T, typename TField>
+        static inline void CreateFieldInfo(
             const string& name,
-            bool is_public,
-            bool is_static,
-            Type* type,
+            bool is_static, bool is_public,
             const std::function<std::any(void* p)>& getter,
             const std::function<void(void* p, const std::any& value)>& setter
         )
         {
-            return new FieldInfo(name, is_public, is_static, type, getter, setter);
-        }
-        static inline void AddFieldInfo(Type* type, FieldInfo* info)
-        {
-            type->_AddMemberInfo(info);
+            FieldInfo::FieldTypeInfo info;
+            info.is_pointer = std::is_pointer<int>::value;
+            info.is_const = std::is_const<const int>::value;
+            info.is_reference = std::is_reference<int>::value;
+            info.is_volatile = std::is_volatile<int>::value;
+
+            Type* field_type = typeof<fulldecay<TField>::type>();
+
+            typeof<T>()->_AddMemberInfo(new FieldInfo{ name, is_static, is_public, info, field_type, getter, setter });
         }
     };
 }
