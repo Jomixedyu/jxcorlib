@@ -13,47 +13,39 @@
 #define CORELIB_REFL_NONPUBLIC false
 
 
-#define CORELIB_REFL_DECL_FIELD(IS_PUBLIC, TYPE, NAME) \
+#define CORELIB_REFL_DECL_FIELD(IS_PUBLIC, NAME) \
     static inline struct __corelib_refl_##NAME \
     { \
         __corelib_refl_##NAME() \
         { \
-            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, TYPE>( \
+            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, decltype(NAME)>( \
                 #NAME, false, IS_PUBLIC, \
                 [](Object* p) -> Object* { \
-                    return get_object_pointer<fulldecay<TYPE>::type>::get(((__corelib_curclass*)p)->NAME); \
+                    return get_object_pointer<fulldecay<decltype(NAME)>::type>::get(((__corelib_curclass*)p)->NAME); \
                 }, \
                 [](Object* p, const std::any& value) { \
-                    auto dp = const_cast<std::remove_const<TYPE>::type*>(&((__corelib_curclass*)p)->NAME); \
-                    *dp = std::any_cast<std::remove_reference<TYPE>::type>(value); \
+                    auto dp = const_cast<std::remove_const<decltype(NAME)>::type*>(&((__corelib_curclass*)p)->NAME); \
+                    *dp = std::any_cast<std::remove_reference<decltype(NAME)>::type>(value); \
                 }); \
         } \
     } __corelib_refl_##NAME##_;
 
-#define CORELIB_REFL_DEF_FIELD(IS_PUBLIC, TYPE, NAME) \
-    CORELIB_REFL_DECL_FIELD(IS_PUBLIC, TYPE, NAME) \
-    TYPE NAME
-
-#define COERLIB_REFL_DECL_FIELD_STATIC(IS_PUBLIC, TYPE, NAME) \
+#define COERLIB_REFL_DECL_FIELD_STATIC(IS_PUBLIC, NAME) \
     static inline struct __corelib_refl_##NAME \
     { \
         __corelib_refl_##NAME() \
         { \
-            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, TYPE>( \
+            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, decltype(NAME)>( \
                 #NAME, true, IS_PUBLIC, \
                 [](Object* p) -> Object* { \
-                    return get_object_pointer<fulldecay<TYPE>::type>::get(__corelib_curclass::NAME); \
+                    return get_object_pointer<fulldecay<decltype(NAME)>::type>::get(__corelib_curclass::NAME); \
                 }, \
                 [](Object*, const std::any& value) { \
-                    auto p = const_cast<std::remove_const<TYPE>::type*>(&__corelib_curclass::NAME); \
-                    *p = std::any_cast<std::remove_reference<TYPE>::type>(value); \
+                    auto p = const_cast<std::remove_const<decltype(NAME)>::type*>(&__corelib_curclass::NAME); \
+                    *p = std::any_cast<std::remove_reference<decltype(NAME)>::type>(value); \
                 }); \
         } \
     } __corelib_refl_##NAME##_;
-
-#define CORELIB_REFL_DEF_FIELD_STATIC(IS_PUBLIC, TYPE, NAME) \
-    COERLIB_REFL_DECL_FIELD_STATIC(IS_PUBLIC, TYPE, NAME) \
-    TYPE NAME
 
 namespace JxCoreLib
 {
@@ -121,7 +113,8 @@ namespace JxCoreLib
         {
             if (info->get_field_type() == typeof<TType>())
             {
-                return StdAny::AnyCast<TValue, TType::type>(info->GetValue(inst), t);
+                *t = static_cast<TType*>(info->GetValue(inst))->value;
+                return true;
             }
             return false;
         }

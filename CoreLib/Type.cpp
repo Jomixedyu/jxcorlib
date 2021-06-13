@@ -34,7 +34,7 @@ namespace JxCoreLib
         return false;
     }
 
-    Object* Type::CrearteInstance()
+    Object* Type::CreateInstance()
     {
         if (this->c_inst_ptr_ == nullptr) {
             throw NotImplementException(this->get_name() + ": the creation method is not implemented");

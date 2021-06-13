@@ -29,15 +29,16 @@ namespace space
 class DataModel : public Object
 {
     CORELIB_DEF_TYPE(DataModel, Object);
+
+private:
+    CORELIB_REFL_DECL_FIELD(true , id);
+    const int id = 0;
 public:
 
-    CORELIB_REFL_DECL_FIELD(true, const int, id);
-    const int id = 0;
-
-    CORELIB_REFL_DECL_FIELD(true, bool, is_human);
+    CORELIB_REFL_DECL_FIELD(true, is_human);
     bool is_human = true;
 
-    COERLIB_REFL_DECL_FIELD_STATIC(true, Object*, name);
+    COERLIB_REFL_DECL_FIELD_STATIC(true, name);
     static inline Object* name;
 };
 

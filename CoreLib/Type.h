@@ -322,14 +322,14 @@ namespace JxCoreLib
             return new String{ params.Get<const char*>(0) };
         }
     private:
-        string str_;
     public:
         using type = string;
-        String(const string& str) : str_(str) {}
-        String(const char* str) : str_(str) {}
-        operator string() { return str_; }
-        string operator()() { return str_; }
-        virtual string ToString() const override { return str_; }
+        string value;
+        String(const string& str) : value(str) {}
+        String(const char* str) : value(str) {}
+        operator string() { return value; }
+        string operator()() { return value; }
+        virtual string ToString() const override { return value; }
     };
     template<> struct typeof_corelib<string> { using type = String; };
     template<> inline Type* typeof<string>() { return typeof<String>(); }
@@ -341,9 +341,9 @@ namespace JxCoreLib
             return nullptr;
         }
     public:
-        std::any value_;
-        StdAny(std::any value) : value_(value) { }
-        operator std::any() { return this->value_; }
+        std::any value;
+        StdAny(std::any value) : value(value) { }
+        operator std::any() { return this->value; }
 
     private:
         template<typename TValue>
