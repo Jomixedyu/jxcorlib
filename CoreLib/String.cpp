@@ -368,9 +368,18 @@ namespace JxCoreLib
         }
         else
         {
-            float m = ((float)newstr_len / (float)oldstr_len) * (float)src_len;
-            size_t size = std::min((size_t)2, (size_t)m);
-            nstr.reserve(size + 1);
+            //最多替换次数
+            size_t count = src_len / oldstr_len;
+            //长度比例，最大2
+            double m = std::min(2.0, (double)newstr_len / (double)oldstr_len);
+            //可替换字符串放大后的长度
+            size_t base = (size_t)((double)(count * oldstr_len) * m) + 1;
+            //非可替换字符串长度
+            size_t app = src_len - count * oldstr_len + 1;
+
+            size_t len = base + app;
+
+            nstr.reserve(len);
         }
         nstr = src;
         size_t pos = 0;
