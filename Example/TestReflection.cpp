@@ -2,7 +2,7 @@
 #include <cassert>
 #include <functional>
 #include <map>
-
+#include <iostream>
 
 using namespace JxCoreLib;
 
@@ -26,15 +26,16 @@ namespace space
 }
 
 
-
 class DataModel : public Object
 {
     CORELIB_DEF_TYPE(DataModel, Object);
 public:
+
     CORELIB_REFL_DECL_FIELD(true, const int, id);
     const int id = 0;
 
-    CORELIB_REFL_DEF_FIELD(true, bool, is_hunman) = true;
+    CORELIB_REFL_DECL_FIELD(true, bool, is_human);
+    bool is_human = true;
 
     COERLIB_REFL_DECL_FIELD_STATIC(true, Object*, name);
     static inline Object* name;
@@ -66,17 +67,16 @@ void TestReflection()
 
     id_field->SetValue(model, 3);
 
-    assert(id_field->GetValue(model).type() == typeid(int));
-    int id_value = id_field->GetValue<int>(model);
-    assert(id_value == 3);
+    Object* id_value = id_field->GetValue(model);
+    assert(id_value->get_type() == typeof<int>());
+    assert(*(Integer32*)id_value == 3);
 
     //name : Object*
     FieldInfo* name_field = model_type->get_fieldinfo("name");
 
-    auto obj = new Object;
+    auto obj = new Object();
     name_field->SetValue(nullptr, obj);
 
-    Object* value = name_field->GetValue<Object*>(nullptr);
+    auto value = name_field->GetValue(nullptr);
     assert(value == obj);
-
 }

@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 
 #define CORELIB_REFL_PUBLIC true
 #define CORELIB_REFL_NONPUBLIC false
@@ -19,12 +20,12 @@
         { \
             ReflectionBuilder::CreateFieldInfo<__corelib_curclass, TYPE>( \
                 #NAME, false, IS_PUBLIC, \
-                [](void* p) -> std::any { \
-                    return ((__corelib_curclass*)p)->id; \
+                [](Object* p) -> Object* { \
+                    return get_object_pointer<fulldecay<TYPE>::type>::get(((__corelib_curclass*)p)->NAME); \
                 }, \
-                [](void* p, const std::any& value) { \
-                    auto dp = const_cast<std::remove_const<const int>::type*>(&((__corelib_curclass*)p)->id); \
-                    *dp = std::any_cast<std::remove_reference<const int>::type>(value); \
+                [](Object* p, const std::any& value) { \
+                    auto dp = const_cast<std::remove_const<TYPE>::type*>(&((__corelib_curclass*)p)->NAME); \
+                    *dp = std::any_cast<std::remove_reference<TYPE>::type>(value); \
                 }); \
         } \
     } __corelib_refl_##NAME##_;
@@ -40,10 +41,10 @@
         { \
             ReflectionBuilder::CreateFieldInfo<__corelib_curclass, TYPE>( \
                 #NAME, true, IS_PUBLIC, \
-                [](void* p) -> std::any { \
-                    return __corelib_curclass::NAME; \
+                [](Object* p) -> Object* { \
+                    return get_object_pointer<fulldecay<TYPE>::type>::get(__corelib_curclass::NAME); \
                 }, \
-                [](void*, const std::any& value) { \
+                [](Object*, const std::any& value) { \
                     auto p = const_cast<std::remove_const<TYPE>::type*>(&__corelib_curclass::NAME); \
                     *p = std::any_cast<std::remove_reference<TYPE>::type>(value); \
                 }); \
@@ -94,8 +95,8 @@ namespace JxCoreLib
     protected:
         FieldTypeInfo info_;
         Type* field_type_;
-        std::function<std::any(void* p)> getter_;
-        std::function<void(void* p, const std::any& value)> setter_;
+        std::function<Object*(Object* p)> getter_;
+        std::function<void(Object* p, const std::any& value)> setter_;
     public:
         Type* get_field_type() const { return this->field_type_; }
         bool is_pointer() const { return this->info_.is_pointer; }
@@ -106,17 +107,41 @@ namespace JxCoreLib
         FieldInfo(
             const string& name, bool is_static, bool is_public,
             FieldTypeInfo info, Type* field_type,
-            const std::function<std::any(void* p)> getter,
-            std::function<void(void* p, const std::any& value)> setter);
+            const std::function<Object*(Object* p)> getter,
+            std::function<void(Object* p, const std::any& value)> setter);
 
         FieldInfo(const FieldInfo& right) = delete;
         FieldInfo(FieldInfo&& right) = delete;
     public:
-        void SetValue(void* instance, const std::any& value);
-        std::any GetValue(void* instance) const;
-        template<typename T> T GetValue(void* instance) const
+        void SetValue(Object* instance, const std::any& value);
+        [[nodiscard]] Object* GetValue(Object* instance) const;
+    private:
+        template<typename TValue, typename TType>
+        static inline bool _Assign(TValue* t, Object* inst, FieldInfo* info)
         {
-            return std::any_cast<T>(this->GetValue(instance));
+            if (info->get_field_type() == typeof<TType>())
+            {
+                return StdAny::AnyCast<TValue, TType::type>(info->GetValue(inst), t);
+            }
+            return false;
+        }
+    public:
+        template<typename T>
+        static bool Assign(T* t, Object* inst, FieldInfo* info)
+        {
+            return 
+                _Assign<T, String>(t, inst, info) ||
+                _Assign<T, Integer32>(t, inst, info) ||
+                _Assign<T, UInteger32>(t, inst, info) ||
+                _Assign<T, Single32>(t, inst, info) ||
+                _Assign<T, Double64>(t, inst, info) ||
+                _Assign<T, Boolean>(t, inst, info) ||
+                _Assign<T, Integer8>(t, inst, info) ||
+                _Assign<T, UInteger8>(t, inst, info) ||
+                _Assign<T, Integer16>(t, inst, info) ||
+                _Assign<T, UInteger16>(t, inst, info) ||
+                _Assign<T, Integer64>(t, inst, info) ||
+                _Assign<T, UInteger64>(t, inst, info);
         }
     };
     class ParameterInfo : public TypeInfo
@@ -177,15 +202,15 @@ namespace JxCoreLib
         static inline void CreateFieldInfo(
             const string& name,
             bool is_static, bool is_public,
-            const std::function<std::any(void* p)>& getter,
-            const std::function<void(void* p, const std::any& value)>& setter
+            const std::function<Object*(Object* p)>& getter,
+            const std::function<void(Object* p, const std::any& value)>& setter
         )
         {
             FieldInfo::FieldTypeInfo info;
-            info.is_pointer = std::is_pointer<int>::value;
-            info.is_const = std::is_const<const int>::value;
-            info.is_reference = std::is_reference<int>::value;
-            info.is_volatile = std::is_volatile<int>::value;
+            info.is_pointer = std::is_pointer<TField>::value;
+            info.is_const = std::is_const<TField>::value;
+            info.is_reference = std::is_reference<TField>::value;
+            info.is_volatile = std::is_volatile<TField>::value;
 
             Type* field_type = typeof<fulldecay<TField>::type>();
 
