@@ -105,11 +105,17 @@ namespace JxCoreLib
         static bool IsLittleEndian() noexcept;
         static size_t U8Length(const string& str, const size_t& pos) noexcept(false);
     private:
-        static string _Replace(const char* src, const char* oldstr, const char* newstr);
+        static string _Replace(
+            const char* src, size_t src_len,
+            const char* oldstr, size_t oldstr_len,
+            const char* newstr, size_t newstr_len);
     public:
         template<typename TStr, typename Toldstr, typename Tnewstr>
         static auto Replace(const TStr& src, const Toldstr& oldstr, const Tnewstr& newstr) {
-            return _Replace(ToCharPointer(src), ToCharPointer(oldstr), ToCharPointer(newstr));
+            return _Replace(
+                ToCharPointer(src), Size(src),
+                ToCharPointer(oldstr), Size(oldstr),
+                ToCharPointer(newstr), Size(newstr));
         }
         static Char PosAt(const string& src, const size_t& bytepos);
         static Char CharAt(const string& src, const size_t& charpos);

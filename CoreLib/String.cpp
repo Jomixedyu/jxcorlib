@@ -1,5 +1,5 @@
 ﻿#include "String.h"
-
+#include <cmath>
 
 static inline uint16_t _ByteSwapInt16(uint16_t number)
 {
@@ -353,14 +353,31 @@ namespace JxCoreLib
         throw std::invalid_argument("string is invalid");
     }
 
-    string StringUtil::_Replace(const char* src, const char* oldstr, const char* newstr)
+    string StringUtil::_Replace(
+        const char* src, size_t src_len,
+        const char* oldstr, size_t oldstr_len,
+        const char* newstr, size_t newstr_len)
     {
-        string nstr(src);
+        if (src_len == 0) { return string{}; }
+        if (oldstr_len == 0 || newstr_len == 0) { return string{ src }; }
+
+        string nstr;
+        if (newstr_len <= oldstr_len)
+        {
+            nstr.reserve(src_len + 1);
+        }
+        else
+        {
+            float m = ((float)newstr_len / (float)oldstr_len) * (float)src_len;
+            size_t size = std::min((size_t)2, (size_t)m);
+            nstr.reserve(size + 1);
+        }
+        nstr = src;
         size_t pos = 0;
         while ((pos <= nstr.size()) && ((pos = nstr.find(oldstr, pos)) != nstr.npos))
         {
-            nstr.replace(pos, Size(oldstr), newstr);
-            pos += Size(newstr);
+            nstr.replace(pos, oldstr_len, newstr);
+            pos += newstr_len;
         }
         return nstr;
     }
