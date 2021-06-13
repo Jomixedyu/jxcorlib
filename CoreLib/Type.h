@@ -142,7 +142,7 @@ namespace JxCoreLib
         * 确定当前 Type 表示的类是否是从指定的 Type 表示的类派生的。
         */
         bool IsSubclassOf(Type* type);
-        [[nodiscard]] Object* CrearteInstance();
+        [[nodiscard]] Object* CreateInstance();
         [[nodiscard]] Object* CreateInstance(const ParameterPackage& v);
     public:
         static Type* GetType(const string& str);
