@@ -133,6 +133,7 @@ namespace JxCoreLib
         const string& get_name() const;
         Type* get_base() const;
         const std::type_info& get_typeinfo() const;
+        bool is_primitive_type() const;
     public:
         virtual string ToString() const override;
     public:
@@ -178,6 +179,7 @@ namespace JxCoreLib
         std::map<string, MemberInfo*> member_infos_;
     private:
         void _AddMemberInfo(MemberInfo* info);
+
     };
 
     template<typename T> struct fulldecay { using type = T; };
@@ -193,6 +195,12 @@ namespace JxCoreLib
     {
         return Type::Typeof<T>();
     }
+
+    template<typename T>
+    struct is_corelib_type
+    {
+        static constexpr inline bool value = std::is_base_of<JxCoreLib::Object, T>::value;
+    };
 
     inline bool istype(Object* obj, Type* type)
     {
@@ -241,6 +249,26 @@ namespace JxCoreLib
         }
     };
 
+    class StdAny;
+
+    template<typename T, bool is_corelib = is_corelib_type<T>::value>
+    struct typeof_corelib
+    {};
+
+    template<typename T>
+    struct typeof_corelib<T, false>
+    {
+        using type = StdAny;
+    };
+
+    template<typename T>
+    struct typeof_corelib<T, true>
+    {
+        using type = T;
+    };
+
+
+
 #define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
     class Class : public Object \
     { \
@@ -253,6 +281,7 @@ namespace JxCoreLib
             return new Class{ params.Get<DataType>(0) }; \
         } \
     public: \
+        using type = DataType; \
         DataType value; \
         Class(DataType value) : value(value) { } \
         operator DataType() { return value; } \
@@ -261,14 +290,22 @@ namespace JxCoreLib
         } \
         virtual string ToString() const override { return std::to_string(value); } \
     }; \
+    static bool operator==(const Class& l, const DataType& r) { return l.value == r; } \
+    static bool operator==(const DataType& l, const Class& r) { return l == r.value; } \
+    static bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
+    static bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
+    template<> struct typeof_corelib<DataType> { using type = Class; }; \
     template<> inline Type* typeof<DataType>() { return typeof<Class>(); }
 
+    __CORELIB_DEF_BASE_TYPE(CharType, char);
     __CORELIB_DEF_BASE_TYPE(Integer8, int8_t);
     __CORELIB_DEF_BASE_TYPE(UInteger8, uint8_t);
     __CORELIB_DEF_BASE_TYPE(Integer16, int16_t);
     __CORELIB_DEF_BASE_TYPE(UInteger16, uint16_t);
     __CORELIB_DEF_BASE_TYPE(Integer32, int32_t);
     __CORELIB_DEF_BASE_TYPE(UInteger32, uint32_t);
+    __CORELIB_DEF_BASE_TYPE(Integer64, int64_t);
+    __CORELIB_DEF_BASE_TYPE(UInteger64, uint64_t);
     __CORELIB_DEF_BASE_TYPE(Single32, float);
     __CORELIB_DEF_BASE_TYPE(Double64, double);
     __CORELIB_DEF_BASE_TYPE(Boolean, bool);
@@ -287,27 +324,93 @@ namespace JxCoreLib
     private:
         string str_;
     public:
+        using type = string;
         String(const string& str) : str_(str) {}
         String(const char* str) : str_(str) {}
         operator string() { return str_; }
         string operator()() { return str_; }
         virtual string ToString() const override { return str_; }
     };
-
+    template<> struct typeof_corelib<string> { using type = String; };
     template<> inline Type* typeof<string>() { return typeof<String>(); }
 
-    class Any : public Object
+    class StdAny : public Object
     {
-        CORELIB_DEF_META(JxCoreLib::Any, Object);
+        CORELIB_DEF_META(JxCoreLib::StdAny, Object);
         CORELIB_DECL_DYNCINST() {
             return nullptr;
         }
     public:
         std::any value_;
-        Any(std::any value) : value_(value) { }
+        StdAny(std::any value) : value_(value) { }
         operator std::any() { return this->value_; }
+
+    private:
+        template<typename TValue>
+        static bool _AnyCast(const std::any& any, TValue* t)
+        {
+            return false;
+        }
+
+        template<typename TValue, typename TCastable1, typename... TCastable>
+        static bool _AnyCast(const std::any& any, TValue* t)
+        {
+            auto name = any.type().name();
+            auto cname = typeid(TCastable1).name();
+            if (any.type() == typeid(TCastable1))
+            {
+                *t = std::any_cast<TCastable1>(any);
+                return true;
+            }
+            else
+            {
+                return _AnyCast<TValue, TCastable...>(any, t);
+            }
+            return false;
+        }
+
+    public:
+        template<typename TValue, typename... TCastable>
+        static bool AnyCast(const std::any& any, TValue* t)
+        {
+            return _AnyCast<TValue, TCastable...>(any, t);
+        }
     };
-    template<> inline Type* typeof<std::any>() { return typeof<Any>(); }
+    template<> struct typeof_corelib<std::any> { using type = StdAny; };
+    template<> inline Type* typeof<std::any>() { return typeof<StdAny>(); }
+
+
+    template<typename T, bool is_corelib = is_corelib_type<T>::value>
+    struct get_object_pointer
+    {
+    };
+
+    template<typename T>
+    struct get_object_pointer<T, true>
+    {
+        static Object* get(const T* t)
+        {
+            return const_cast<T*>(t);
+        }
+        static Object* get(const T& t)
+        {
+            return &const_cast<T&>(t);
+        }
+    };
+
+    template<typename T>
+    struct get_object_pointer<T, false>
+    {
+        using _CTy = typeof_corelib<T>::type;
+        static Object* get(const T* t)
+        {
+            return new _CTy{ *t };
+        }
+        static Object* get(const T& t)
+        {
+            return new _CTy{ t };
+        }
+    };
 
 }
 

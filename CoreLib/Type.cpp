@@ -127,6 +127,24 @@ namespace JxCoreLib
         return this->typeinfo_;
     }
 
+    bool Type::is_primitive_type() const
+    {
+        return
+            this == typeof<String>() ||
+            this == typeof<CharType>() ||
+            this == typeof<Integer8>() ||
+            this == typeof<UInteger8>() ||
+            this == typeof<Integer16>() ||
+            this == typeof<UInteger16>() ||
+            this == typeof<Integer32>() ||
+            this == typeof<UInteger32>() ||
+            this == typeof<Integer64>() ||
+            this == typeof<UInteger64>() ||
+            this == typeof<Single32>() ||
+            this == typeof<Double64>() ||
+            this == typeof<Boolean>();
+    }
+
 
     static int _Type_Get_Index()
     {
