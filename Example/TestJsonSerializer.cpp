@@ -50,7 +50,6 @@ void TestJsonSerializer()
     student->person_info->age = 12;
 
     string json_str = JsonSerializer::Serialize(student);
-
     cout << json_str << endl;
 
     StudentInfo* newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
