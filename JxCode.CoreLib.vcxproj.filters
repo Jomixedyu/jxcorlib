@@ -54,6 +54,12 @@
     <ClCompile Include="CoreLib\Reflection.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CoreLib.Extension\JsonSerializer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Example\TestJsonSerializer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreLib\Events.hpp">
@@ -81,6 +87,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CoreLib\Reflection.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreLib.Extension\json.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreLib.Extension\JsonSerializer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

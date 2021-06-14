@@ -150,10 +150,12 @@
     <ClCompile Include="CoreLib\String.cpp" />
     <ClCompile Include="CoreLib\Type.cpp" />
     <ClCompile Include="Example\TestEvents.cpp" />
+    <ClCompile Include="Example\TestJsonSerializer.cpp" />
     <ClCompile Include="Example\TestOOP.cpp" />
     <ClCompile Include="Example\TestProperty.cpp" />
     <ClCompile Include="Example\TestReflection.cpp" />
     <ClCompile Include="Example\TestString.cpp" />
+    <ClCompile Include="CoreLib.Extension\JsonSerializer.cpp" />
     <ClCompile Include="JxCode.CoreLib.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +168,8 @@
     <ClInclude Include="CoreLib\Reflection.h" />
     <ClInclude Include="CoreLib\String.h" />
     <ClInclude Include="CoreLib\Type.h" />
+    <ClInclude Include="CoreLib.Extension\json.hpp" />
+    <ClInclude Include="CoreLib.Extension\JsonSerializer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

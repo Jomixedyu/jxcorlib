@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <time.h>
 #include <bitset>
+#include <cassert>
 
 #include "CoreLib/CoreLib.h"
 #include "CoreLib/Property.h"
@@ -18,15 +19,27 @@ extern void TestProperty();
 extern void TestString();
 extern void TestEvents();
 extern void TestReflection();
+extern void TestJsonSerializer();
+
+class Base
+{
+
+};
+class Child
+{
+
+};
 
 int main()
 {
     using namespace std;
+
     TestOOP();
     TestProperty();
     TestString();
     TestEvents();
     TestReflection();
+    TestJsonSerializer();
 
     return 0;
 

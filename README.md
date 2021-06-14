@@ -42,11 +42,17 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
     - [样例](#样例)
   - [类型工具](#类型工具)
     - [类型全退化](#类型全退化)
+    - [std::any类型转换工具](#stdany类型转换工具)
+    - [判断是否为corelib类型](#判断是否为corelib类型)
+    - [获取对象指针](#获取对象指针)
   - [反射系统](#反射系统)
     - [反射工厂动态创建对象](#反射工厂动态创建对象)
     - [参数包与变长验证模板函数](#参数包与变长验证模板函数)
+    - [基元类型](#基元类型)
     - [字段反射](#字段反射)
     - [方法反射](#方法反射)
+  - [反射扩展](#反射扩展)
+    - [Json序列化](#json序列化)
   - [属性模板](#属性模板)
   - [事件发送器与委托](#事件发送器与委托)
     - [事件类](#事件类)
@@ -57,6 +63,7 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
     - [执行](#执行)
   - [异常类](#异常类)
   - [调试工具](#调试工具)
+  - [待实现功能](#待实现功能)
 
 
 ## 使用本基本库与工具的需求
@@ -266,9 +273,11 @@ inline Type* typeof()
 | 原类型   | 对应类型 |
 | -------- | -------- |
 | string   | String   |
-| std::any | Any      |
+| std::any | StdAny      |
 
-以上类型都会有一个typeof的偏特化版本，`typeof<int32_t>() == typeof<Integer32>()`
+以上类型都会有一个typeof的偏特化版本。  
+`typeof<int32_t>() == typeof<Integer32>()`  
+`typeid(int32_t) != typeid(Integer32)`
 
 ### 样例
 样例：（类型声明在了[声明类型](#声明类型)中）
@@ -287,6 +296,33 @@ cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
 ### 类型全退化
 在类型系统中很多时候都需要用到原始类型，使用`JxCoreLib::fulldecay<>`来做全退化。  
 如`fulldecay<const int* const>::type`，`type`的类型为`int`。
+### std::any类型转换工具
+在JxCoreLib中提供了一个StdAny类，它是std::any类的一个包装，其中提供一个静态模板函数：
+```c++
+template<typename TValue, typename... TCastable>
+static bool AnyCast(const std::any& any, TValue* t)
+```
+传入any和赋值的指针，这个被赋值的指针类型需要可以接受TCastable类型的对象。
+```c++
+std::any a = 3;
+int uuu;
+bool success = StdAny::AnyCast<int, long, short, int>(a, &uuu);
+```
+
+### 判断是否为corelib类型
+使用`get_object_pointer<T>::value`来判断，样例：
+```c++
+get_object_pointer<String>::value
+```
+
+### 获取对象指针
+如果使用了内建类型，则会将内建类型转换为框架类型，如`int`将会转换为`Integer32`。  
+如果是继承`Object`的类型，`Object`指针会返回自己，`Object`对象则会取地址返回。  
+如果除以上的类型，则会使用`std::any`的封装类`StdAny`
+样例：
+```c++
+Integer32* i = (Integer32*)get_object_pointer<int>(3);
+```
 
 ## 反射系统
 ### 反射工厂动态创建对象
@@ -352,11 +388,14 @@ if(!params.Check<int, float, String>()) {
 int p1 = params.Get<int>(0);
 ```
 如果索引值不在正确的范围内，std::vector将会抛出错误，所以总应该在函数最开始的地方对传入的数据进行验证。
+
+### 基元类型
+基元类型包含了[内建类型的Type](#内建类型的Type)中的基础类型和`string`类型，可以通过`Type`实例的`is_primitive_type()`函数获得。
 ### 字段反射
 字段反射定义宏：实例字段和静态字段的两种声明。
 ```c++
-#define CORELIB_REFL_DECL_FIELD(IS_PUBLIC, TYPE, NAME)
-#define COERLIB_REFL_DECL_FIELD_STATIC(IS_PUBLIC, TYPE, NAME)
+#define CORELIB_REFL_DECL_FIELD(IS_PUBLIC, NAME)
+#define COERLIB_REFL_DECL_FIELD_STATIC(IS_PUBLIC, NAME)
 ```
 
 样例类：
@@ -365,15 +404,16 @@ class DataModel : public Object
 {
     CORELIB_DEF_TYPE(DataModel, Object);
 public:
-    CORELIB_REFL_DECL_FIELD(true, const int, id);
+
+    CORELIB_REFL_DECL_FIELD(true , id);
     const int id = 0;
 
-    CORELIB_REFL_DEF_FIELD(true, bool, is_hunman) = true;
+    CORELIB_REFL_DECL_FIELD(true, is_human);
+    bool is_human = true;
 
-    COERLIB_REFL_DECL_FIELD_STATIC(true, Object*, name);
+    COERLIB_REFL_DECL_FIELD_STATIC(true, name);
     static inline Object* name;
 };
-
 ```
 第一个参数指定该类型是否为public，可以直接写bool的true或false，或使用提供的宏：
 ```c++
@@ -400,17 +440,17 @@ public:
 
     id_field->SetValue(model, 3);
 
-    assert(id_field->GetValue(model).type() == typeid(int));
-    int id_value = id_field->GetValue<int>(model);
-    assert(id_value == 3);
+    Object* id_value = id_field->GetValue(model);
+    assert(id_value->get_type() == typeof<int>());
+    assert(*(Integer32*)id_value == 3);
 
     //name : Object*
     FieldInfo* name_field = model_type->get_fieldinfo("name");
 
-    auto obj = new Object;
+    auto obj = new Object();
     name_field->SetValue(nullptr, obj);
 
-    Object* value = name_field->GetValue<Object*>(nullptr);
+    auto value = name_field->GetValue(nullptr);
     assert(value == obj);
 ```
 使用GetValue和SetValue获取和设置值。如果字段为静态，实例指针传入nullptr即可。
@@ -418,6 +458,71 @@ public:
 ### 方法反射
 TODO
 
+## 反射扩展
+### Json序列化
+json库来自于`nlohmann`，序列化使用`CoreLib.Extension`中的`JsonSerializer`。  
+首先引入头文件`CoreLib.Extension`，在`JsonSerializer`中主要有两个静态方法：
+```c++
+static string Serialize(Object* obj);
+static Object* Deserialize(const string& jstr, Type* type);
+```
+另外Deserialize还有一个模板版本
+```c++
+template<typename T>
+static T* Deserialize(const string& str);
+```
+先声明两个可反射的类型
+```c++
+class PersonInfo : public Object
+{
+    CORELIB_DEF_TYPE(PersonInfo, Object);
+public:
+    CORELIB_REFL_DECL_FIELD(true, name);
+    string name;
+    CORELIB_REFL_DECL_FIELD(true, age);
+    int age;
+    virtual string ToString() const override
+    {
+        return std::format("name: {}, age: {}", name, age);
+    }
+};
+
+class StudentInfo : public Object
+{
+    CORELIB_DEF_TYPE(StudentInfo, Object);
+public:
+
+    CORELIB_REFL_DECL_FIELD(true, id);
+    int id;
+    CORELIB_REFL_DECL_FIELD(true, president);
+    bool president;
+    CORELIB_REFL_DECL_FIELD(true, person_info);
+    PersonInfo* person_info;
+
+    virtual string ToString() const override
+    {
+        return std::format("id: {}, president: {}, person_info: {{{}}}", id, president, person_info->ToString());
+    }
+};
+```
+定义`StudentInfo`对象并赋值：
+```c++
+StudentInfo* student = new StudentInfo;
+student->id = 33;
+student->president = true;
+
+student->person_info = new PersonInfo;
+student->person_info->name = "jx";
+student->person_info->age = 12;
+```
+随后调用序列化
+```c++
+string json_str = JsonSerializer::Serialize(student)
+```
+或者反序列化
+```c++
+StudentInfo* newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
+```
 ## 属性模板
 属性是一种以类访问字段的方式来执行方法，主要使用括号重载operator()和类型转换operator T来实现。  
 类型声明：
@@ -523,3 +628,6 @@ class ExceptionBase : public std::exception, public Object
 ```c++
 #define DEBUG_INFO(info) std::format("info: {}; line: {}, file: {};", info, __LINE__, __FILE__);
 ```
+## 待实现功能
+- 反射的数组类型
+- 函数的反射
