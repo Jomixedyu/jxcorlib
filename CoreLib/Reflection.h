@@ -18,14 +18,19 @@
     { \
         __corelib_refl_##NAME() \
         { \
-            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, decltype(NAME)>( \
+            using _Ty = decltype(NAME); \
+            using _Fuldecay = fulldecay<_Ty>::type; \
+            using _CTy = typeof_corelib<std::remove_cv<_Ty>::type>::type; \
+            using _TyOncePtr = typeof_corelib<_Fuldecay>::type*; \
+            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, _Ty>( \
                 #NAME, false, IS_PUBLIC, \
                 [](Object* p) -> Object* { \
-                    return get_object_pointer<fulldecay<decltype(NAME)>::type>::get(((__corelib_curclass*)p)->NAME); \
+                    return get_object_pointer<_Fuldecay>::get(((__corelib_curclass*)p)->NAME); \
                 }, \
-                [](Object* p, const std::any& value) { \
-                    auto dp = const_cast<std::remove_const<decltype(NAME)>::type*>(&((__corelib_curclass*)p)->NAME); \
-                    *dp = std::any_cast<std::remove_reference<decltype(NAME)>::type>(value); \
+                [](Object* p, Object* value) { \
+                    auto dp = const_cast<std::remove_cv<_Ty>::type*>(&((__corelib_curclass*)p)->NAME); \
+                    _TyOncePtr obj = static_cast<_TyOncePtr>(value); \
+                    *dp = *find_pointer_if<_CTy, !std::is_pointer<_Ty>::value>::get(&obj); \
                 }); \
         } \
     } __corelib_refl_##NAME##_;
@@ -35,14 +40,19 @@
     { \
         __corelib_refl_##NAME() \
         { \
-            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, decltype(NAME)>( \
+            using _Ty = decltype(NAME); \
+            using _Fuldecay = fulldecay<_Ty>::type; \
+            using _CTy = typeof_corelib<std::remove_cv<_Ty>::type>::type; \
+            using _TyOncePtr = typeof_corelib<_Fuldecay>::type*; \
+            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, _Ty>( \
                 #NAME, true, IS_PUBLIC, \
                 [](Object* p) -> Object* { \
-                    return get_object_pointer<fulldecay<decltype(NAME)>::type>::get(__corelib_curclass::NAME); \
+                    return get_object_pointer<_Fuldecay>::get(__corelib_curclass::NAME); \
                 }, \
-                [](Object*, const std::any& value) { \
-                    auto p = const_cast<std::remove_const<decltype(NAME)>::type*>(&__corelib_curclass::NAME); \
-                    *p = std::any_cast<std::remove_reference<decltype(NAME)>::type>(value); \
+                [](Object*, Object* value) { \
+                    auto p = const_cast<std::remove_cv<_Ty>::type*>(&__corelib_curclass::NAME); \
+                    _TyOncePtr obj = static_cast<_TyOncePtr>(value); \
+                    *p = *find_pointer_if<_CTy, !std::is_pointer<_Ty>::value>::get(&obj); \
                 }); \
         } \
     } __corelib_refl_##NAME##_;
@@ -84,11 +94,13 @@ namespace JxCoreLib
             bool is_reference;
             bool is_volatile;
         };
+        using GetterType = std::function<Object* (Object* p)>;
+        using SetterType = std::function<void(Object* p, Object* value)>;
     protected:
         FieldTypeInfo info_;
         Type* field_type_;
-        std::function<Object*(Object* p)> getter_;
-        std::function<void(Object* p, const std::any& value)> setter_;
+        GetterType getter_;
+        SetterType setter_;
     public:
         Type* get_field_type() const { return this->field_type_; }
         bool is_pointer() const { return this->info_.is_pointer; }
@@ -99,13 +111,12 @@ namespace JxCoreLib
         FieldInfo(
             const string& name, bool is_static, bool is_public,
             FieldTypeInfo info, Type* field_type,
-            const std::function<Object*(Object* p)> getter,
-            std::function<void(Object* p, const std::any& value)> setter);
+            const GetterType& getter, const SetterType& setter);
 
         FieldInfo(const FieldInfo& right) = delete;
         FieldInfo(FieldInfo&& right) = delete;
     public:
-        void SetValue(Object* instance, const std::any& value);
+        void SetValue(Object* instance, Object* value);
         [[nodiscard]] Object* GetValue(Object* instance) const;
     private:
         template<typename TValue, typename TType>
@@ -195,8 +206,8 @@ namespace JxCoreLib
         static inline void CreateFieldInfo(
             const string& name,
             bool is_static, bool is_public,
-            const std::function<Object*(Object* p)>& getter,
-            const std::function<void(Object* p, const std::any& value)>& setter
+            const FieldInfo::GetterType& getter,
+            const FieldInfo::SetterType& setter
         )
         {
             FieldInfo::FieldTypeInfo info;
@@ -211,5 +222,6 @@ namespace JxCoreLib
         }
     };
 }
+
 
 #endif // !CORELIB_REFLECTION_H

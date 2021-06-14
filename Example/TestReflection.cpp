@@ -66,7 +66,7 @@ void TestReflection()
     assert(id_field->is_volatile() == false);
     assert(id_field->get_name() == "id");
 
-    id_field->SetValue(model, 3);
+    id_field->SetValue(model, new Integer32{ 3 });
 
     Object* id_value = id_field->GetValue(model);
     assert(id_value->get_type() == typeof<int>());

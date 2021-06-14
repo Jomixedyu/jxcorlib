@@ -260,13 +260,22 @@ namespace JxCoreLib
     {
         using type = StdAny;
     };
+    template<typename T>
+    struct typeof_corelib<T*, false>
+    {
+        using type = typeof_corelib<T>::type*;
+    };
 
     template<typename T>
     struct typeof_corelib<T, true>
     {
         using type = T;
     };
-
+    template<typename T>
+    struct typeof_corelib<T*, true>
+    {
+        using type = typeof_corelib<T>::type*;
+    };
 
 
 #define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
@@ -412,6 +421,28 @@ namespace JxCoreLib
         }
     };
 
+    template<typename T, bool is_add>
+    struct find_pointer_if
+    {
+    };
+
+    template<typename T>
+    struct find_pointer_if<T, false>
+    {
+        using type = T*;
+        static T* get(T* t) {
+            return t;
+        }
+    };
+
+    template<typename T>
+    struct find_pointer_if<T, true>
+    {
+        using type = T;
+        static T* get(T** t) {
+            return *t;
+        }
+    };
 }
 
 #endif
