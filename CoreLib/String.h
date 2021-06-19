@@ -39,7 +39,7 @@ namespace JxCoreLib
         }
         inline static void Charcpy(char* dest, const char* src)
         {
-            for (size_t i = 0; i < 8; i++) dest[i] = src[i];
+            for (int i = 0; i < 8; i++) dest[i] = src[i];
         }
         inline static bool Charcmp(const char* l, const char* r)
         {
@@ -48,7 +48,7 @@ namespace JxCoreLib
             {
                 return false;
             }
-            for (size_t i = 0; i < len; i++)
+            for (int i = 0; i < len; i++)
             {
                 if (l[i] != r[i]) return false;
             }
@@ -126,6 +126,8 @@ namespace JxCoreLib
 
         static std::u16string Utf8ToUtf16(const string& str);
         static string Utf16ToUtf8(const std::u16string& str);
+
+        static string StringCast(const std::u8string& str);
 
         static const char* ToCharPointer(const char* c) {
             return c;
