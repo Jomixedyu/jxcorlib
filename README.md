@@ -276,6 +276,8 @@ inline Type* typeof()
 | std::any | StdAny      |
 
 以上类型都会有一个typeof的偏特化版本。  
+
+另外，类型拥有性质：  
 `typeof<int32_t>() == typeof<Integer32>()`  
 `typeid(int32_t) != typeid(Integer32)`
 
