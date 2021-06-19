@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "CoreLib.h"
-
+#include "Reflection.h"
 
 namespace JxCoreLib
 {

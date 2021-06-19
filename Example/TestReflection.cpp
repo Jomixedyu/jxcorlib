@@ -1,4 +1,5 @@
 #include "../CoreLib/CoreLib.h"
+#include "../CoreLib/Reflection.h"
 #include <cassert>
 #include <functional>
 #include <map>
