@@ -24,7 +24,8 @@ namespace JxCoreLib
         virtual Type* get_type() const;
         friend class Type;
     public:
-        Object();
+        Object() {}
+        virtual ~Object() {}
     public:
         virtual string ToString() const;
     };

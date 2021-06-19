@@ -25,9 +25,6 @@ namespace JxCoreLib
         return __meta_type();
     }
 
-    Object::Object()
-    {
-    }
 
     string Object::ToString() const
     {

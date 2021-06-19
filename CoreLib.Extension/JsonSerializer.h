@@ -2,6 +2,7 @@
 #define CORELIB_JSONSERIALIZER_H
 
 #include "../CoreLib/CoreLib.h"
+#include "../CoreLib/Reflection.h"
 
 namespace JxCoreLib
 {
