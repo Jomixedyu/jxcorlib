@@ -10,6 +10,7 @@
 #define CORELIB_OBJECT_H
 
 #include <vector>
+#include <type_traits>
 #include "String.h"
 
 namespace JxCoreLib
@@ -28,6 +29,7 @@ namespace JxCoreLib
     private:
         std::vector<Object*>* managed_child_ = nullptr;
         Object* parent_ = nullptr;
+    private:
         void AddManagedChild(Object* child);
         void RemoveManagedChild(Object* child);
     public:
@@ -42,6 +44,11 @@ namespace JxCoreLib
         virtual string ToString() const;
     };
 
+    template<typename T>
+    concept baseof_object_concept = std::is_base_of<Object, T>::value;
+
+    template<typename T>
+    concept newable_concept = requires { new T; };
 }
 namespace std
 {
