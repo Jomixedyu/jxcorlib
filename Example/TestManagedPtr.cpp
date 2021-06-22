@@ -24,9 +24,9 @@ void TestManagedPtr()
     Other* o = new Other;
     Other* o2 = new Other;
 
-    o->SetManagedParent(b);
-    o2->SetManagedParent(b);
-    o2->SetManagedParent(nullptr);
+    o->SetManagedParent(b); //add managed
+    o2->SetManagedParent(b); //add managed
+    o2->SetManagedParent(nullptr); //remove managed
 
     delete b;
     delete o2;
