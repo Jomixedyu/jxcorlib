@@ -60,6 +60,9 @@
     <ClCompile Include="Example\TestJsonSerializer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Example\TestManagedPtr.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreLib\Events.hpp">

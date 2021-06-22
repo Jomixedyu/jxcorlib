@@ -1,5 +1,6 @@
 ﻿#include "String.h"
 #include <cmath>
+#include <stdexcept>
 
 static inline uint16_t _ByteSwapInt16(uint16_t number)
 {
@@ -16,7 +17,6 @@ static std::string _Utf16LEToUtf8(const std::u16string& u16str)
         p += 1;	//带有bom标记，后移
         len -= 1;
     }
-
     std::string u8str;
     u8str.reserve(len * 3);
 

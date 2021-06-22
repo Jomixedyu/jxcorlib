@@ -151,6 +151,7 @@
     <ClCompile Include="CoreLib\Type.cpp" />
     <ClCompile Include="Example\TestEvents.cpp" />
     <ClCompile Include="Example\TestJsonSerializer.cpp" />
+    <ClCompile Include="Example\TestManagedPtr.cpp" />
     <ClCompile Include="Example\TestOOP.cpp" />
     <ClCompile Include="Example\TestProperty.cpp" />
     <ClCompile Include="Example\TestReflection.cpp" />

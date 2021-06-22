@@ -3,13 +3,13 @@
 * @Date        : 2021/05/15
 * @Author      : JomiXedYu
 * @Description : This file is part of JxCode.CoreLib : https://github.com/JxmiXedYu/JxCode.CoreLib
-* @StdRequired : c++17
+* @StdRequired : c++20
 */
 
 #ifndef CORELIB_EXCEPTION_H
 #define CORELIB_EXCEPTION_H
 
-#include <exception>
+#include <stdexcept>
 #include "Object.h"
 #include "Type.h"
 

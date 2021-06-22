@@ -20,15 +20,8 @@ extern void TestString();
 extern void TestEvents();
 extern void TestReflection();
 extern void TestJsonSerializer();
+extern void TestManagedPtr();
 
-class Base
-{
-
-};
-class Child
-{
-
-};
 
 int main()
 {
@@ -40,6 +33,7 @@ int main()
     TestEvents();
     TestReflection();
     TestJsonSerializer();
+    TestManagedPtr();
 
     return 0;
 

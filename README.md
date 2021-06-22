@@ -35,11 +35,13 @@ C++对象框架与常用函数库，实现部分运行期反射功能，在运�
   - [声明类型](#声明类型)
     - [普通类型声明](#普通类型声明)
     - [模板类型声明](#模板类型声明)
+  - [托管指针](#托管指针)
   - [Type类型](#type类型)
     - [基本成员](#基本成员)
     - [typeof<>()模板函数](#typeof模板函数)
     - [内建类型的Type](#内建类型的type)
     - [样例](#样例)
+  - [Concept概念](#concept概念)
   - [类型工具](#类型工具)
     - [类型全退化](#类型全退化)
     - [std::any类型转换工具](#stdany类型转换工具)
@@ -226,6 +228,26 @@ public:
 模板类中的名字取决于类型的`std::type_info`中的`name()`。  
 综上所述，因为编译器实现的不同，模板类的反射工厂无法通用。
 
+## 托管指针
+为了更方便的使用对象，采取指针托管的方式。  
+通过调用`SetManagedParent`来设置托管的父对象，当父对象销毁时，该对象跟随销毁。
+```c++
+void TestManagedPtr()
+{
+    Base* b = new Base;
+
+    Other* o = new Other;
+    Other* o2 = new Other;
+
+    o->SetManagedParent(b); //add managed
+    o2->SetManagedParent(b); //add managed
+    o2->SetManagedParent(nullptr); //remove managed
+
+    delete b;
+    delete o2;
+}
+```
+
 ## Type类型
 ### 基本成员
 三个属性：运行时获取类型的大小，获取类名，获取类型的基类Type
@@ -293,6 +315,11 @@ Object* dyn = dyn_type->CreateInstance();
 
 cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
 ```
+## Concept概念  
+在`Object`中提供了及个concept用于模板约束，分别是：  
+- baseof_object_concept : 模板类型必须继承于Object
+- newable_concept : 模板类型必须有零个参数的公共构造函数
+
 
 ## 类型工具
 ### 类型全退化
