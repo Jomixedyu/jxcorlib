@@ -35,12 +35,15 @@ namespace JxCoreLib
         {
             this->managed_child_ = new std::vector<Object*>;
         }
-        auto it = std::find(this->managed_child_->rbegin(), this->managed_child_->rend(), this->managed_child_);
-        if (it == this->managed_child_->rend())
+        auto list = this->managed_child_;
+        for (auto it = list->rbegin(); it != list->rend(); it++)
         {
-            return;
+            if ((*it) == child)
+            {
+                return;
+            }
         }
-        this->managed_child_->push_back(child);
+        list->push_back(child);
         child->parent_ = this;
     }
 
@@ -51,11 +54,14 @@ namespace JxCoreLib
             return;
         }
         auto list = this->managed_child_;
-        auto it = std::find(list->rbegin(), list->rend(), list);
-        if (it != list->rend())
+        for (auto it = list->rbegin(); it != list->rend(); it++)
         {
-            list->erase((++it).base());
-            child->parent_ = nullptr;
+            if ((*it) == child)
+            {
+                list->erase((++it).base());
+                child->parent_ = nullptr;
+                return;
+            }
         }
     }
 
