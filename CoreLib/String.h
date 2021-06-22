@@ -11,7 +11,6 @@
 
 #include <vector>
 #include <string>
-#include <sstream>
 #include <cstdint>
 
 //Encoding: UTF-8
@@ -22,7 +21,6 @@
 namespace JxCoreLib
 {
     using string = std::string;
-    using StringStream = std::stringstream;
 
     struct Char final
     {
