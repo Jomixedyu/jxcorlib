@@ -1,5 +1,9 @@
 /*
-* require c++17
+* @Moudule     : Object
+* @Date        : 2021/04/17
+* @Author      : JomiXedYu
+* @Description : This file is part of JxCode.CoreLib : https://github.com/JxmiXedYu/JxCode.CoreLib
+* @StdRequired : c++17
 */
 
 #ifndef CORELIB_OBJECT_H

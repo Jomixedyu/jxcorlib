@@ -1,5 +1,9 @@
 ﻿/*
-* require c++20
+* @Moudule     : DebugTool
+* @Date        : 2021/05/20
+* @Author      : JomiXedYu
+* @Description : This file is part of JxCode.CoreLib : https://github.com/JxmiXedYu/JxCode.CoreLib
+* @StdRequired : c++20
 */
 
 #ifndef CORELIB_DEBUGTOOL

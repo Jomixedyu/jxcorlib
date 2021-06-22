@@ -1,4 +1,12 @@
-﻿#ifndef CORELIB_REFLECTION_H
+﻿/*
+* @Moudule     : Reflection
+* @Date        : 2021/05/23
+* @Author      : JomiXedYu
+* @Description : This file is part of JxCode.CoreLib : https://github.com/JxmiXedYu/JxCode.CoreLib
+* @StdRequired : c++17
+*/
+
+#ifndef CORELIB_REFLECTION_H
 #define CORELIB_REFLECTION_H
 
 #include "Object.h"

@@ -1,3 +1,11 @@
+/*
+* @Moudule     : Property
+* @Date        : 2021/05/05
+* @Author      : JomiXedYu
+* @Description : This file is part of JxCode.CoreLib : https://github.com/JxmiXedYu/JxCode.CoreLib
+* @StdRequired : c++11
+*/
+
 #ifndef CORELIB_PROPERTY_H
 #define CORELIB_PROPERTY_H
 #include <functional>

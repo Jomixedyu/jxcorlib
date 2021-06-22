@@ -477,12 +477,11 @@ namespace JxCoreLib
     {
         return _Utf16ToUtf8(str);
     }
-     
+
     string StringUtil::StringCast(const std::u8string& str)
     {
-        string ostr;
-        const size_t size = str.size() + 1;
-        ostr.reserve(size);
+        const size_t size = str.size();
+        string ostr(size, 0);
         if constexpr (sizeof(char) == sizeof(char8_t))
         {
             memcpy(const_cast<char*>(ostr.c_str()), str.c_str(), size);

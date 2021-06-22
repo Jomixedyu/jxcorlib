@@ -1,5 +1,9 @@
 /*
-* require c++11
+* @Moudule     : Events
+* @Date        : 2021/05/06
+* @Author      : JomiXedYu
+* @Description : This file is part of JxCode.CoreLib : https://github.com/JxmiXedYu/JxCode.CoreLib
+* @StdRequired : c++11
 */
 
 #ifndef CORELIB_EVENTS_HPP
