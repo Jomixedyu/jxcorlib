@@ -6,8 +6,8 @@
 * @StdRequired : c++17
 */
 
-#ifndef CORELIB_REFLECTION_H
-#define CORELIB_REFLECTION_H
+#ifndef _CORELIB_REFLECTION_H
+#define _CORELIB_REFLECTION_H
 
 #include "Object.h"
 #include "Type.h"
@@ -232,4 +232,4 @@ namespace JxCoreLib
 }
 
 
-#endif // !CORELIB_REFLECTION_H
+#endif // !_CORELIB_REFLECTION_H

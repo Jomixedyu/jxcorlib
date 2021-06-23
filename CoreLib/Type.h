@@ -6,11 +6,11 @@
 * @StdRequired : c++20
 */
 
-#ifndef CORELIB_TYPE_H
-#define CORELIB_TYPE_H
+#ifndef _CORELIB_TYPE_H
+#define _CORELIB_TYPE_H
 
 
-#define CORELIB_DEF_BASETYPE_META(NAME, BASE) \
+#define __CORELIB_DEF_BASETYPE_META(NAME, BASE) \
 private: \
     using base = BASE; \
     using __corelib_curclass = NAME; \
@@ -41,7 +41,7 @@ private: \
         } \
         return Type::GetType(id); \
     } \
-    CORELIB_DEF_BASETYPE_META(NAME, BASE)
+    __CORELIB_DEF_BASETYPE_META(NAME, BASE)
 
 //声明CoreLib模板元数据
 #define CORELIB_DEF_TEMPLATE_TYPE(NAME, BASE, ...) \
@@ -59,15 +59,11 @@ private: \
         } \
         return Type::GetType(id); \
     } \
-    CORELIB_DEF_BASETYPE_META(NAME, BASE)
+    __CORELIB_DEF_BASETYPE_META(NAME, BASE)
 
 //反射工厂创建函数声明
 #define CORELIB_DECL_DYNCINST() \
     static Object* DynCreateInstance(const ParameterPackage& params)
-
-//反射工厂没实现的函数体
-#define CORELIB_IMPL_DYNCINST_NOTIMPL_FUNCBODY() \
-        throw JxCoreLib::NotImplementException(__meta_type()->get_name() + ", the creation method is not implemented")
 
 #include <vector>
 #include <map>
@@ -500,4 +496,4 @@ namespace JxCoreLib
     };
 }
 
-#endif
+#endif // !_CORELIB_TYPE_H

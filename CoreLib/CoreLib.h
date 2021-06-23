@@ -29,12 +29,12 @@ SOFTWARE.
 * @Description : This file is part of JxCode.CoreLib : https://github.com/JxmiXedYu/JxCode.CoreLib
 */
 
-#ifndef CORELIB_OOPCORE_H
-#define CORELIB_OOPCORE_H
+#ifndef _CORELIB_OOPCORE_H
+#define _CORELIB_OOPCORE_H
 
 #include "String.h"
 #include "Object.h"
 #include "Type.h"
 #include "Exception.h"
 
-#endif // !CORELIB_OOPCORE_H
+#endif // !_CORELIB_OOPCORE_H

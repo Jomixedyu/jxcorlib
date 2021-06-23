@@ -21,20 +21,7 @@ extern void TestEvents();
 extern void TestReflection();
 extern void TestJsonSerializer();
 extern void TestManagedPtr();
-
-
-
-
-class TestClass : public Object
-{
-    CORELIB_DEF_TYPE(TestClass, Object)
-private:
-
-    TestClass(int)
-    {
-        int i;
-    }
-};
+extern void TestDynCreateInst();
 
 
 int main()
@@ -48,7 +35,7 @@ int main()
     TestReflection();
     TestJsonSerializer();
     TestManagedPtr();
-
+    TestDynCreateInst();
 
 
     return 0;

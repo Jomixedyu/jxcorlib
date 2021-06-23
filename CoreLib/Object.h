@@ -6,8 +6,8 @@
 * @StdRequired : c++20
 */
 
-#ifndef CORELIB_OBJECT_H
-#define CORELIB_OBJECT_H
+#ifndef _CORELIB_OBJECT_H
+#define _CORELIB_OBJECT_H
 
 #include <vector>
 #include <type_traits>
@@ -57,4 +57,4 @@ namespace std
 {
     string to_string(JxCoreLib::Object* obj);
 }
-#endif // !CORELIB_OBJECT_H
+#endif // !_CORELIB_OBJECT_H

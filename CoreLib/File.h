@@ -6,8 +6,8 @@
 * @StdRequired : c++11
 */
 
-#ifndef CORELIB_FILE_H
-#define CORELIB_FILE_H
+#ifndef _CORELIB_FILE_H
+#define _CORELIB_FILE_H
 
 #include <string>
 
@@ -20,6 +20,6 @@ namespace JxCoreLib
     };
 }
 
-#endif // !CORELIB_FILE_H
+#endif // !_CORELIB_FILE_H
 
 

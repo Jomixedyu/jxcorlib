@@ -6,8 +6,8 @@
 * @StdRequired : c++20
 */
 
-#ifndef CORELIB_EXCEPTION_H
-#define CORELIB_EXCEPTION_H
+#ifndef _CORELIB_EXCEPTION_H
+#define _CORELIB_EXCEPTION_H
 
 #include <stdexcept>
 #include "Object.h"
@@ -82,4 +82,4 @@ namespace JxCoreLib
         DEF_EXCEPTION_CTOR(NullPointerException);
     };
 }
-#endif // !CORELIB_EXCEPTION_H
+#endif // !_CORELIB_EXCEPTION_H

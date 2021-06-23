@@ -6,8 +6,8 @@
 * @StdRequired : c++11
 */
 
-#ifndef CORELIB_EVENTS_HPP
-#define CORELIB_EVENTS_HPP
+#ifndef _CORELIB_EVENTS_HPP
+#define _CORELIB_EVENTS_HPP
 
 #include <list>
 #include <functional>
@@ -274,4 +274,4 @@ namespace JxCoreLib
 
 }
 
-#endif // !CORELIB_EVENTS_HPP
+#endif // !_CORELIB_EVENTS_HPP

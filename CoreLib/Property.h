@@ -6,8 +6,8 @@
 * @StdRequired : c++11
 */
 
-#ifndef CORELIB_PROPERTY_H
-#define CORELIB_PROPERTY_H
+#ifndef _CORELIB_PROPERTY_H
+#define _CORELIB_PROPERTY_H
 #include <functional>
 
 namespace JxCoreLib
@@ -39,4 +39,4 @@ namespace JxCoreLib
 
 }
 
-#endif // !CORELIB_PROPERTY_H
+#endif // !_CORELIB_PROPERTY_H

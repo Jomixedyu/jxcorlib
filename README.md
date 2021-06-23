@@ -169,31 +169,14 @@ namespace space
 {
     class DynCreateClass : public Object
     {
-        CORELIB_DEF_META(space::DynCreateClass, Object);
-        CORELIB_DECL_DYNCINST() {
-            return new DynCreateClass;
-        }
+        CORELIB_DEF_TYPE(space::DynCreateClass, Object);
     public:
 
     };
 }
 ```
-`CORELIB_DEF_META`可以为声明该类型的元数据，除此之外还需要声明用于反射工厂的函数。  
-可以声明`CORELIB_DEF_META`元数据后声明`CORELIB_DECL_DYNCINST`并自行实现实现反射工厂函数体。  
-如果不想自己实现反射用工厂，可以使用以下类型声明宏替代。  
-- 定义一个未实现（会抛出NotImplmentException异常）的反射工厂函数 的CoreLib类型
-  - CORELIB_DEF_TYPE(name, base)
-- 定义使用默认无参构造函数的CoreLib类型
-  - CORELIB_DEF_TYPE(name, base)
+`CORELIB_DEF_TYPE`可以为定义该类型的元数据，应该注意的是第一个类型参数应该为完整路径。  
 
-样例使用：
-```c++
-class ExampleClass : public Object
-{
-    CORELIB_DEF_TYPE(ExampleClass, Object);
-public:
-}
-```
 
 声明类型需要遵循以下几点：
 - 继承于Object需要显式继承，并且总是public继承
@@ -214,13 +197,8 @@ public:
 
 };
 ```
-在普通的类型中使用`CORELIB_DEF_META`去定义元数据，而模板类则使用`CORELIB_DEF_TEMPLATE_META`来定义。  
+在普通的类型中使用`CORELIB_DEF_TYPE`去定义元数据，而模板类则使用`CORELIB_DEF_TEMPLATE_META`来定义。  
 类型定义的后面是一个变长列表，依次按照模板顺序添加。  
-同时，模板类型和普通类型一样，也有两个预制的类型定义宏：
-- 带有一个未实现（会抛出NotImplmentException异常）的反射工厂函数 的CoreLib模板类型
-  - CORELIB_DEF_TEMPLATE_TYPE_NOTIMPL_DYNCINST
-- 定义使用默认无参构造函数的CoreLib模板类型
-  - CORELIB_DEF_TEMPLATE_TYPE
 
 关于模板类型获取Type名字：
 当获取模板类型`Type*`的`get_name()`时，这个名字并不会像普通类型固定，而是会到编译器的影响。  
@@ -355,13 +333,13 @@ Integer32* i = (Integer32*)get_object_pointer<int>(3);
 
 ## 反射系统
 ### 反射工厂动态创建对象
-首先声明一个带构造函数的类型，并用`CORELIB_DEF_META`和`CORELIB_DECL_DYNCINST`宏声明元数据和反射的工厂函数。
+首先声明一个带构造函数的类型，并用`CORELIB_DEF_TYPE`和`CORELIB_DECL_DYNCINST`宏声明元数据和反射的工厂函数。
 ```c++
 namespace space
 {
     class DynCreateClass : public Object
     {
-        CORELIB_DEF_META(space::DynCreateClass, Object);
+        CORELIB_DEF_TYPE(space::DynCreateClass, Object);
         CORELIB_DECL_DYNCINST() {
             return new DynCreateClass(0);
         }
@@ -372,17 +350,23 @@ namespace space
     };
 }
 ```
+`CORELIB_DEF_TYPE`会根据以下顺序进行函数：  
+- 自动查找反射工厂的函数，如果有则绑定
+- 自动查找是否有无参构造函数，如果有则绑定
+- 绑定失败，如果创建则会抛出。  
+
+可以使用`CORELIB_DECL_DYNCINST`来自定义实现实现反射工厂函数体。  
+或者直接使用`CORELIB_DECL_DYNCINST`原型
+```c++
+static Object* DynCreateInstance(const ParameterPackage& params)
+```
+
 可以使用类名来获取Type对象，使用`CreateInstance`创建
 ```c++
 Type* dyn_type = Type::GetType("space::DynCreateClass");
 Object* dyn = dyn_type->CreateInstance();
 ```
-创建后会执行反射工厂函数：
-其中`CORELIB_DECL_DYNCINST`宏的原型为：
-```c++
-static Object* DynCreateInstance(const ParameterPackage& params)
-```
-可以使用该宏或者自行声明。
+
 ### 参数包与变长验证模板函数
 `ParameterPackage`是用一个any数组的封装类，公共的成员函数为：
 ```c++
