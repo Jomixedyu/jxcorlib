@@ -165,6 +165,7 @@ namespace JxCoreLib
     int Type::Register(c_inst_ptr_t dyncreate, Type* base, const string& name, const std::type_info& info, int structure_size)
     {
         int id = _Type_Get_Index();
+
         Type* type = new Type(id, name, nullptr, dyncreate, info, structure_size);
 
         static bool is_init = false;
@@ -184,11 +185,6 @@ namespace JxCoreLib
 
         g_types->push_back(type);
         return id;
-    }
-
-    Object* ParameterPackage::DynCreateInstance(const ParameterPackage& params)
-    {
-        CORELIB_IMPL_DYNCINST_NOTIMPL_FUNCBODY();
     }
 
 

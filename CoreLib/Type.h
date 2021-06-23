@@ -9,50 +9,56 @@
 #ifndef CORELIB_TYPE_H
 #define CORELIB_TYPE_H
 
-#include <vector>
-#include <map>
-#include <any>
-
-#include "String.h"
-#include "Object.h"
 
 #define CORELIB_DEF_BASETYPE_META(NAME, BASE) \
-public: \
-    friend class Type; \
-    inline virtual Type* get_type() const override { \
-        return __meta_type(); \
-    } \
 private: \
     using base = BASE; \
     using __corelib_curclass = NAME; \
-    static inline struct _TypeInit{ \
-        _TypeInit() \
-        { \
-            NAME::__meta_type(); \
+    friend class Type; \
+    friend class TypeTraits; \
+    public: \
+        inline virtual Type* get_type() const override { \
+            return __meta_type(); \
         } \
-    } __type_init_; \
+    private: \
+        static inline struct _TypeInit { \
+            _TypeInit() { NAME::__meta_type(); } \
+        } __corelib_type_init_;
 
 //声明CoreLib元数据
-#define CORELIB_DEF_META(NAME, BASE) \
-    private: \
-        static inline Type* __meta_type() { \
-            static int id = -1; \
-            if (id == -1) { \
-                id = Type::Register(DynCreateInstance, typeof<BASE>(), NAMEOF(NAME), typeid(NAME), sizeof(NAME)); \
+#define CORELIB_DEF_TYPE(NAME, BASE) \
+    static inline Type* __meta_type() \
+    { \
+        static int id = -1; \
+        if (id == -1) \
+        { \
+            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+            if (dynptr == nullptr) \
+            { \
+                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
             } \
-            return Type::GetType(id); \
+            id = Type::Register(dynptr, typeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
         } \
+        return Type::GetType(id); \
+    } \
     CORELIB_DEF_BASETYPE_META(NAME, BASE)
+
 //声明CoreLib模板元数据
-#define CORELIB_DEF_TEMPLATE_META(NAME, BASE, ...) \
-    private: \
-        static inline Type* __meta_type() { \
-            static int id = -1; \
-            if (id == -1) { \
-                    id = Type::Register(DynCreateInstance, typeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(__VA_ARGS__).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
+#define CORELIB_DEF_TEMPLATE_TYPE(NAME, BASE, ...) \
+    static inline Type* __meta_type() \
+    { \
+        static int id = -1; \
+        if (id == -1) \
+        { \
+            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+            if (dynptr == nullptr) \
+            { \
+                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
             } \
-            return Type::GetType(id); \
+            id = Type::Register(dynptr, typeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(__VA_ARGS__).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
         } \
+        return Type::GetType(id); \
+    } \
     CORELIB_DEF_BASETYPE_META(NAME, BASE)
 
 //反射工厂创建函数声明
@@ -63,39 +69,12 @@ private: \
 #define CORELIB_IMPL_DYNCINST_NOTIMPL_FUNCBODY() \
         throw JxCoreLib::NotImplementException(__meta_type()->get_name() + ", the creation method is not implemented")
 
-//反射工厂使用无参构造函数的默认函数体
-#define CORELIB_IMPL_DYNCINST_DEFAULTIMPL_FUNBODY() \
-        return new __corelib_curclass;
+#include <vector>
+#include <map>
+#include <any>
 
-//反射工厂没实现定义
-#define CORELIB_DEF_DYNCINST_NOTIMPL() \
-        CORELIB_DECL_DYNCINST() \
-        { CORELIB_IMPL_DYNCINST_NOTIMPL_FUNCBODY(); }
-
-//反射工厂默认定义
-#define CORELIB_DEF_DYNCINST() \
-        CORELIB_DECL_DYNCINST() \
-        { CORELIB_IMPL_DYNCINST_DEFAULTIMPL_FUNBODY(); }
-
-//带有一个未实现（会抛出NotImplmentException异常）的反射工厂函数 的CoreLib类型
-#define CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(name, base) \
-        CORELIB_DEF_META(name, base) \
-        CORELIB_DEF_DYNCINST_NOTIMPL()
-
-//定义使用默认无参构造函数的CoreLib类型
-#define CORELIB_DEF_TYPE(name, base) \
-        CORELIB_DEF_META(name, base) \
-        CORELIB_DEF_DYNCINST()
-
-//带有一个未实现（会抛出NotImplmentException异常）的反射工厂函数 的CoreLib模板类型
-#define CORELIB_DEF_TEMPLATE_TYPE_NOTIMPL_DYNCINST(name, base, ...) \
-        CORELIB_DEF_TEMPLATE_META(name, base, __VA_ARGS__) \
-        CORELIB_DEF_DYNCINST_NOTIMPL()
-
-//定义使用默认无参构造函数的CoreLib模板类型
-#define CORELIB_DEF_TEMPLATE_TYPE(name, base, ...) \
-        CORELIB_DEF_TEMPLATE_META(name, base, __VA_ARGS__) \
-        CORELIB_DEF_DYNCINST()
+#include "String.h"
+#include "Object.h"
 
 namespace JxCoreLib
 {
@@ -221,10 +200,8 @@ namespace JxCoreLib
         typeof<T>();
     }
 
-    struct ParameterPackage : public Object
+    struct ParameterPackage
     {
-        CORELIB_DEF_META(JxCoreLib::ParameterPackage, Object);
-        CORELIB_DECL_DYNCINST();
     private:
         std::vector<std::any> data;
     public:
@@ -255,6 +232,76 @@ namespace JxCoreLib
             }
             return _Check<0, TArgs...>();
         }
+    };
+    class TypeTraits final
+    {
+    public:
+
+        template<typename T, typename = void>
+        struct is_zeroparam_ctor : std::false_type {};
+
+        template<typename T>
+        struct is_zeroparam_ctor<T, std::void_t<decltype(T())>> : std::true_type {};
+
+        template<typename T, bool HasZeroParamCtor = is_zeroparam_ctor<T>::value>
+        struct get_zeroparam_object {};
+
+        template<typename T>
+        struct get_zeroparam_object<T, true>
+        {
+            using value_type = Object * (*)(const ParameterPackage&);
+            static value_type get()
+            {
+                return [](const ParameterPackage&) -> Object* {
+                    return new T;
+                };
+            }
+        };
+        template<typename T>
+        struct get_zeroparam_object<T, false>
+        {
+            using value_type = Object * (*)(const ParameterPackage&);
+            static value_type get()
+            {
+                return nullptr;
+            }
+        };
+
+        template<typename T>
+        struct has_dyninstc
+        {
+        private:
+            template<typename U, Object* (*)(const ParameterPackage&) = &U::DynCreateInstance>
+            static constexpr bool check(U*) { return true; }
+            static constexpr bool check(...) { return false; }
+        public:
+            static constexpr bool value = check(static_cast<T*>(0));
+        };
+
+        template<typename T, bool Test = has_dyninstc<T>::value>
+        struct get_dyninstpointer {};
+
+        template<typename T>
+        struct get_dyninstpointer<T, true>
+        {
+            using value_type = Object * (*)(const ParameterPackage&);
+            //member method
+            static value_type get_value()
+            {
+                return &T::DynCreateInstance;
+            }
+        };
+
+        template<typename T>
+        struct get_dyninstpointer<T, false>
+        {
+            using value_type = Object * (*)(const ParameterPackage&);
+            //nullptr
+            static value_type get_value()
+            {
+                return nullptr;
+            }
+        };
     };
 
     class StdAny;
@@ -289,7 +336,7 @@ namespace JxCoreLib
 #define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
     class Class : public Object \
     { \
-        CORELIB_DEF_META(JxCoreLib::Class, Object);\
+        CORELIB_DEF_TYPE(JxCoreLib::Class, Object);\
         CORELIB_DECL_DYNCINST() { \
             if (params.Count() != 1 || !params.Check<DataType>()) \
             { \
@@ -329,7 +376,7 @@ namespace JxCoreLib
 
     class String : public Object
     {
-        CORELIB_DEF_META(JxCoreLib::String, Object);
+        CORELIB_DEF_TYPE(JxCoreLib::String, Object);
         CORELIB_DECL_DYNCINST()
         {
             if (params.Count() != 1 || !params.Check<const char*>())
@@ -353,7 +400,7 @@ namespace JxCoreLib
 
     class StdAny : public Object
     {
-        CORELIB_DEF_META(JxCoreLib::StdAny, Object);
+        CORELIB_DEF_TYPE(JxCoreLib::StdAny, Object);
         CORELIB_DECL_DYNCINST() {
             return nullptr;
         }

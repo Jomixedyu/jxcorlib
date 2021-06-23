@@ -149,6 +149,7 @@
     <ClCompile Include="CoreLib\Reflection.cpp" />
     <ClCompile Include="CoreLib\String.cpp" />
     <ClCompile Include="CoreLib\Type.cpp" />
+    <ClCompile Include="Example\TestDynCreateInst.cpp" />
     <ClCompile Include="Example\TestEvents.cpp" />
     <ClCompile Include="Example\TestJsonSerializer.cpp" />
     <ClCompile Include="Example\TestManagedPtr.cpp" />

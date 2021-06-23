@@ -182,7 +182,7 @@ namespace space
 可以声明`CORELIB_DEF_META`元数据后声明`CORELIB_DECL_DYNCINST`并自行实现实现反射工厂函数体。  
 如果不想自己实现反射用工厂，可以使用以下类型声明宏替代。  
 - 定义一个未实现（会抛出NotImplmentException异常）的反射工厂函数 的CoreLib类型
-  - CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(name, base)
+  - CORELIB_DEF_TYPE(name, base)
 - 定义使用默认无参构造函数的CoreLib类型
   - CORELIB_DEF_TYPE(name, base)
 
@@ -190,7 +190,7 @@ namespace space
 ```c++
 class ExampleClass : public Object
 {
-    CORELIB_DEF_TYPE_NOTIMPL_DYNCINST(ExampleClass, Object);
+    CORELIB_DEF_TYPE(ExampleClass, Object);
 public:
 }
 ```

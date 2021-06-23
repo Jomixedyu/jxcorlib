@@ -49,6 +49,9 @@ namespace JxCoreLib
 
     template<typename T>
     concept newable_concept = requires { new T; };
+
+    template<typename T>
+    concept non_newable_concept = !requires { new T; };
 }
 namespace std
 {

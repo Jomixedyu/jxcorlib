@@ -11,7 +11,7 @@ namespace space
 {
     class DynCreateClass : public Object
     {
-        CORELIB_DEF_META(space::DynCreateClass, Object);
+        CORELIB_DEF_TYPE(space::DynCreateClass, Object);
         CORELIB_DECL_DYNCINST() {
             if (!params.Check<int>()) {
                 return nullptr;
