@@ -407,8 +407,8 @@ int p1 = params.Get<int>(0);
 ### 字段反射
 字段反射定义宏：实例字段和静态字段的两种声明。
 ```c++
-#define CORELIB_REFL_DECL_FIELD(IS_PUBLIC, NAME)
-#define COERLIB_REFL_DECL_FIELD_STATIC(IS_PUBLIC, NAME)
+#define CORELIB_REFL_DECL_FIELD(NAME)
+#define COERLIB_REFL_DECL_FIELD_STATIC(NAME)
 ```
 
 样例类：
@@ -418,21 +418,17 @@ class DataModel : public Object
     CORELIB_DEF_TYPE(DataModel, Object);
 public:
 
-    CORELIB_REFL_DECL_FIELD(true , id);
+    CORELIB_REFL_DECL_FIELD(id);
     const int id = 0;
 
-    CORELIB_REFL_DECL_FIELD(true, is_human);
+    CORELIB_REFL_DECL_FIELD(is_human);
     bool is_human = true;
 
-    COERLIB_REFL_DECL_FIELD_STATIC(true, name);
+    COERLIB_REFL_DECL_FIELD_STATIC(name);
     static inline Object* name;
 };
 ```
-第一个参数指定该类型是否为public，可以直接写bool的true或false，或使用提供的宏：
-```c++
-#define CORELIB_REFL_PUBLIC true
-#define CORELIB_REFL_NONPUBLIC false
-```
+
 
 字段的反射信息存在类型`Type`中，使用`get_fieldinfo(sting&)`来获取一个`FieldInfo*`。  
 ```c++
@@ -490,9 +486,9 @@ class PersonInfo : public Object
 {
     CORELIB_DEF_TYPE(PersonInfo, Object);
 public:
-    CORELIB_REFL_DECL_FIELD(true, name);
+    CORELIB_REFL_DECL_FIELD(name);
     string name;
-    CORELIB_REFL_DECL_FIELD(true, age);
+    CORELIB_REFL_DECL_FIELD(age);
     int age;
     virtual string ToString() const override
     {
@@ -505,11 +501,11 @@ class StudentInfo : public Object
     CORELIB_DEF_TYPE(StudentInfo, Object);
 public:
 
-    CORELIB_REFL_DECL_FIELD(true, id);
+    CORELIB_REFL_DECL_FIELD(id);
     int id;
-    CORELIB_REFL_DECL_FIELD(true, president);
+    CORELIB_REFL_DECL_FIELD(president);
     bool president;
-    CORELIB_REFL_DECL_FIELD(true, person_info);
+    CORELIB_REFL_DECL_FIELD(person_info);
     PersonInfo* person_info;
 
     virtual string ToString() const override
