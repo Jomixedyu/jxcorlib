@@ -255,6 +255,7 @@ inline Type* typeof()
 ```
 ### 内建类型的Type
 一些内建类型拥有一个对应继承于Object的类型，同时也对应拥有一个Type。
+
 | 原类型   | 对应类型   |
 | -------- | ---------- |
 | int8_t   | Integer8   |
@@ -534,7 +535,7 @@ StudentInfo* newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
 ```
 ## 属性模板
 属性是一种以类访问字段的方式来执行方法，主要使用括号重载operator()和类型转换operator T来实现。  
-类型声明：
+类型声明：  
 ```c++
 #include "../CoreLib/Property.h"
 class PropertyClass
@@ -572,6 +573,7 @@ void TestProperty()
 - FunctionEvents是Events的一个别名。
   - Function是Delegate的派生类，除了Delegate的权限和执行能力之外还拥有返回所有回调执行返回的结果集的功能。 
   - Function<bool>是一个特化版本，还增加了返回结果集中是否存在false的功能，主要用于关闭询问等功能。
+
 ### 添加与移除
 支持添加：
 - 静态函数
@@ -582,6 +584,7 @@ void TestProperty()
 ```c++
 Action<> e;
 ```
+
 ### 静态函数
 普通静态函数支持两种方法的添加：
 ```c++
@@ -593,6 +596,7 @@ e.AddListener(static_func);
 e -= static_func;
 e.RemoveListener(static_func);
 ```
+
 ### Lambda
 lambda也可以使用+=与AddListene进行添加，但由于lambda没有名字，没办法移除，所以需要使用返回的索引来进行移除。
 ```c++
@@ -604,6 +608,7 @@ e.RemoveListenerByIndex(index);
 c.AddListener(this, [this](){});
 c.RemoveListenerByInstance(this);
 ```
+
 ### 成员函数
 成员函数需要使用实例和成员函数地址。  
 成员函数也可以使用按实例移除的方式来移除：
@@ -632,11 +637,13 @@ e.Invoke();
 class ExceptionBase : public std::exception, public Object
 ```
 这是为了保证可以使用统一的`std::exception`来进行捕获，还可以使用Object的特性。
+
 ## 调试工具
 引入DebugTool.h即可使用 (c++20)
 ```c++
 #define DEBUG_INFO(info) std::format("info: {}; line: {}, file: {};", info, __LINE__, __FILE__);
 ```
+
 ## 待实现功能
 - 反射的数组类型
 - 函数的反射
