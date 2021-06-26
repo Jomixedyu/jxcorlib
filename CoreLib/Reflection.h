@@ -17,9 +17,6 @@
 #include <map>
 #include <memory>
 
-#define CORELIB_REFL_PUBLIC true
-#define CORELIB_REFL_NONPUBLIC false
-
 
 #define CORELIB_REFL_DECL_FIELD(NAME) \
     static inline struct __corelib_refl_##NAME \
