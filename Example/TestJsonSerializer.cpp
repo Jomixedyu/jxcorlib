@@ -11,9 +11,9 @@ class PersonInfo : public Object
 {
     CORELIB_DEF_TYPE(PersonInfo, Object);
 public:
-    CORELIB_REFL_DECL_FIELD(true, name);
+    CORELIB_REFL_DECL_FIELD(name);
     string name;
-    CORELIB_REFL_DECL_FIELD(true, age);
+    CORELIB_REFL_DECL_FIELD(age);
     int age;
     virtual string ToString() const override
     {
@@ -26,11 +26,11 @@ class StudentInfo : public Object
     CORELIB_DEF_TYPE(StudentInfo, Object);
 public:
 
-    CORELIB_REFL_DECL_FIELD(true, id);
+    CORELIB_REFL_DECL_FIELD(id);
     int id;
-    CORELIB_REFL_DECL_FIELD(true, president);
+    CORELIB_REFL_DECL_FIELD(president);
     bool president;
-    CORELIB_REFL_DECL_FIELD(true, person_info);
+    CORELIB_REFL_DECL_FIELD(person_info);
     PersonInfo* person_info;
 
     virtual string ToString() const override
