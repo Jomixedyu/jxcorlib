@@ -11,6 +11,9 @@ add_subdirectory("./CoreLib.Extension")
 add_subdirectory("./Example")
 
 aux_source_directory(./ DIR_SRCS)
+
+add_compile_options("/utf-8")
+
 add_executable (${PROJECT_NAME} ${DIR_SRCS})
 
 target_link_libraries(${PROJECT_NAME} "JxCode.CoreLib")
