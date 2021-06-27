@@ -25,13 +25,13 @@ void TestOOP()
 
     ExampleClass* exm = new ExampleClass;
 
-    assert(exm->get_type()->get_base() == typeof<Object>());
+    assert(exm->get_type()->get_base() == cltypeof<Object>());
 
     assert(exm->get_type()->get_name() == string("ExampleClass"));
 
-    assert(typeof<Object>()->IsInstanceOfType(exm));
+    assert(cltypeof<Object>()->IsInstanceOfType(exm));
 
-    assert(typeof<ExampleClass>()->IsSubclassOf(typeof<Object>()));
+    assert(cltypeof<ExampleClass>()->IsSubclassOf(cltypeof<Object>()));
 
     TemplateClass<int>* templc = new TemplateClass<int>;
     Type* templc_type = templc->get_type();

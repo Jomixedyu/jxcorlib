@@ -37,7 +37,7 @@ private: \
             { \
                 dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
             } \
-            id = Type::Register(dynptr, typeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
+            id = Type::Register(dynptr, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
         } \
         return Type::GetType(id); \
     } \
@@ -55,7 +55,7 @@ private: \
             { \
                 dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
             } \
-            id = Type::Register(dynptr, typeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(__VA_ARGS__).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
+            id = Type::Register(dynptr, cltypeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(__VA_ARGS__).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
         } \
         return Type::GetType(id); \
     } \
@@ -175,7 +175,7 @@ namespace JxCoreLib
     template<typename T, int I>  struct fulldecay<T[I]> : fulldecay<T> { };
 
     template<typename T>
-    inline Type* typeof()
+    inline Type* cltypeof()
     {
         return Type::Typeof<T>();
     }
@@ -194,7 +194,7 @@ namespace JxCoreLib
     template<typename T>
     inline void RegisterClass()
     {
-        typeof<T>();
+        cltypeof<T>();
     }
 
     struct ParameterPackage
@@ -358,7 +358,7 @@ namespace JxCoreLib
     static bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
     static bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
     template<> struct typeof_corelib<DataType> { using type = Class; }; \
-    template<> inline Type* typeof<DataType>() { return typeof<Class>(); }
+    template<> inline Type* cltypeof<DataType>() { return cltypeof<Class>(); }
 
     __CORELIB_DEF_BASE_TYPE(CharType, char);
     __CORELIB_DEF_BASE_TYPE(Integer8, int8_t);
@@ -395,7 +395,7 @@ namespace JxCoreLib
         virtual string ToString() const override { return value; }
     };
     template<> struct typeof_corelib<string> { using type = String; };
-    template<> inline Type* typeof<string>() { return typeof<String>(); }
+    template<> inline Type* cltypeof<string>() { return cltypeof<String>(); }
 
     class StdAny : public Object
     {
@@ -440,7 +440,7 @@ namespace JxCoreLib
         }
     };
     template<> struct typeof_corelib<std::any> { using type = StdAny; };
-    template<> inline Type* typeof<std::any>() { return typeof<StdAny>(); }
+    template<> inline Type* cltypeof<std::any>() { return cltypeof<StdAny>(); }
 
 
     template<typename T, bool is_corelib = is_corelib_type<T>::value>

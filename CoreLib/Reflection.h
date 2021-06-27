@@ -126,7 +126,7 @@ namespace JxCoreLib
         template<typename TValue, typename TType>
         static inline bool _Assign(TValue* t, Object* inst, FieldInfo* info)
         {
-            if (info->get_field_type() == typeof<TType>())
+            if (info->get_field_type() == cltypeof<TType>())
             {
                 *t = static_cast<TType*>(info->GetValue(inst))->value;
                 return true;
@@ -220,9 +220,9 @@ namespace JxCoreLib
             info.is_reference = std::is_reference<TField>::value;
             info.is_volatile = std::is_volatile<TField>::value;
 
-            Type* field_type = typeof<fulldecay<TField>::type>();
+            Type* field_type = cltypeof<fulldecay<TField>::type>();
 
-            typeof<T>()->_AddMemberInfo(new FieldInfo{ name, is_static, is_public, info, field_type, getter, setter });
+            cltypeof<T>()->_AddMemberInfo(new FieldInfo{ name, is_static, is_public, info, field_type, getter, setter });
         }
     };
 }

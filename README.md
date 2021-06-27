@@ -38,7 +38,7 @@ C++轻量对象系统，托管指针，反射，拥有统一的类型基类、�
   - [托管指针](#托管指针)
   - [Type类型](#type类型)
     - [基本成员](#基本成员)
-    - [typeof<>()模板函数](#typeof模板函数)
+    - [cltypeof<>()模板函数](#cltypeof模板函数)
     - [内建类型的Type](#内建类型的type)
     - [样例](#样例)
   - [Concept概念](#concept概念)
@@ -245,11 +245,11 @@ static Type* GetType(const string& str);
 ```c++
 inline bool istype(Object* obj, Type* type);
 ```
-### typeof<>()模板函数
+### cltypeof<>()模板函数
 typeof是对Type::Typeof的调用，可以获取一个唯一的Type实例
 ```c++
 template<typename T>
-inline Type* typeof()
+inline Type* cltypeof()
 {
     return Type::Typeof<T>();
 }
@@ -280,7 +280,7 @@ inline Type* typeof()
 以上类型都会有一个typeof的偏特化版本。  
 
 另外，类型拥有性质：  
-`typeof<int32_t>() == typeof<Integer32>()`  
+`cltypeof<int32_t>() == cltypeof<Integer32>()`  
 `typeid(int32_t) != typeid(Integer32)`
 
 ### 样例
@@ -293,7 +293,7 @@ cout << exm->get_type()->get_name() << endl;
 Type* dyn_type = Type::GetType("space::DynCreateClass");
 Object* dyn = dyn_type->CreateInstance();
 
-cout << (dyn->get_type() == typeof<space::DynCreateClass>()) << endl;
+cout << (dyn->get_type() == cltypeof<space::DynCreateClass>()) << endl;
 ```
 ## Concept概念  
 在`Object`中提供了及个concept用于模板约束，分别是：  
@@ -437,7 +437,7 @@ public:
     //field reflection
     DataModel* model = new DataModel;
 
-    Type* model_type = typeof<DataModel>();
+    Type* model_type = cltypeof<DataModel>();
 
     //id : const int
     FieldInfo* id_field = model_type->get_fieldinfo("id");
@@ -452,7 +452,7 @@ public:
     id_field->SetValue(model, 3);
 
     Object* id_value = id_field->GetValue(model);
-    assert(id_value->get_type() == typeof<int>());
+    assert(id_value->get_type() == cltypeof<int>());
     assert(*(Integer32*)id_value == 3);
 
     //name : Object*

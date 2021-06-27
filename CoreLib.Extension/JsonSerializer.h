@@ -15,7 +15,7 @@ namespace JxCoreLib
         template<typename T>
         static T* Deserialize(const string& str)
         {
-            return static_cast<T*>(Deserialize(str, typeof<T>()));
+            return static_cast<T*>(Deserialize(str, cltypeof<T>()));
         }
     };
 }
