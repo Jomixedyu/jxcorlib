@@ -1,4 +1,4 @@
-#include "../CoreLib/CoreLib.h"
+#include <CoreLib/CoreLib.h>
 #include <cassert>
 
 using namespace JxCoreLib;

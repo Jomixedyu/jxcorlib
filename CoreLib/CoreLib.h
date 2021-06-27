@@ -32,9 +32,9 @@ SOFTWARE.
 #ifndef _CORELIB_OOPCORE_H
 #define _CORELIB_OOPCORE_H
 
-#include "String.h"
+#include "UString.h"
 #include "Object.h"
 #include "Type.h"
-#include "Exception.h"
+#include "CommonException.h"
 
 #endif // !_CORELIB_OOPCORE_H

@@ -1,4 +1,5 @@
-﻿#include <string>
+﻿/*
+#include <string>
 #include <iostream>
 #include <sstream>
 #include <functional>
@@ -39,5 +40,15 @@ int main()
 
 
     return 0;
+
+}
+*/
+
+#include <vector>
+#include <string>
+int main()
+{
+    using namespace std;
+    vector<string> ss;
 
 }

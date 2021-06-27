@@ -1,6 +1,6 @@
+#include "Object.h"
 #include <vector>
 #include <map>
-#include "Object.h"
 #include "Type.h"
 
 namespace JxCoreLib

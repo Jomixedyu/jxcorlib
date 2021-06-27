@@ -1,8 +1,9 @@
 #include "Type.h"
+
 #include <vector>
 #include <iostream>
 
-#include "CoreLib.h"
+#include "CommonException.h"
 #include "Reflection.h"
 
 namespace JxCoreLib

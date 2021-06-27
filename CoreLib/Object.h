@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <type_traits>
-#include "String.h"
+#include "UString.h"
 
 namespace JxCoreLib
 {

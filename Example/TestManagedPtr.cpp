@@ -1,4 +1,4 @@
-#include "../CoreLib/CoreLib.h"
+#include <CoreLib/CoreLib.h>
 #include <iostream>
 
 using namespace JxCoreLib;

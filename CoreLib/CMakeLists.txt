@@ -1,0 +1,1 @@
+add_library(JxCode.CoreLib "UString.cpp" "Object.cpp" "Type.cpp" "CommonException.cpp" "Reflection.cpp" "File.cpp")

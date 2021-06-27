@@ -1,4 +1,4 @@
-#include "Exception.h"
+#include "CommonException.h"
 #include "CoreLib.h"
 
 #define DECL_FUNC_NAME() DynCreateInstance(const ParameterPackage& params)

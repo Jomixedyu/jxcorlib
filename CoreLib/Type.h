@@ -70,7 +70,7 @@ private: \
 #include <any>
 #include <type_traits>
 
-#include "String.h"
+#include "UString.h"
 #include "Object.h"
 
 namespace JxCoreLib

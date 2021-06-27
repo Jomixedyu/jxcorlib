@@ -1,4 +1,4 @@
-﻿#include "../CoreLib/Events.hpp"
+﻿#include <CoreLib/Events.hpp>
 
 #include <iostream>
 

@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <string>
+#include <cstring>
 #include <cstdint>
 
 //Encoding: UTF-8

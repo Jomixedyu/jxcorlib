@@ -1,4 +1,4 @@
-﻿#include "../CoreLib/String.h"
+﻿#include <CoreLib/UString.h>
 #include <cassert>
 
 using namespace JxCoreLib;

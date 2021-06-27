@@ -1,0 +1,1 @@
+add_library(JxCode.CoreLib.Extension "JsonSerializer.cpp")
