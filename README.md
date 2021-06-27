@@ -82,6 +82,7 @@ C++轻量对象系统，托管指针，反射，拥有统一的类型基类、�
 
 ## String字符串
 ### String与Char
+使用`#include <CoreLib/UString.h>`引入  
 ```c++
 string s("a word 一个字");
 ```
@@ -624,7 +625,7 @@ e.Invoke();
 ```
 
 ## 异常类
-类库内内置了以下基本异常类
+类库内内置了以下基本异常类，位置在`CommonException.h`
 - ExceptionBase
   - RangeOutException
   - ArgumentException
