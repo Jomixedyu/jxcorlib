@@ -306,29 +306,29 @@ namespace JxCoreLib
     class StdAny;
 
     template<typename T, bool is_corelib = is_corelib_type<T>::value>
-    struct typeof_corelib
+    struct get_cltype
     {};
 
     template<typename T>
-    struct typeof_corelib<T, false>
+    struct get_cltype<T, false>
     {
         using type = StdAny;
     };
     template<typename T>
-    struct typeof_corelib<T*, false>
+    struct get_cltype<T*, false>
     {
-        using type = typeof_corelib<T>::type*;
+        using type = get_cltype<T>::type*;
     };
 
     template<typename T>
-    struct typeof_corelib<T, true>
+    struct get_cltype<T, true>
     {
         using type = T;
     };
     template<typename T>
-    struct typeof_corelib<T*, true>
+    struct get_cltype<T*, true>
     {
-        using type = typeof_corelib<T>::type*;
+        using type = get_cltype<T>::type*;
     };
 
 
@@ -357,7 +357,7 @@ namespace JxCoreLib
     static bool operator==(const DataType& l, const Class& r) { return l == r.value; } \
     static bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
     static bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
-    template<> struct typeof_corelib<DataType> { using type = Class; }; \
+    template<> struct get_cltype<DataType> { using type = Class; }; \
     template<> inline Type* cltypeof<DataType>() { return cltypeof<Class>(); }
 
     __CORELIB_DEF_BASE_TYPE(CharType, char);
@@ -394,7 +394,7 @@ namespace JxCoreLib
         string operator()() { return value; }
         virtual string ToString() const override { return value; }
     };
-    template<> struct typeof_corelib<string> { using type = String; };
+    template<> struct get_cltype<string> { using type = String; };
     template<> inline Type* cltypeof<string>() { return cltypeof<String>(); }
 
     class StdAny : public Object
@@ -439,7 +439,7 @@ namespace JxCoreLib
             return _AnyCast<TValue, TCastable...>(any, t);
         }
     };
-    template<> struct typeof_corelib<std::any> { using type = StdAny; };
+    template<> struct get_cltype<std::any> { using type = StdAny; };
     template<> inline Type* cltypeof<std::any>() { return cltypeof<StdAny>(); }
 
 
@@ -464,7 +464,7 @@ namespace JxCoreLib
     template<typename T>
     struct get_object_pointer<T, false>
     {
-        using _CTy = typeof_corelib<T>::type;
+        using _CTy = get_cltype<T>::type;
         static Object* get(const T* t)
         {
             return new _CTy{ *t };

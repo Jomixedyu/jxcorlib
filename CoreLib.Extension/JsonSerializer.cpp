@@ -40,7 +40,7 @@ namespace JxCoreLib
     static bool _DeserializeSetValue(Object* obj, FieldInfo* info, const nlohmann::json& js, bool b)
     {
         if (b) {
-            auto p = new typeof_corelib<T>::type(js.get<T>());
+            auto p = new get_cltype<T>::type(js.get<T>());
             info->SetValue(obj, p);
             return true;
         }

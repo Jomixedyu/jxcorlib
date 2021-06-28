@@ -40,6 +40,7 @@ C++轻量对象系统，托管指针，反射，拥有统一的类型基类、�
     - [基本成员](#基本成员)
     - [cltypeof<>()模板函数](#cltypeof模板函数)
     - [内建类型的Type](#内建类型的type)
+    - [类型封装](#类型封装)
     - [样例](#样例)
   - [Concept概念](#concept概念)
   - [类型工具](#类型工具)
@@ -282,6 +283,24 @@ inline Type* cltypeof()
 另外，类型拥有性质：  
 `cltypeof<int32_t>() == cltypeof<Integer32>()`  
 `typeid(int32_t) != typeid(Integer32)`
+
+### 类型封装
+内建类型和一些标准库中的类型会有对应的封装类型，如`string`的封装类型是`String`，
+我们可以使用`get_cltype`轻易的获取corelib类型。
+
+```c++
+using StrType = get_cltype<string>::type;
+```
+
+则有：  
+```c++
+typeid(StrType) == typeid(String);
+```
+另外还可以获取被封装的类型。
+```c++
+typeid(String::type) == typeid(string);
+```
+StrType就是String类型
 
 ### 样例
 样例：（类型声明在了[声明类型](#声明类型)中）

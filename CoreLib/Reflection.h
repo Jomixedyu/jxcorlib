@@ -23,8 +23,8 @@
         { \
             using _Ty = decltype(std::declval<__corelib_curclass&>().NAME); \
             using _Fuldecay = fulldecay<_Ty>::type; \
-            using _CTy = typeof_corelib<std::remove_cv<_Ty>::type>::type; \
-            using _TyOncePtr = typeof_corelib<_Fuldecay>::type*; \
+            using _CTy = get_cltype<std::remove_cv<_Ty>::type>::type; \
+            using _TyOncePtr = get_cltype<_Fuldecay>::type*; \
             ReflectionBuilder::CreateFieldInfo<__corelib_curclass, _Ty>( \
                 #NAME, false, JxCoreLib::is_detected<_Detected, __corelib_curclass>::value, \
                 [](Object* p) -> Object* { \
@@ -46,8 +46,8 @@
         { \
             using _Ty = decltype(NAME); \
             using _Fuldecay = fulldecay<_Ty>::type; \
-            using _CTy = typeof_corelib<std::remove_cv<_Ty>::type>::type; \
-            using _TyOncePtr = typeof_corelib<_Fuldecay>::type*; \
+            using _CTy = get_cltype<std::remove_cv<_Ty>::type>::type; \
+            using _TyOncePtr = get_cltype<_Fuldecay>::type*; \
             ReflectionBuilder::CreateFieldInfo<__corelib_curclass, _Ty>( \
                 #NAME, true, JxCoreLib::is_detected<_Detected, __corelib_curclass>::value, \
                 [](Object* p) -> Object* { \
