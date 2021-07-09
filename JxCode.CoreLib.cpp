@@ -12,6 +12,7 @@ extern void TestReflection();
 extern void TestJsonSerializer();
 extern void TestManagedPtr();
 extern void TestDynCreateInst();
+extern void TestManagedVector();
 
 int main()
 {
@@ -25,6 +26,7 @@ int main()
     TestJsonSerializer();
     TestManagedPtr();
     TestDynCreateInst();
+    TestManagedVector();
 
     return 0;
 }
