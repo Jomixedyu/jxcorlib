@@ -1,5 +1,7 @@
 ﻿
 #include "CoreLib/CoreLib.h"
+#include "CoreLib/DebugTool.h"
+#include <format>
 
 using namespace std;
 using namespace JxCoreLib;
