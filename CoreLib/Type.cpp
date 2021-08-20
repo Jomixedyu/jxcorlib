@@ -98,7 +98,7 @@ namespace JxCoreLib
     {
         static int id = -1;
         if (id == -1) {
-            id = Type::Register(nullptr, cltypeof<Object>(), _T("JxCoreLib::Type"), typeid(Type), sizeof(Type));
+            id = Type::Register(nullptr, cltypeof<Object>(), "JxCoreLib::Type", typeid(Type), sizeof(Type));
         }
         return Type::GetType(id);
     }

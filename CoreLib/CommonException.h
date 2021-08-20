@@ -34,7 +34,7 @@ namespace JxCoreLib
             return this->message_;
         }
         virtual const char* what() const override {
-            this->whatcache_ = string(this->GetType()->get_name() + _T(": ") + this->message_);
+            this->whatcache_ = string(this->GetType()->get_name() + ": " + this->message_);
             return this->whatcache_.c_str();
         }
         virtual string ToString() const override {

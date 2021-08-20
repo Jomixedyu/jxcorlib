@@ -16,9 +16,6 @@
 
 //Encoding: UTF-8
 
-#define _T(str) str
-#define NAMEOF(NAME) #NAME
-
 namespace JxCoreLib
 {
     using string = std::string;
