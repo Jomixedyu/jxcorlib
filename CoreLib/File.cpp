@@ -6,16 +6,42 @@
 
 namespace JxCoreLib
 {
-    std::string File::ReadAllText(const std::string& path)
+    namespace FileUtil
     {
-        std::ifstream ifs;
-        std::stringstream ss;
-        ifs.open(path);
-        if (!ifs.is_open()) {
-            throw std::invalid_argument("Unable to open file");
+        std::string ReadAllText(const std::string& path)
+        {
+            std::ifstream ifs;
+            std::stringstream ss;
+            ifs.open(path);
+            if (!ifs.is_open()) {
+                throw std::invalid_argument("Unable to open file");
+            }
+            ss << ifs.rdbuf() << std::endl;
+            ifs.close();
+            return ss.str();
         }
-        ss << ifs.rdbuf() << std::endl;
-        ifs.close();
-        return ss.str();
+    }
+
+
+    namespace PathUtil
+    {
+        std::string GetFilenameWithoutExt(const std::string& path)
+        {
+            std::string str(path);
+            int last = -1;
+            for (size_t i = 0; i < str.size(); i++)
+            {
+                if (str[i] == '\\')
+                {
+                    str[i] = '/';
+                }
+                if (str[i] == '/')
+                {
+                    last = (int)i;
+                }
+            }
+            return str.substr(last + 1, str.find_last_of('.') - last - 1);
+        }
     }
 }
+

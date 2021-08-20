@@ -13,10 +13,13 @@
 
 namespace JxCoreLib
 {
-    class File final
+    namespace FileUtil
     {
-    public:
-        static std::string ReadAllText(const std::string& path);
+        std::string ReadAllText(const std::string& path);
+    }
+    namespace PathUtil
+    {
+        std::string GetFilenameWithoutExt(const std::string& path);
     };
 }
 
