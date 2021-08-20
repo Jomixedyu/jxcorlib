@@ -35,7 +35,7 @@ namespace JxCoreLib
     public:
         void SetManagedParent(Object* parent);
     public:
-        virtual Type* get_type() const;
+        virtual Type* GetType() const;
         friend class Type;
     public:
         Object() {}

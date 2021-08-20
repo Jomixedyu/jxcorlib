@@ -17,7 +17,7 @@ private: \
     friend class Type; \
     friend class TypeTraits; \
     public: \
-        inline virtual Type* get_type() const override { \
+        inline virtual Type* GetType() const override { \
             return __meta_type(); \
         } \
     private: \
@@ -111,7 +111,7 @@ namespace JxCoreLib
             }
         } _type_init_;
     public:
-        virtual Type* get_type() const;
+        virtual Type* GetType() const;
     public:
         virtual int get_structure_size() const;
         const string& get_name() const;

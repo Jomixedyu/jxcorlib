@@ -30,7 +30,7 @@ namespace JxCoreLib
     {
         using namespace nlohmann;
         json js;
-        _Serialize(obj, obj->get_type()->get_fieldinfos(), js);
+        _Serialize(obj, obj->GetType()->get_fieldinfos(), js);
         return js.dump();
     }
 

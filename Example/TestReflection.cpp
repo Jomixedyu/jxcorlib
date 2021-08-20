@@ -50,7 +50,7 @@ void TestReflection()
     Type* dyn_type = Type::GetType("space::DynCreateClass");
     Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 
-    assert(dyn->get_type() == cltypeof<space::DynCreateClass>());
+    assert(dyn->GetType() == cltypeof<space::DynCreateClass>());
 
     //field reflection
     DataModel* model = new DataModel;
@@ -70,7 +70,7 @@ void TestReflection()
     id_field->SetValue(model, new Integer32{ 3 });
 
     Object* id_value = id_field->GetValue(model);
-    assert(id_value->get_type() == cltypeof<int>());
+    assert(id_value->GetType() == cltypeof<int>());
     assert(*(Integer32*)id_value == 3);
 
     //name : Object*

@@ -17,7 +17,7 @@ namespace JxCoreLib
 
     bool Type::IsInstanceOfType(Object* object)
     {
-        return object->get_type()->IsSubclassOf(this);
+        return object->GetType()->IsSubclassOf(this);
     }
 
     bool Type::IsSubclassOf(Type* type)
@@ -103,7 +103,7 @@ namespace JxCoreLib
         return Type::GetType(id);
     }
 
-    Type* Type::get_type() const
+    Type* Type::GetType() const
     {
         return __meta_type();
     }
@@ -219,7 +219,7 @@ namespace JxCoreLib
         v.reserve(this->member_infos_.size());
         for (auto& item : this->member_infos_)
         {
-            if ((item.second->get_type()->IsSubclassOf(cltypeof<FieldInfo>()))
+            if ((item.second->GetType()->IsSubclassOf(cltypeof<FieldInfo>()))
                 && (item.second->is_public() == is_public)
                 && (item.second->is_static() == is_static)
                 )
@@ -237,7 +237,7 @@ namespace JxCoreLib
             return nullptr;
         }
         MemberInfo* info = this->member_infos_.at(name);
-        if (!info->get_type()->IsSubclassOf(cltypeof<FieldInfo>()))
+        if (!info->GetType()->IsSubclassOf(cltypeof<FieldInfo>()))
         {
             return nullptr;
         }
@@ -250,7 +250,7 @@ namespace JxCoreLib
         v.reserve(this->member_infos_.size());
         for (auto& item : this->member_infos_)
         {
-            if ((item.second->get_type()->IsSubclassOf(cltypeof<MethodInfo>()))
+            if ((item.second->GetType()->IsSubclassOf(cltypeof<MethodInfo>()))
                 && (item.second->is_public() == is_public)
                 && (item.second->is_static() == is_static)
                 )
@@ -268,7 +268,7 @@ namespace JxCoreLib
             return nullptr;
         }
         MemberInfo* info = this->member_infos_.at(name);
-        if (!info->get_type()->IsSubclassOf(cltypeof<MethodInfo>()))
+        if (!info->GetType()->IsSubclassOf(cltypeof<MethodInfo>()))
         {
             return nullptr;
         }

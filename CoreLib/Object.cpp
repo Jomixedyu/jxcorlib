@@ -20,7 +20,7 @@ namespace JxCoreLib
         return Type::GetType(id);
     }
 
-    Type* Object::get_type() const
+    Type* Object::GetType() const
     {
         return __meta_type();
     }
@@ -104,7 +104,7 @@ namespace JxCoreLib
 
     string Object::ToString() const
     {
-        return this->get_type()->get_name();
+        return this->GetType()->get_name();
     }
 
 }

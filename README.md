@@ -135,7 +135,7 @@ StringUtil类中有常用的`Replace`，`Concat`等函数，具体查看`String.
 ## Object类型
 Object类型有两个虚函数：
 ```c++
-virtual Type* get_type() const;
+virtual Type* GetType() const;
 virtual String ToString() const;
 ```
 其中get_type不应该被用户所重写，重写由提供的定义宏来重写。  
@@ -307,12 +307,12 @@ StrType就是String类型
 ```c++
 ExampleClass* exm = new ExampleClass;
 
-cout << exm->get_type()->get_name() << endl;
+cout << exm->GetType()->get_name() << endl;
 
 Type* dyn_type = Type::GetType("space::DynCreateClass");
 Object* dyn = dyn_type->CreateInstance();
 
-cout << (dyn->get_type() == cltypeof<space::DynCreateClass>()) << endl;
+cout << (dyn->GetType() == cltypeof<space::DynCreateClass>()) << endl;
 ```
 ## Concept概念  
 在`Object`中提供了及个concept用于模板约束，分别是：  
@@ -471,7 +471,7 @@ public:
     id_field->SetValue(model, 3);
 
     Object* id_value = id_field->GetValue(model);
-    assert(id_value->get_type() == cltypeof<int>());
+    assert(id_value->GetType() == cltypeof<int>());
     assert(*(Integer32*)id_value == 3);
 
     //name : Object*
