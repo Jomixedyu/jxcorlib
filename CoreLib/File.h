@@ -20,6 +20,7 @@ namespace JxCoreLib
     namespace PathUtil
     {
         std::string GetFilenameWithoutExt(const std::string& path);
+        std::string GetFilename(const std::string& path);
     };
 }
 
