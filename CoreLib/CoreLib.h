@@ -40,5 +40,6 @@ SOFTWARE.
 #include "Reflection.h"
 #include "File.h"
 #include "Formater.h"
+#include "Events.hpp"
 
 #endif // !_CORELIB_OOPCORE_H
