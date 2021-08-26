@@ -2,7 +2,7 @@
 * @Moudule     : File
 * @Date        : 2020/07/14
 * @Author      : JomiXedYu
-* @Description : This file is part of JxCode.CoreLib : https://github.com/JxmiXedYu/JxCode.CoreLib
+* @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
 * @StdRequired : c++11
 */
 
