@@ -23,22 +23,18 @@ SOFTWARE.
 */
 
 /*
-* @Moudule     : CoreLib
+* @Moudule     : Core
 * @Date        : 2021/05/24
 * @Author      : JomiXedYu
 * @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
 */
 
-#ifndef _CORELIB_CORELIB_H
-#define _CORELIB_CORELIB_H
+#ifndef _CORELIB_CORE_H
+#define _CORELIB_CORE_H
 
 #include "UString.h"
 #include "Object.h"
 #include "Type.h"
 #include "CommonException.h"
-#include "DebugTool.h"
-#include "Reflection.h"
-#include "File.h"
-#include "Formater.h"
 
 #endif // !_CORELIB_OOPCORE_H

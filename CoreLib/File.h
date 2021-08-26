@@ -16,6 +16,7 @@ namespace JxCoreLib
     namespace FileUtil
     {
         std::string ReadAllText(const std::string& path);
+        void WriteAllText(const std::string path, const std::string& content);
     }
     namespace PathUtil
     {

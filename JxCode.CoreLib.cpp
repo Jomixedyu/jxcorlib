@@ -2,6 +2,10 @@
 #include "CoreLib/CoreLib.h"
 #include "CoreLib/DebugTool.h"
 #include <format>
+#include <array>
+#include <iostream>
+#include <string>
+
 
 using namespace std;
 using namespace JxCoreLib;
@@ -15,6 +19,7 @@ extern void TestJsonSerializer();
 extern void TestManagedPtr();
 extern void TestDynCreateInst();
 extern void TestManagedVector();
+extern void TestFormater();
 
 int main()
 {
@@ -29,6 +34,7 @@ int main()
     TestManagedPtr();
     TestDynCreateInst();
     TestManagedVector();
+    TestFormater();
 
     return 0;
 }
