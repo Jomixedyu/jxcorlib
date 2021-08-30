@@ -13,10 +13,8 @@
 
 #define DEBUG_INFO(info) std::format("info: {}; line: {}, file: {};", info, __LINE__, __FILE__)
 
-#define CHECK_NULLPOINTER(ptr) if(ptr == nullptr) throw JxCoreLib::NullPointerException(DEBUG_INFO(#ptr));
-
 template<typename T>
-T* AssertNull(T* v, const std::string& str)
+T* _AssertNull(T* v, const std::string& str)
 {
     if (v == nullptr)
     {
@@ -25,6 +23,7 @@ T* AssertNull(T* v, const std::string& str)
     return v;
 }
 
-#define ANUL(ptr) AssertNull(ptr, DEBUG_INFO(#ptr))
+#define NulPtr$(ptr) _AssertNull(ptr, DEBUG_INFO(#ptr))
+#define Nulable$(ptr) if(ptr != nullptr) ptr
 
 #endif // !_CORELIB_DEBUGTOOL
