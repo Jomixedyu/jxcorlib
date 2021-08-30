@@ -1,5 +1,5 @@
 #include <CoreLib.Extension/JsonSerializer.h>
-#include <CoreLib//DebugTool.h>
+#include <CoreLib//DebugTool.hpp>
 #include <iostream>
 #include <format>
 

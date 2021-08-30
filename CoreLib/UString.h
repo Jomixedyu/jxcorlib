@@ -19,7 +19,6 @@
 namespace JxCoreLib
 {
     using string = std::string;
-    using refsting = const std::string&;
 
     struct Char final
     {

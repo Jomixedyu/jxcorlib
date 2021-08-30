@@ -1,6 +1,6 @@
 ﻿
 #include "CoreLib/CoreLib.h"
-#include "CoreLib/DebugTool.h"
+#include "CoreLib/DebugTool.hpp"
 #include <format>
 #include <array>
 #include <iostream>

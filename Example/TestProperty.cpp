@@ -1,4 +1,4 @@
-﻿#include <CoreLib/Property.h>
+﻿#include <CoreLib/Property.hpp>
 #include <CoreLib/CoreLib.h>
 #include <cassert>
 
