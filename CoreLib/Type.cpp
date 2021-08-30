@@ -52,6 +52,16 @@ namespace JxCoreLib
         return (*this->c_inst_ptr_)(v);
     }
 
+    std::unique_ptr<Object> Type::CreateInstanceUnique()
+    {
+        return std::unique_ptr<Object>(CreateInstance());
+    }
+
+    std::unique_ptr<Object> Type::CreateInstanceUnique(const ParameterPackage& v)
+    {
+        return std::unique_ptr<Object>(CreateInstance(v));
+    }
+
     Type* Type::GetType(const string& str)
     {
         for (auto& item : *g_types) {

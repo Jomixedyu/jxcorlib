@@ -69,6 +69,7 @@ private: \
 #include <map>
 #include <any>
 #include <type_traits>
+#include <memory>
 
 #include "UString.h"
 #include "Object.h"
@@ -122,12 +123,13 @@ namespace JxCoreLib
         virtual string ToString() const override;
     public:
         bool IsInstanceOfType(Object* object);
-        /*
-        * 确定当前 Type 表示的类是否是从指定的 Type 表示的类派生的。
-        */
+        /* 确定当前 Type 表示的类是否是从指定的 Type 表示的类派生的。*/
         bool IsSubclassOf(Type* type);
+    public:
         [[nodiscard]] Object* CreateInstance();
         [[nodiscard]] Object* CreateInstance(const ParameterPackage& v);
+        std::unique_ptr<Object> CreateInstanceUnique();
+        std::unique_ptr<Object> CreateInstanceUnique(const ParameterPackage& v);
     public:
         static Type* GetType(const string& str);
         static Type* GetType(const char*& str);
@@ -233,7 +235,6 @@ namespace JxCoreLib
     class TypeTraits final
     {
     public:
-
         template<typename T, typename = void>
         struct is_zeroparam_ctor : std::false_type {};
 
@@ -506,6 +507,7 @@ namespace JxCoreLib
 
     template <template <typename...> class Op, typename... T>
     using is_detected = is_detected_impl<void, Op, T...>;
+
 }
 
 #endif // !_CORELIB_TYPE_H

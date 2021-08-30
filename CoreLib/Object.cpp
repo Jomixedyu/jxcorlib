@@ -109,6 +109,7 @@ namespace JxCoreLib
 
     void ManagedptrTree::GCollect()
     {
+
     }
 
     incregc_iterator ManagedptrTree::GetIncrementalGCollectIt()

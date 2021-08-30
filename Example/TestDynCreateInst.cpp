@@ -43,12 +43,12 @@ class NotImplCreate : public Object
 void TestDynCreateInst()
 {
 
-    auto p1 = (CreateFactory*)Type::GetType("CreateFactory")->CreateInstance();
-
+    CreateFactory* p1 = (CreateFactory*)Type::GetType("CreateFactory")->CreateInstance();
     assert(p1->i == 1);
 
-    auto p2 = (NonCreateFactory*)Type::GetType("NonCreateFactory")->CreateInstance();
-    
+    std::unique_ptr<Object> _p2 = Type::GetType("NonCreateFactory")->CreateInstanceUnique();
+    NonCreateFactory* p2 = (NonCreateFactory*)_p2.get();
+
     assert(p2->i == 2);
 
     int r = 0;
