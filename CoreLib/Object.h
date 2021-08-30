@@ -44,6 +44,20 @@ namespace JxCoreLib
         virtual string ToString() const;
     };
 
+    //TODO:
+    struct incregc_iterator
+    {
+        
+    };
+
+    class ManagedptrTree final
+    {
+    public:
+        inline static Object* const Root = new Object;
+        static void GCollect();
+        static incregc_iterator GetIncrementalGCollectIt();
+    };
+
     template<typename T>
     concept baseof_object_concept =
         std::is_base_of<Object, typename std::remove_pointer<T>::type>::value;

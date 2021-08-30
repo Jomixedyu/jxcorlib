@@ -107,6 +107,15 @@ namespace JxCoreLib
         return this->GetType()->get_name();
     }
 
+    void ManagedptrTree::GCollect()
+    {
+    }
+
+    incregc_iterator ManagedptrTree::GetIncrementalGCollectIt()
+    {
+        return incregc_iterator();
+    }
+
 }
 
 std::string std::to_string(JxCoreLib::Object* obj)
