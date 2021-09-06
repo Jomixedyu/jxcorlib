@@ -81,5 +81,13 @@ namespace JxCoreLib
     public:
         DEF_EXCEPTION_CTOR(NullPointerException);
     };
+
+    class DivisionByZeroException : public ExceptionBase
+    {
+        CORELIB_DEF_TYPE(JxCoreLib::DivisionByZeroException, ExceptionBase);
+        CORELIB_DECL_DYNCINST();
+    public:
+        DEF_EXCEPTION_CTOR(DivisionByZeroException);
+    };
 }
 #endif // !_CORELIB_EXCEPTION_H
