@@ -61,8 +61,8 @@ namespace cvt
     }
     inline bool to_bool(const std::string& str)
     {
-        std::string nstr;
-        std::transform(str.begin(), str.end(), nstr.begin(), std::tolower);
+        std::string nstr = str;
+        std::transform(nstr.begin(), nstr.end(), nstr.begin(), ::tolower);
         return nstr == "true";
     }
 }
