@@ -13,31 +13,11 @@
 
 #define DEBUG_INFO(info) std::format("info: {}; line: {}, file: {};", info, __LINE__, __FILE__)
 
-template<typename T>
-T* _AssertNull(T* v, const std::string& str)
-{
-    if (v == nullptr)
-    {
-        throw JxCoreLib::NullPointerException(str);
-    }
-    return v;
-}
 
-#define nulptr$(ptr) _AssertNull(ptr, DEBUG_INFO(#ptr))
 #define nulable$(ptr) if(ptr != nullptr) ptr
+#define assert_nulptr(ptr) if(ptr == nullptr) throw JxCoreLib::NullPointerException(DEBUG_INFO(#ptr))
 
-template<typename T>
-T _AssertZero(T num, const std::string& str)
-{
-    static_assert(std::is_integral<T>::value);
-    if (num == T(0))
-    {
-        throw JxCoreLib::DivisionByZeroException(str);
-    }
-    return num;
-}
-
-#define zero$(num) _AssertZero(num, DEBUG_INFO(#num));
+#define zero$(num) (num == (decltype(num))(0) ? throw JxCoreLib::DivisionByZeroException(DEBUG_INFO(#num)) : num)
 #define assert_zero(num) if(num == 0) throw JxCoreLib::DivisionByZeroException(DEBUG_INFO(#num));
 
 #endif // !_CORELIB_DEBUGTOOL
