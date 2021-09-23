@@ -49,7 +49,7 @@ void TestJsonSerializer()
     student->person_info->name = "jx";
     student->person_info->age = 12;
 
-    string json_str = JsonSerializer::Serialize(student);
+    string json_str = JsonSerializer::Serialize(student, true);
     cout << json_str << endl;
 
     StudentInfo* newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);

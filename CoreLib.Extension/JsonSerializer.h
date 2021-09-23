@@ -9,7 +9,7 @@ namespace JxCoreLib
     class JsonSerializer
     {
     public:
-        static string Serialize(Object* obj);
+        static string Serialize(Object* obj, bool isIndent = false);
     public:
         static Object* Deserialize(const string& jstr, Type* type);
         template<typename T>

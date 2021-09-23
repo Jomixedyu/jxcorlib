@@ -26,12 +26,12 @@ namespace JxCoreLib
         }
     }
 
-    string JxCoreLib::JsonSerializer::Serialize(Object* obj)
+    string JxCoreLib::JsonSerializer::Serialize(Object* obj, bool isIndent)
     {
         using namespace nlohmann;
         json js;
         _Serialize(obj, obj->GetType()->get_fieldinfos(), js);
-        return js.dump();
+        return js.dump(isIndent ? 4 : -1);
     }
 
 
