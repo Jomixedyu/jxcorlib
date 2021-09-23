@@ -49,9 +49,9 @@ namespace jxcvt
     concept is_iteratable = requires { typename T::iterator; };
 
     template<is_iteratable T>
-    inline string to_string(const T& arr)
+    inline std::string to_string(const T& arr)
     {
-        string s;
+        std::string s;
         s.append("[");
         for (auto it = arr.begin(); it != arr.end(); it++)
         {
