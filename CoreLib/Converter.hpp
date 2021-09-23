@@ -12,8 +12,39 @@
 #include <cstdint>
 #include <algorithm>
 
-namespace std
+namespace jxcvt
 {
+    using std::to_string;
+
+    int32_t to_int32(std::string_view str);
+    float to_float32(std::string_view str);
+    double to_double64(std::string_view str);
+    bool to_bool(std::string_view str);
+
+    inline int32_t to_int32(std::string_view str)
+    {
+        return std::atoi(str.data());
+    }
+    inline float to_float32(std::string_view str)
+    {
+        return (float)std::atof(str.data());
+    }
+    inline double to_double64(std::string_view str)
+    {
+        return std::atof(str.data());
+    }
+    inline bool to_bool(std::string_view str)
+    {
+        if (str.size() > 5 || str.size() < 4)
+        {
+            return false;
+        }
+        std::string nstr(str);
+        std::transform(nstr.begin(), nstr.end(), nstr.begin(), ::tolower);
+        return nstr == "true";
+    }
+
+
     template<typename T>
     concept is_iteratable = requires { typename T::iterator; };
 
@@ -33,41 +64,10 @@ namespace std
         s.append("]");
         return s;
     }
-
 }
 
-namespace cvt
-{
-    using std::to_string;
-
-    int32_t to_int32(const std::string& str);
-    float to_float32(const std::string& str);
-    double to_double64(const std::string& str);
-    bool to_bool(const std::string& str);
-
-
-    //inline
-    inline int32_t to_int32(const std::string& str)
-    {
-        return std::atoi(str.c_str());
-    }
-    inline float to_float32(const std::string& str)
-    {
-        return (float)std::atof(str.c_str());
-    }
-    inline double to_double64(const std::string& str)
-    {
-        return std::atof(str.c_str());
-    }
-    inline bool to_bool(const std::string& str)
-    {
-        std::string nstr = str;
-        std::transform(nstr.begin(), nstr.end(), nstr.begin(), ::tolower);
-        return nstr == "true";
-    }
-}
 
 namespace JxCoreLib
 {
-    using namespace cvt;
+    using namespace jxcvt;
 }
