@@ -2,26 +2,29 @@
 #include <cmath>
 #include <stdexcept>
 
+using JxCoreLib::string;
+using u16string = std::u16string;
+
 static inline uint16_t _ByteSwapInt16(uint16_t number)
 {
     return (number >> 8) | (number << 8);
 }
 
-static std::string _Utf16LEToUtf8(const std::u16string& u16str)
+static string _Utf16LEToUtf8(const u16string& u16str)
 {
-    if (u16str.empty()) { return std::string(); }
+    if (u16str.empty()) { return string(); }
     const char16_t* p = u16str.data();
-    std::u16string::size_type len = u16str.length();
+    u16string::size_type len = u16str.length();
 
     if (p[0] == 0xFEFF) {
         p += 1;	//带有bom标记，后移
         len -= 1;
     }
-    std::string u8str;
+    string u8str;
     u8str.reserve(len * 3);
 
     char16_t u16char;
-    for (std::u16string::size_type i = 0; i < len; ++i)
+    for (u16string::size_type i = 0; i < len; ++i)
     {
         u16char = p[i];
         // 1字节表示部分
@@ -71,21 +74,21 @@ static std::string _Utf16LEToUtf8(const std::u16string& u16str)
     return u8str;
 }
 
-static std::string _Utf16BEToUtf8(const std::u16string& u16str)
+static string _Utf16BEToUtf8(const u16string& u16str)
 {
-    if (u16str.empty()) { return std::string(); }
+    if (u16str.empty()) { return string(); }
     const char16_t* p = u16str.data();
-    std::u16string::size_type len = u16str.length();
+    u16string::size_type len = u16str.length();
     if (p[0] == 0xFEFF) {
         p += 1;	//带有bom标记，后移
         len -= 1;
     }
 
     // 开始转换
-    std::string u8str;
+    string u8str;
     u8str.reserve(len * 2);
     char16_t u16char;	//u16le 低字节存低位，高字节存高位
-    for (std::u16string::size_type i = 0; i < len; ++i) {
+    for (u16string::size_type i = 0; i < len; ++i) {
         // 这里假设是在小端序下(大端序不适用)
         u16char = p[i];
         // 将大端序转为小端序
@@ -137,9 +140,9 @@ static std::string _Utf16BEToUtf8(const std::u16string& u16str)
     return u8str;
 }
 
-static std::string _Utf16ToUtf8(const std::u16string& u16str)
+static string _Utf16ToUtf8(const u16string& u16str)
 {
-    if (::JxCoreLib::StringUtil::IsLittleEndian()) {
+    if (JxCoreLib::StringUtil::IsLittleEndian()) {
         return _Utf16LEToUtf8(u16str);
     }
     else {
@@ -147,14 +150,14 @@ static std::string _Utf16ToUtf8(const std::u16string& u16str)
     }
 }
 
-static std::u16string _Utf8ToUtf16LE(const std::string& u8str, bool addbom, bool* ok)
+static u16string _Utf8ToUtf16LE(const string& u8str, bool addbom, bool* ok)
 {
-    std::u16string u16str;
+    u16string u16str;
     u16str.reserve(u8str.size());
     if (addbom) {
         u16str.push_back(0xFEFF);	//bom (字节表示为 FF FE)
     }
-    std::string::size_type len = u8str.length();
+    string::size_type len = u8str.length();
 
     const unsigned char* p = (unsigned char*)(u8str.data());
     // 判断是否具有BOM(判断长度小于3字节的情况)
@@ -165,7 +168,7 @@ static std::u16string _Utf8ToUtf16LE(const std::string& u8str, bool addbom, bool
 
     bool is_ok = true;
     // 开始转换
-    for (std::string::size_type i = 0; i < len; ++i) {
+    for (string::size_type i = 0; i < len; ++i) {
         uint32_t ch = p[i];	// 取出UTF8序列首字节
         if ((ch & 0x80) == 0) {
             // 最高位为0，只有1字节表示UNICODE代码点
@@ -227,9 +230,9 @@ static std::u16string _Utf8ToUtf16LE(const std::string& u8str, bool addbom, bool
     return u16str;
 }
 
-static std::u16string _Utf8ToUtf16BE(const std::string& u8str, bool addbom, bool* ok)
+static u16string _Utf8ToUtf16BE(const string& u8str, bool addbom, bool* ok)
 {
-    std::u16string u16str = _Utf8ToUtf16LE(u8str, addbom, ok);
+    u16string u16str = _Utf8ToUtf16LE(u8str, addbom, ok);
     // reverse
     for (size_t i = 0; i < u16str.size(); ++i) {
         u16str[i] = _ByteSwapInt16(u16str[i]);
@@ -237,9 +240,9 @@ static std::u16string _Utf8ToUtf16BE(const std::string& u8str, bool addbom, bool
     return u16str;
 }
 
-static std::u16string _Utf8ToUtf16(const std::string& u8str)
+static u16string _Utf8ToUtf16(const string& u8str)
 {
-    if (::JxCoreLib::StringUtil::IsLittleEndian()) {
+    if (JxCoreLib::StringUtil::IsLittleEndian()) {
         return _Utf8ToUtf16LE(u8str, false, nullptr);
     }
     else {
@@ -250,44 +253,44 @@ static std::u16string _Utf8ToUtf16(const std::string& u8str)
 namespace JxCoreLib
 {
 
-    inline static bool _StringEqualsChar(const Char& c, const string& str)
+    inline static bool _StringEqualsChar(const u8char& c, const string& str)
     {
         if (str.size() > 6 || str.empty()) {
             return false;
         }
-        return Char::Charcmp(c.value, str.c_str());
+        return u8char::Charcmp(c.value, str.c_str());
     }
-    bool operator==(const Char& left, const string& right)
+    bool operator==(const u8char& left, const string& right)
     {
         return _StringEqualsChar(left, right);
     }
 
-    bool operator==(const string& left, const Char& right)
+    bool operator==(const string& left, const u8char& right)
     {
         return _StringEqualsChar(right, left);
     }
 
-    bool operator!=(const Char& left, const string& right)
+    bool operator!=(const u8char& left, const string& right)
     {
         return _StringEqualsChar(left, right);
     }
 
-    bool operator!=(const string& left, const Char& right)
+    bool operator!=(const string& left, const u8char& right)
     {
         return _StringEqualsChar(right, left);
     }
 
-    string operator+(const Char& left, const string& right)
+    string operator+(const u8char& left, const string& right)
     {
         return left.value + right;
     }
 
-    string operator+(const string& left, const Char& right)
+    string operator+(const string& left, const u8char& right)
     {
         return left + right.value;
     }
 
-    StringIndexMapping::StringIndexMapping(const string& str, size_t block_size) : block_size_(block_size)
+    StringIndexMapping::StringIndexMapping(string_view str, size_t block_size) : block_size_(block_size)
     {
         if (block_size <= 0) {
             throw std::invalid_argument("block_size");
@@ -341,7 +344,7 @@ namespace JxCoreLib
         return b;
     }
 
-    size_t StringUtil::U8Length(const string& str, const size_t& pos)
+    size_t StringUtil::U8Length(string_view str, size_t pos)
     {
         unsigned char c = static_cast<unsigned char>(str[pos]);
         if ((c & 0b10000000) == 0b00000000)  return 1;
@@ -391,8 +394,8 @@ namespace JxCoreLib
         return nstr;
     }
 
-    inline static Char _StringUtil_At(
-        const string& src, const size_t& pos,
+    inline static u8char _StringUtil_At(
+        const string_view& src, const size_t& pos,
         const size_t& start_offset = 0, const size_t& start_char_count = 0)
     {
         size_t size = StringUtil::Size(src);
@@ -401,7 +404,7 @@ namespace JxCoreLib
         {
             offset += StringUtil::U8Length(src, offset);
         }
-        Char ch;
+        u8char ch;
         size_t len = StringUtil::U8Length(src, offset);
         for (size_t i = 0; i < len; i++)
         {
@@ -409,9 +412,9 @@ namespace JxCoreLib
         }
         return ch;
     }
-    Char StringUtil::PosAt(const string& src, const size_t& bytepos)
+    u8char StringUtil::PosAt(const string_view& src, const size_t& bytepos)
     {
-        Char ch;
+        u8char ch;
         size_t len = StringUtil::U8Length(src, bytepos);
         for (size_t i = 0; i < len; i++)
         {
@@ -419,12 +422,12 @@ namespace JxCoreLib
         }
         return ch;
     }
-    Char StringUtil::CharAt(const string& src, const size_t& charpos)
+    u8char StringUtil::CharAt(const string_view& src, const size_t& charpos)
     {
         return _StringUtil_At(src, charpos);
     }
 
-    Char StringUtil::CharAt(const string& src, const size_t& charpos, const StringIndexMapping& mapping)
+    u8char StringUtil::CharAt(const string_view& src, const size_t& charpos, const StringIndexMapping& mapping)
     {
         size_t block_size = mapping.get_block_size();
         if (block_size == 0) {
@@ -436,7 +439,7 @@ namespace JxCoreLib
         return _StringUtil_At(src, charpos, mapping.GetOffset(charpos), start_char_count);
     }
 
-    inline static size_t _StringUtil_U8Length_Internal(const string& src, const size_t& start = 0)
+    inline static size_t _StringUtil_U8Length_Internal(const string_view& src, const size_t& start = 0)
     {
         size_t size = StringUtil::Size(src);
         size_t index = start;
@@ -449,18 +452,18 @@ namespace JxCoreLib
         return len;
     }
 
-    size_t StringUtil::Length(const string& src)
+    size_t StringUtil::Length(const string_view& src)
     {
         return _StringUtil_U8Length_Internal(src);
     }
 
-    size_t StringUtil::Length(const string& src, const StringIndexMapping& mapping)
+    size_t StringUtil::Length(const string_view& src, const StringIndexMapping& mapping)
     {
         return (mapping.get_block_count() - 1) * mapping.get_block_size()
             + _StringUtil_U8Length_Internal(src, mapping.mapping[mapping.get_block_count() - 1]);
     }
 
-    std::vector<uint8_t> StringUtil::GetBytes(const string& str)
+    std::vector<uint8_t> StringUtil::GetBytes(const string_view& str)
     {
         std::vector<uint8_t> c;
         c.reserve(str.size());
@@ -468,7 +471,7 @@ namespace JxCoreLib
         return c;
     }
 
-    std::u16string StringUtil::Utf8ToUtf16(const string& str)
+    u16string StringUtil::Utf8ToUtf16(const string& str)
     {
         return _Utf8ToUtf16(str);
     }

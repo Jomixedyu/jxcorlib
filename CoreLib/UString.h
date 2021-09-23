@@ -18,9 +18,11 @@
 
 namespace JxCoreLib
 {
-    using string = std::string;
 
-    struct Char final
+    using string = std::string;
+    using string_view = std::string_view;
+
+    struct u8char final
     {
         char value[8]{ 0 };
         inline static int U8Length(const char* c)
@@ -51,16 +53,16 @@ namespace JxCoreLib
 
             return true;
         }
-        Char() {}
-        Char(const char* c)
+        u8char() {}
+        u8char(const char* c)
         {
             Charcpy(this->value, c);
         }
-        bool operator==(const Char& r)
+        bool operator==(const u8char& r)
         {
             return Charcmp(this->value, r.value);
         }
-        bool operator!=(const Char& r)
+        bool operator!=(const u8char& r)
         {
             return !Charcmp(this->value, r.value);
         }
@@ -71,19 +73,19 @@ namespace JxCoreLib
 
     };
 
-    bool operator==(const Char& left, const string& right);
-    bool operator==(const string& left, const Char& right);
-    bool operator!=(const Char& left, const string& right);
-    bool operator!=(const string& left, const Char& right);
-    string operator+(const Char& left, const string& right);
-    string operator+(const string& left, const Char& right);
+    bool operator==(const u8char& left, const string& right);
+    bool operator==(const string& left, const u8char& right);
+    bool operator!=(const u8char& left, const string& right);
+    bool operator!=(const string& left, const u8char& right);
+    string operator+(const u8char& left, const string& right);
+    string operator+(const string& left, const u8char& right);
 
     struct StringIndexMapping final
     {
     private:
         size_t block_size_;
     public:
-        StringIndexMapping(const string& str, size_t block_size) noexcept(false);
+        StringIndexMapping(string_view str, size_t block_size) noexcept(false);
     public:
         std::vector<int> mapping;
         size_t get_block_size() const;
@@ -99,7 +101,7 @@ namespace JxCoreLib
         StringUtil() = delete;
     public:
         static bool IsLittleEndian() noexcept;
-        static size_t U8Length(const string& str, const size_t& pos) noexcept(false);
+        static size_t U8Length(string_view str, size_t pos) noexcept(false);
     private:
         static string _Replace(
             const char* src, size_t src_len,
@@ -113,30 +115,26 @@ namespace JxCoreLib
                 ToCharPointer(oldstr), Size(oldstr),
                 ToCharPointer(newstr), Size(newstr));
         }
-        static Char PosAt(const string& src, const size_t& bytepos);
-        static Char CharAt(const string& src, const size_t& charpos);
-        static Char CharAt(const string& src, const size_t& charpos, const StringIndexMapping& mapping);
-        static size_t Length(const string& src);
-        static size_t Length(const string& src, const StringIndexMapping& mapping);
-        static std::vector<uint8_t> GetBytes(const string& str);
+        static u8char PosAt(const string_view& src, const size_t& bytepos);
+        static u8char CharAt(const string_view& src, const size_t& charpos);
+        static u8char CharAt(const string_view& src, const size_t& charpos, const StringIndexMapping& mapping);
+        static size_t Length(const string_view& src);
+        static size_t Length(const string_view& src, const StringIndexMapping& mapping);
+        static std::vector<uint8_t> GetBytes(const string_view& str);
 
         static std::u16string Utf8ToUtf16(const string& str);
         static string Utf16ToUtf8(const std::u16string& str);
 
         static string StringCast(const std::u8string& str);
 
-        static const char* ToCharPointer(const char* c) {
-            return c;
-        }
-        static const char* ToCharPointer(const string& str) {
-            return str.c_str();
-        }
-        static size_t Size(const string& str) {
-            return str.size();
-        }
-        static size_t Size(const char* str) {
-            return ::strlen(str);
-        }
+        static const char* ToCharPointer(const char* c) { return c; }
+        static const char* ToCharPointer(const string& str) { return str.c_str(); }
+        static const char* ToCharPointer(const string_view& str) { return str.data(); }
+
+        static size_t Size(const char* str) { return ::strlen(str); }
+        static size_t Size(const string& str) { return str.size(); }
+        static size_t Size(const string_view& str) { return str.size(); }
+
     private:
         static auto _Sum() { return 0; }
         template<typename T, typename... TArgs>
@@ -146,7 +144,7 @@ namespace JxCoreLib
         {
             str.append(nstr);
         }
-        static void _AppendStr(string& str, const string nstr)
+        static void _AppendStr(string& str, const string& nstr)
         {
             str.append(nstr.c_str());
         }
