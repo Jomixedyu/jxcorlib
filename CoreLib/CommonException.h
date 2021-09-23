@@ -22,7 +22,6 @@ namespace JxCoreLib
     class ExceptionBase : public std::exception, public Object
     {
         CORELIB_DEF_TYPE(JxCoreLib::ExceptionBase, Object);
-        CORELIB_DECL_DYNCINST();
     protected:
         string message_;
         mutable string whatcache_;
@@ -45,7 +44,6 @@ namespace JxCoreLib
     class RangeOutException : public ExceptionBase
     {
         CORELIB_DEF_TYPE(JxCoreLib::RangeOutException, ExceptionBase);
-        CORELIB_DECL_DYNCINST();
     public:
         DEF_EXCEPTION_CTOR(RangeOutException)
     };
@@ -53,7 +51,6 @@ namespace JxCoreLib
     class ArgumentException : public ExceptionBase
     {
         CORELIB_DEF_TYPE(JxCoreLib::ArgumentException, ExceptionBase);
-        CORELIB_DECL_DYNCINST();
     public:
         DEF_EXCEPTION_CTOR(ArgumentException)
     };
@@ -61,7 +58,6 @@ namespace JxCoreLib
     class ArgumentNullException : public ArgumentException
     {
         CORELIB_DEF_TYPE(JxCoreLib::ArgumentNullException, ArgumentException);
-        CORELIB_DECL_DYNCINST();
     public:
         DEF_EXCEPTION_CTOR(ArgumentNullException);
     };
@@ -69,7 +65,6 @@ namespace JxCoreLib
     class NotImplementException : public ArgumentException
     {
         CORELIB_DEF_TYPE(JxCoreLib::NotImplementException, ArgumentException);
-        CORELIB_DECL_DYNCINST();
     public:
         DEF_EXCEPTION_CTOR(NotImplementException);
     };
@@ -77,7 +72,6 @@ namespace JxCoreLib
     class NullPointerException : public ExceptionBase
     {
         CORELIB_DEF_TYPE(JxCoreLib::NullPointerException, ExceptionBase);
-        CORELIB_DECL_DYNCINST();
     public:
         DEF_EXCEPTION_CTOR(NullPointerException);
     };
@@ -85,7 +79,6 @@ namespace JxCoreLib
     class DivisionByZeroException : public ExceptionBase
     {
         CORELIB_DEF_TYPE(JxCoreLib::DivisionByZeroException, ExceptionBase);
-        CORELIB_DECL_DYNCINST();
     public:
         DEF_EXCEPTION_CTOR(DivisionByZeroException);
     };
