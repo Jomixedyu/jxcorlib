@@ -44,18 +44,11 @@ namespace JxCoreLib
         virtual string ToString() const;
     };
 
-    //TODO:
-    struct incregc_iterator
-    {
-        
-    };
-
     class ManagedptrTree final
     {
     public:
         inline static Object* const Root = new Object;
         static void GCollect();
-        static incregc_iterator GetIncrementalGCollectIt();
     };
 
     template<typename T>
@@ -72,6 +65,7 @@ namespace JxCoreLib
 
     template<typename T>
     concept non_newable_concept = !requires { new T; };
+
 }
 namespace std
 {

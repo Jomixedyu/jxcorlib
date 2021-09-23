@@ -112,11 +112,6 @@ namespace JxCoreLib
 
     }
 
-    incregc_iterator ManagedptrTree::GetIncrementalGCollectIt()
-    {
-        return incregc_iterator();
-    }
-
 }
 
 std::string std::to_string(JxCoreLib::Object* obj)
