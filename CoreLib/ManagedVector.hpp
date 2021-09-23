@@ -12,8 +12,8 @@ namespace JxCoreLib
     {
         //TODO: Template Macro
     public:
-        using type = std::vector<T>;
-        using type::type;
+        using vector_type = std::vector<T>;
+        using vector_type::vector_type;
 
         T take_at(const size_t& pos)
         {
