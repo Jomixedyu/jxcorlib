@@ -356,11 +356,12 @@ namespace JxCoreLib
         throw std::invalid_argument("string is invalid");
     }
 
-    string StringUtil::_Replace(
-        const char* src, size_t src_len,
-        const char* oldstr, size_t oldstr_len,
-        const char* newstr, size_t newstr_len)
+    string StringUtil::Replace(string_view src, string_view oldstr, string_view newstr)
     {
+        size_t src_len = src.length();
+        size_t oldstr_len = oldstr.length();
+        size_t newstr_len = newstr.length();
+
         if (src_len == 0) { return string{}; }
         if (oldstr_len == 0 || newstr_len == 0) { return string{ src }; }
 
@@ -398,7 +399,7 @@ namespace JxCoreLib
         const string_view& src, const size_t& pos,
         const size_t& start_offset = 0, const size_t& start_char_count = 0)
     {
-        size_t size = StringUtil::Size(src);
+        size_t size = src.length();
         size_t offset = start_offset;
         for (size_t i = start_char_count; i < pos; i++)
         {
@@ -441,7 +442,7 @@ namespace JxCoreLib
 
     inline static size_t _StringUtil_U8Length_Internal(const string_view& src, const size_t& start = 0)
     {
-        size_t size = StringUtil::Size(src);
+        size_t size = src.length();
         size_t index = start;
         size_t len = 0;
 

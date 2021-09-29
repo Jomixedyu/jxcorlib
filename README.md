@@ -95,7 +95,7 @@ using string = std::string;
 项目应采用的所有字符串都应该是UTF8的，可以使用StringUtil来查询UTF8字符串长度，索引字符，编码转换。  
 因为UTF8是不定长的字符编码，所以在处理字符时采用的Char是一个八字节大小的类型。  
 ```c++
-struct Char
+struct u8char
 {
     char value[8]{ 0 };
     //...
