@@ -20,7 +20,7 @@ extern void TestManagedPtr();
 extern void TestDynCreateInst();
 extern void TestManagedVector();
 extern void TestFormater();
-
+extern void TestFile();
 
 int main()
 {
@@ -36,6 +36,7 @@ int main()
     TestDynCreateInst();
     TestManagedVector();
     TestFormater();
+    TestFile();
 
     return 0;
 }

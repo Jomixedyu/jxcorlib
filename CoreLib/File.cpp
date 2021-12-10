@@ -54,6 +54,21 @@ namespace JxCoreLib
         {
             return StringUtil::StringCast(std::filesystem::path(path).filename().generic_u8string());
         }
+        std::string GetFilenameExt(std::string_view path)
+        {
+            for (int i = path.length() - 1; i >= 0; i--)
+            {
+                char c = path[i];
+                if (c == '.')
+                {
+                    return string{ path.substr(i) };
+                }
+                else if (path[i] == '/' || path[i] == '\\')
+                {
+                    return string{};
+                }
+            }
+        }
     }
 }
 

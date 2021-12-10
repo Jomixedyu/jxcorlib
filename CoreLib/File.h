@@ -23,6 +23,7 @@ namespace JxCoreLib
     {
         std::string GetFilenameWithoutExt(std::string_view path);
         std::string GetFilename(std::string_view path);
+        std::string GetFilenameExt(std::string_view path);
     };
 }
 
