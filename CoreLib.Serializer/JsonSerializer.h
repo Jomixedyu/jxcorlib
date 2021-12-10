@@ -4,7 +4,7 @@
 #include <CoreLib/CoreLib.h>
 #include <CoreLib/Reflection.h>
 
-namespace JxCoreLib
+namespace JxCoreLib::Serializer
 {
     class JsonSerializer
     {

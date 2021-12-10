@@ -1,9 +1,10 @@
-#include <CoreLib.Extension/JsonSerializer.h>
-#include <CoreLib//DebugTool.hpp>
+#include <CoreLib.Serializer/JsonSerializer.h>
+#include <CoreLib/DebugTool.hpp>
 #include <iostream>
 #include <format>
 
 using namespace JxCoreLib;
+using namespace JxCoreLib::Serializer;
 using namespace std;
 
 

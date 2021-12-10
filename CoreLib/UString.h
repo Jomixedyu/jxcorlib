@@ -115,7 +115,7 @@ namespace JxCoreLib
         inline size_t Size(string_view str) { return str.length(); }
 
         template<typename... TArgs>
-        constexpr inline size_t Sum(TArgs... args) { return (arg + ... + 0); }
+        constexpr inline size_t Sum(TArgs... args) { return (0 + ... + args); }
 
         inline void AppendStr(string& str, const char* nstr) { str.append(nstr); }
         inline void AppendStr(string& str, const string& nstr) { str.append(nstr); }

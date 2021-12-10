@@ -1,7 +1,7 @@
 #include "JsonSerializer.h"
 #include "json.hpp"
 
-namespace JxCoreLib
+namespace JxCoreLib::Serializer
 {
     static void _Serialize(Object* obj, std::vector<FieldInfo*> infos, nlohmann::json& js)
     {
@@ -26,7 +26,7 @@ namespace JxCoreLib
         }
     }
 
-    string JxCoreLib::JsonSerializer::Serialize(Object* obj, bool isIndent)
+    string JsonSerializer::Serialize(Object* obj, bool isIndent)
     {
         using namespace nlohmann;
         json js;
