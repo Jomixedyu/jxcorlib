@@ -21,6 +21,7 @@ extern void TestDynCreateInst();
 extern void TestManagedVector();
 extern void TestFormater();
 
+
 int main()
 {
     using namespace std;
