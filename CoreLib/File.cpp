@@ -11,7 +11,7 @@ namespace JxCoreLib
     namespace FileUtil
     {
         using namespace std;
-        std::string ReadAllText(const std::string& path)
+        std::string ReadAllText(std::string_view path)
         {
             std::ifstream ifs;
             std::stringstream ss;
@@ -23,7 +23,7 @@ namespace JxCoreLib
             ifs.close();
             return ss.str();
         }
-        void WriteAllText(const std::string path, const std::string& content)
+        void WriteAllText(std::string_view path, std::string_view content)
         {
             ofstream outfile(path, ios::ate);
             outfile << content;
@@ -34,24 +34,23 @@ namespace JxCoreLib
 
     namespace PathUtil
     {
-        std::string GetFilenameWithoutExt(const std::string& path)
+        std::string GetFilenameWithoutExt(std::string_view path)
         {
-            std::string str(path);
             int last = -1;
-            for (size_t i = 0; i < str.size(); i++)
+            for (size_t i = 0; i < path.size(); i++)
             {
-                if (str[i] == '\\')
-                {
-                    str[i] = '/';
-                }
-                if (str[i] == '/')
+                if (path[i] == '\\' || path[i] == '/')
                 {
                     last = (int)i;
                 }
             }
-            return str.substr(last + 1, str.find_last_of('.') - last - 1);
+            if (last < 0)
+            {
+                return std::string{ path };
+            }
+            return std::string{ path.substr(static_cast<size_t>(last) + 1, path.find_last_of('.') - last - 1) };
         }
-        std::string GetFilename(const std::string& path)
+        std::string GetFilename(std::string_view path)
         {
             return StringUtil::StringCast(std::filesystem::path(path).filename().generic_u8string());
         }

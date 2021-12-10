@@ -10,18 +10,19 @@
 #define _CORELIB_FILE_H
 
 #include <string>
+#include <string_view>
 
 namespace JxCoreLib
 {
     namespace FileUtil
     {
-        std::string ReadAllText(const std::string& path);
-        void WriteAllText(const std::string path, const std::string& content);
+        std::string ReadAllText(std::string_view path);
+        void WriteAllText(std::string_view path, std::string_view content);
     }
     namespace PathUtil
     {
-        std::string GetFilenameWithoutExt(const std::string& path);
-        std::string GetFilename(const std::string& path);
+        std::string GetFilenameWithoutExt(std::string_view path);
+        std::string GetFilename(std::string_view path);
     };
 }
 
