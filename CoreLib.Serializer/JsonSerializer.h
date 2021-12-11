@@ -3,6 +3,7 @@
 
 #include <CoreLib/CoreLib.h>
 #include <CoreLib/Reflection.h>
+#include <memory>
 
 namespace JxCoreLib::Serializer
 {
@@ -17,11 +18,13 @@ namespace JxCoreLib::Serializer
         {
             return static_cast<T*>(Deserialize(str, cltypeof<T>()));
         }
+
+        template<typename T>
+        static std::unique_ptr<T> DeserializeUnique(const string& str)
+        {
+            return std::unique_ptr{ static_cast<T*>(Deserialize(str, cltypeof<T>())) };
+        }
     };
 }
 
 #endif // !CORELIB_JSONSERIALIZER_H
-
-
-
-
