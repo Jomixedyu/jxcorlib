@@ -69,6 +69,17 @@ namespace JxCoreLib
                 }
             }
         }
+        std::string GetDirectory(std::string_view path)
+        {
+            for (int i = path.length() - 1; i >= 0; i--)
+            {
+                char c = path[i];
+                if (path[i] == '/' || path[i] == '\\')
+                {
+                    return string{ path.substr(0, i) };
+                }
+            }
+        }
     }
 }
 
