@@ -22,7 +22,7 @@ namespace JxCoreLib::Serializer
         template<typename T>
         static std::unique_ptr<T> DeserializeUnique(const string& str)
         {
-            return std::unique_ptr{ static_cast<T*>(Deserialize(str, cltypeof<T>())) };
+            return std::unique_ptr<T>{ static_cast<T*>(Deserialize(str, cltypeof<T>())) };
         }
     };
 }
