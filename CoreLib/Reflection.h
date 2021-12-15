@@ -14,6 +14,7 @@
 
 #include <functional>
 #include <any>
+#include <memory>
 
 #define CORELIB_REFL_DECL_FIELD(NAME) \
     static inline struct __corelib_refl_##NAME \
@@ -70,6 +71,7 @@ namespace JxCoreLib
         TypeInfo(const TypeInfo&) = delete;
         TypeInfo(TypeInfo&&) = delete;
     };
+
     class MemberInfo : public Object
     {
         CORELIB_DEF_TYPE(JxCoreLib::MemberInfo, TypeInfo);
@@ -122,34 +124,41 @@ namespace JxCoreLib
     public:
         void SetValue(Object* instance, Object* value);
         [[nodiscard]] Object* GetValue(Object* instance) const;
+        std::unique_ptr<Object> GetValueUnique(Object* instance) const;
     private:
         template<typename TValue, typename TType>
-        static inline bool _Assign(TValue* t, Object* inst, FieldInfo* info)
+        static inline bool _Assign(TValue* t, Object* inst, Object* value)
         {
-            if (info->get_field_type() == cltypeof<TType>())
+            if (value->GetType() == cltypeof<TType>())
             {
-                *t = static_cast<TType*>(info->GetValue(inst))->value;
+                *t = static_cast<TType*>(value);
                 return true;
             }
             return false;
         }
     public:
         template<typename T>
+        static bool Assign(T* t, Object* inst, Object* value)
+        {
+            return
+                _Assign<T, String>(t, inst, value) ||
+                _Assign<T, Integer32>(t, inst, value) ||
+                _Assign<T, UInteger32>(t, inst, value) ||
+                _Assign<T, Single32>(t, inst, value) ||
+                _Assign<T, Double64>(t, inst, value) ||
+                _Assign<T, Boolean>(t, inst, value) ||
+                _Assign<T, Integer8>(t, inst, value) ||
+                _Assign<T, UInteger8>(t, inst, value) ||
+                _Assign<T, Integer16>(t, inst, value) ||
+                _Assign<T, UInteger16>(t, inst, value) ||
+                _Assign<T, Integer64>(t, inst, value) ||
+                _Assign<T, UInteger64>(t, inst, value);
+        }
+        template<typename T>
         static bool Assign(T* t, Object* inst, FieldInfo* info)
         {
-            return 
-                _Assign<T, String>(t, inst, info) ||
-                _Assign<T, Integer32>(t, inst, info) ||
-                _Assign<T, UInteger32>(t, inst, info) ||
-                _Assign<T, Single32>(t, inst, info) ||
-                _Assign<T, Double64>(t, inst, info) ||
-                _Assign<T, Boolean>(t, inst, info) ||
-                _Assign<T, Integer8>(t, inst, info) ||
-                _Assign<T, UInteger8>(t, inst, info) ||
-                _Assign<T, Integer16>(t, inst, info) ||
-                _Assign<T, UInteger16>(t, inst, info) ||
-                _Assign<T, Integer64>(t, inst, info) ||
-                _Assign<T, UInteger64>(t, inst, info);
+            auto _info = info->GetValueUnique(inst);
+            return Assign(t, inst, _info.get());
         }
     };
     class ParameterInfo : public TypeInfo

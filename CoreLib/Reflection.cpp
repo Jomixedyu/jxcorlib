@@ -26,6 +26,10 @@ namespace JxCoreLib
         return this->getter_(instance);
     }
 
+    std::unique_ptr<Object> FieldInfo::GetValueUnique(Object* instance) const
+    {
+        return std::unique_ptr<Object>(this->GetValue(instance));
+    }
 
     MemberInfo::MemberInfo(const string& name, bool is_static, bool is_public)
         : name_(name), is_static_(is_static), is_public_(is_public)
