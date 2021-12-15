@@ -82,7 +82,7 @@ namespace JxCoreLib
         return nullptr;
     }
 
-    Type* Type::GetType(int id)
+    Type* Type::GetType(int32_t id)
     {
         return g_types->at(id);
     }
@@ -93,12 +93,12 @@ namespace JxCoreLib
     }
 
     Type::Type(
-        int id,
+        int32_t id,
         const string& name,
         Type* base,
         c_inst_ptr_t c_inst_ptr,
         const std::type_info& typeinfo,
-        int structure_size
+        int32_t structure_size
     ) : id_(id), name_(name), base_(base),
         c_inst_ptr_(c_inst_ptr), typeinfo_(typeinfo), structure_size_(structure_size)
     {
@@ -106,7 +106,7 @@ namespace JxCoreLib
 
     Type* Type::__meta_type()
     {
-        static int id = -1;
+        static int32_t id = -1;
         if (id == -1) {
             id = Type::Register(nullptr, cltypeof<Object>(), "JxCoreLib::Type", typeid(Type), sizeof(Type));
         }
@@ -157,9 +157,9 @@ namespace JxCoreLib
     }
 
 
-    static int _Type_Get_Index()
+    static int32_t _Type_Get_Index()
     {
-        static int i = -1;
+        static int32_t i = -1;
         ++i;
         return i;
     }
@@ -173,7 +173,7 @@ namespace JxCoreLib
         }
     };
 
-    int Type::Register(c_inst_ptr_t dyncreate, Type* base, const string& name, const std::type_info& info, int structure_size)
+    int Type::Register(c_inst_ptr_t dyncreate, Type* base, const string& name, const std::type_info& info, int32_t structure_size)
     {
         int id = _Type_Get_Index();
 
@@ -199,17 +199,23 @@ namespace JxCoreLib
     }
 
 
-    std::vector<MemberInfo*> Type::get_memberinfos(bool is_public, bool is_static)
+    std::vector<MemberInfo*> Type::get_memberinfos(TypeBinding::Enum attr)
     {
         std::vector<MemberInfo*> v;
         v.reserve(this->member_infos_.size());
-        for (auto& item : this->member_infos_)
+
+        for (auto& [name, info] : this->member_infos_)
         {
-            if ((item.second->is_public() == is_public)
-                && (item.second->is_static() == is_static))
+            if (!(attr & TypeBinding::NonPublic))
             {
-                v.push_back(item.second);
+                if (!info->is_public_) continue;
             }
+            if (attr & TypeBinding::Static)
+            {
+                if (!info->is_static_) continue;
+            }
+
+            v.push_back(info);
         }
         return v;
     }
@@ -223,19 +229,28 @@ namespace JxCoreLib
         return this->member_infos_.at(name);
     }
 
-    std::vector<FieldInfo*> Type::get_fieldinfos(bool is_public, bool is_static)
+    std::vector<FieldInfo*> Type::get_fieldinfos(TypeBinding::Enum attr)
     {
         std::vector<FieldInfo*> v;
         v.reserve(this->member_infos_.size());
-        for (auto& item : this->member_infos_)
+
+        Type* fieldinfo_type = cltypeof<FieldInfo>();
+
+        for (auto& [name, info] : this->member_infos_)
         {
-            if ((item.second->GetType()->IsSubclassOf(cltypeof<FieldInfo>()))
-                && (item.second->is_public() == is_public)
-                && (item.second->is_static() == is_static)
-                )
+            if (!fieldinfo_type->IsInstanceOfType(info))
             {
-                v.push_back(static_cast<FieldInfo*>(item.second));
+                continue;
             }
+            if (!(attr & TypeBinding::NonPublic))
+            {
+                if (!info->is_public_) continue;
+            }
+            if (attr & TypeBinding::Static)
+            {
+                if (!info->is_static_) continue;
+            }
+            v.push_back(static_cast<FieldInfo*>(info));
         }
         return v;
     }
@@ -254,18 +269,26 @@ namespace JxCoreLib
         return static_cast<FieldInfo*>(info);
     }
 
-    std::vector<MethodInfo*> Type::get_methodinfos(bool is_public, bool is_static)
+    std::vector<MethodInfo*> Type::get_methodinfos(TypeBinding::Enum attr)
     {
         std::vector<MethodInfo*> v;
         v.reserve(this->member_infos_.size());
-        for (auto& item : this->member_infos_)
+
+        Type* methodi_type = cltypeof<MethodInfo>();
+
+        for (auto& [name, info] : this->member_infos_)
         {
-            if ((item.second->GetType()->IsSubclassOf(cltypeof<MethodInfo>()))
-                && (item.second->is_public() == is_public)
-                && (item.second->is_static() == is_static)
-                )
+            if (!methodi_type->IsInstanceOfType(info))
             {
-                v.push_back(static_cast<MethodInfo*>(item.second));
+                continue;
+            }
+            if (!(attr & TypeBinding::NonPublic))
+            {
+                if (!info->is_public_) continue;
+            }
+            if (attr & TypeBinding::Static)
+            {
+                if (!info->is_static_) continue;
             }
         }
         return v;

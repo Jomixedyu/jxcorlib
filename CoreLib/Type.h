@@ -82,26 +82,45 @@ namespace JxCoreLib
     class FieldInfo;
     class MethodInfo;
     class ReflectionBuilder;
+    
+    struct TypeBinding
+    {
+        enum Enum : int32_t
+        {
+            NonPublic = 1,
+            Static = 1 << 1,
+        };
+    };
+
+    //inline constexpr TypeBindingAttr operator|(TypeBindingAttr l, TypeBindingAttr r)
+    //{
+    //    return static_cast<TypeBindingAttr>(static_cast<int32_t>(l) | static_cast<int32_t>(r));
+    //}
+    //inline constexpr TypeBindingAttr operator&(TypeBindingAttr l, TypeBindingAttr r)
+    //{
+    //    return static_cast<TypeBindingAttr>(static_cast<int32_t>(l) & static_cast<int32_t>(r));
+    //}
+
 
     class Type final : public Object
     {
     private:
         using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
     private:
-        int id_;
+        int32_t id_;
         string name_;
-        int structure_size_;
+        int32_t structure_size_;
         Type* base_;
         c_inst_ptr_t c_inst_ptr_;
         const std::type_info& typeinfo_;
 
     private:
-        Type(int id,
+        Type(int32_t id,
             const string& name,
             Type* base,
             c_inst_ptr_t c_inst_ptr,
             const std::type_info& typeinfo,
-            int structure_size);
+            int32_t structure_size);
 
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
@@ -133,7 +152,7 @@ namespace JxCoreLib
     public:
         static Type* GetType(const string& str);
         static Type* GetType(const char*& str);
-        static Type* GetType(int id);
+        static Type* GetType(int32_t id);
         static std::vector<Type*> GetTypes();
     public:
         static int Register(
@@ -141,7 +160,7 @@ namespace JxCoreLib
             Type* base,
             const string& name,
             const std::type_info& info,
-            int structure_size);
+            int32_t structure_size);
 
         template<typename T>
         static inline Type* Typeof()
@@ -155,11 +174,11 @@ namespace JxCoreLib
         friend class MethodInfo;
         friend class ReflectionBuilder;
     public:
-        std::vector<MemberInfo*> get_memberinfos(bool is_public = true, bool is_static = false);
+        std::vector<MemberInfo*> get_memberinfos(TypeBinding::Enum attr);
         MemberInfo* get_memberinfo(const string& name);
-        std::vector<FieldInfo*> get_fieldinfos(bool is_public = true, bool is_static = false);
+        std::vector<FieldInfo*> get_fieldinfos(TypeBinding::Enum attr);
         FieldInfo* get_fieldinfo(const string& name);
-        std::vector<MethodInfo*> get_methodinfos(bool is_public = true, bool is_static = false);
+        std::vector<MethodInfo*> get_methodinfos(TypeBinding::Enum attr);
         MethodInfo* get_methodinfo(const string& name);
     private:
         std::map<string, MemberInfo*> member_infos_;
@@ -411,10 +430,7 @@ namespace JxCoreLib
 
     private:
         template<typename TValue>
-        static bool _AnyCast(const std::any& any, TValue* t)
-        {
-            return false;
-        }
+        static bool _AnyCast(const std::any& any, TValue* t) { return false; }
 
         template<typename TValue, typename TCastable1, typename... TCastable>
         static bool _AnyCast(const std::any& any, TValue* t)
@@ -442,6 +458,19 @@ namespace JxCoreLib
     };
     template<> struct get_cltype<std::any> { using type = StdAny; };
     template<> inline Type* cltypeof<std::any>() { return cltypeof<StdAny>(); }
+
+    class StdMap : public Object
+    {
+        CORELIB_DEF_TYPE(JxCoreLib::StdMap, Object);
+    public:
+        std::map<Object*, Object*> value;
+        using type = std::map<Object*, Object*>;
+        StdMap(const std::map<Object*, Object*>& map) : value(map) {}
+        operator type() { return value; }
+    };
+    template<>
+    struct get_cltype<std::map<Object*, Object*>> { using type = StdMap; };
+    template<> inline Type* cltypeof<std::map<Object*, Object*>>() { return cltypeof<StdMap>(); }
 
 
     template<typename T, bool is_corelib = is_corelib_type<T>::value>
