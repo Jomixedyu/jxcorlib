@@ -98,9 +98,11 @@ namespace JxCoreLib
         Type* base,
         c_inst_ptr_t c_inst_ptr,
         const std::type_info& typeinfo,
-        int32_t structure_size
+        int32_t structure_size,
+        std::vector<Type*>* template_types
     ) : id_(id), name_(name), base_(base),
-        c_inst_ptr_(c_inst_ptr), typeinfo_(typeinfo), structure_size_(structure_size)
+        c_inst_ptr_(c_inst_ptr), typeinfo_(typeinfo), structure_size_(structure_size),
+        template_types_(template_types)
     {
     }
 
@@ -156,6 +158,11 @@ namespace JxCoreLib
             this == cltypeof<Boolean>();
     }
 
+    std::vector<Type*>* const Type::get_template_types() const
+    {
+        return this->template_types_;
+    }
+
 
     static int32_t _Type_Get_Index()
     {
@@ -173,11 +180,11 @@ namespace JxCoreLib
         }
     };
 
-    int Type::Register(c_inst_ptr_t dyncreate, Type* base, const string& name, const std::type_info& info, int32_t structure_size)
+    int Type::Register(c_inst_ptr_t dyncreate, Type* base, const string& name, const std::type_info& info, int32_t structure_size, std::vector<Type*>* template_types)
     {
         int id = _Type_Get_Index();
 
-        Type* type = new Type(id, name, nullptr, dyncreate, info, structure_size);
+        Type* type = new Type(id, name, nullptr, dyncreate, info, structure_size, template_types);
 
         static bool is_init = false;
         static _ObjectTypeRegister obj_reg;

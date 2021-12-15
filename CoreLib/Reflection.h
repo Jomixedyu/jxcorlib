@@ -127,38 +127,38 @@ namespace JxCoreLib
         std::unique_ptr<Object> GetValueUnique(Object* instance) const;
     private:
         template<typename TValue, typename TType>
-        static inline bool _Assign(TValue* t, Object* inst, Object* value)
+        static inline bool _Assign(TValue* t, Object* value)
         {
             if (value->GetType() == cltypeof<TType>())
             {
-                *t = static_cast<TType*>(value);
+                *t = static_cast<TType*>(value)->value;
                 return true;
             }
             return false;
         }
     public:
         template<typename T>
-        static bool Assign(T* t, Object* inst, Object* value)
+        static bool Assign(T* t, Object* value)
         {
             return
-                _Assign<T, String>(t, inst, value) ||
-                _Assign<T, Integer32>(t, inst, value) ||
-                _Assign<T, UInteger32>(t, inst, value) ||
-                _Assign<T, Single32>(t, inst, value) ||
-                _Assign<T, Double64>(t, inst, value) ||
-                _Assign<T, Boolean>(t, inst, value) ||
-                _Assign<T, Integer8>(t, inst, value) ||
-                _Assign<T, UInteger8>(t, inst, value) ||
-                _Assign<T, Integer16>(t, inst, value) ||
-                _Assign<T, UInteger16>(t, inst, value) ||
-                _Assign<T, Integer64>(t, inst, value) ||
-                _Assign<T, UInteger64>(t, inst, value);
+                _Assign<T, String>(t, value) ||
+                _Assign<T, Integer32>(t, value) ||
+                _Assign<T, UInteger32>(t, value) ||
+                _Assign<T, Single32>(t, value) ||
+                _Assign<T, Double64>(t, value) ||
+                _Assign<T, Boolean>(t, value) ||
+                _Assign<T, Integer8>(t, value) ||
+                _Assign<T, UInteger8>(t, value) ||
+                _Assign<T, Integer16>(t, value) ||
+                _Assign<T, UInteger16>(t, value) ||
+                _Assign<T, Integer64>(t, value) ||
+                _Assign<T, UInteger64>(t, value);
         }
         template<typename T>
         static bool Assign(T* t, Object* inst, FieldInfo* info)
         {
             auto _info = info->GetValueUnique(inst);
-            return Assign(t, inst, _info.get());
+            return Assign(t, _info.get());
         }
     };
     class ParameterInfo : public TypeInfo

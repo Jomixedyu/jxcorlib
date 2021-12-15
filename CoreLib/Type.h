@@ -45,21 +45,36 @@ private: \
 
 //声明CoreLib模板元数据
 #define CORELIB_DEF_TEMPLATE_TYPE(NAME, BASE, ...) \
-    static inline Type* __meta_type() \
+static inline Type* __meta_type() \
+{ \
+    static int id = -1; \
+    if (id == -1) \
     { \
-        static int id = -1; \
-        if (id == -1) \
+        auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+        if (dynptr == nullptr) \
         { \
-            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
-            if (dynptr == nullptr) \
-            { \
-                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
-            } \
-            id = Type::Register(dynptr, cltypeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(__VA_ARGS__).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
+            dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
         } \
-        return Type::GetType(id); \
+        id = Type::Register(dynptr, cltypeof<BASE>(), StringUtil::Concat( \
+            #NAME, "<", typeid(JxCoreLib::TemplateTypePair<__VA_ARGS__>).name(), ">"), \
+            typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>), \
+            JxCoreLib::TemplateTypePair<__VA_ARGS__>::GetTemplateTypes()); \
     } \
-    __CORELIB_DEF_BASETYPE_META(NAME, BASE)
+    return Type::GetType(id); \
+} \
+private: \
+    using base = BASE; \
+    using __corelib_curclass = NAME<__VA_ARGS__>; \
+    friend class Type; \
+    friend class TypeTraits; \
+    public: \
+        inline virtual Type* GetType() const override { \
+            return __meta_type(); \
+        } \
+    private: \
+        static inline struct _TypeInit { \
+            _TypeInit() { NAME::__meta_type(); } \
+        } __corelib_type_init_;
 
 //反射工厂创建函数声明
 #define CORELIB_DECL_DYNCINST() \
@@ -82,7 +97,7 @@ namespace JxCoreLib
     class FieldInfo;
     class MethodInfo;
     class ReflectionBuilder;
-    
+
     struct TypeBinding
     {
         enum Enum : int32_t
@@ -93,15 +108,16 @@ namespace JxCoreLib
         };
     };
 
-    //inline constexpr TypeBindingAttr operator|(TypeBindingAttr l, TypeBindingAttr r)
-    //{
-    //    return static_cast<TypeBindingAttr>(static_cast<int32_t>(l) | static_cast<int32_t>(r));
-    //}
-    //inline constexpr TypeBindingAttr operator&(TypeBindingAttr l, TypeBindingAttr r)
-    //{
-    //    return static_cast<TypeBindingAttr>(static_cast<int32_t>(l) & static_cast<int32_t>(r));
-    //}
-
+    template<typename... T>
+    struct TemplateTypePair
+    {
+        static std::vector<Type*>* GetTemplateTypes()
+        {
+            std::vector<Type*>* vec = new std::vector<Type*>;
+            (vec->push_back(cltypeof<T>()), ...);
+            return vec;
+        }
+    };
 
     class Type final : public Object
     {
@@ -114,6 +130,7 @@ namespace JxCoreLib
         Type* base_;
         c_inst_ptr_t c_inst_ptr_;
         const std::type_info& typeinfo_;
+        std::vector<Type*>* template_types_;
 
     private:
         Type(int32_t id,
@@ -121,7 +138,8 @@ namespace JxCoreLib
             Type* base,
             c_inst_ptr_t c_inst_ptr,
             const std::type_info& typeinfo,
-            int32_t structure_size);
+            int32_t structure_size,
+            std::vector<Type*>* template_types = nullptr);
 
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
@@ -139,11 +157,11 @@ namespace JxCoreLib
         Type* get_base() const;
         const std::type_info& get_typeinfo() const;
         bool is_primitive_type() const;
+        std::vector<Type*>* const get_template_types() const;
     public:
         virtual string ToString() const override;
     public:
         bool IsInstanceOfType(Object* object);
-        /* 确定当前 Type 表示的类是否是从指定的 Type 表示的类派生的。*/
         bool IsSubclassOf(Type* type);
     public:
         [[nodiscard]] Object* CreateInstance();
@@ -161,7 +179,8 @@ namespace JxCoreLib
             Type* base,
             const string& name,
             const std::type_info& info,
-            int32_t structure_size);
+            int32_t structure_size,
+            std::vector<Type*>* template_types = nullptr);
 
         template<typename T>
         static inline Type* Typeof()
@@ -202,21 +221,21 @@ namespace JxCoreLib
         return Type::Typeof<T>();
     }
 
-    template<typename T>
-    struct is_corelib_type
-    {
-        static constexpr inline bool value = std::is_base_of<JxCoreLib::Object, T>::value;
-    };
+    //[[ deprecated ("cltype_concept") ]]
+    //template<typename T>
+    //struct is_corelib_type
+    //{
+    //    static constexpr inline bool value = std::is_base_of<JxCoreLib::Object, T>::value;
+    //};
 
     inline bool istype(Object* obj, Type* type)
     {
         return type->IsInstanceOfType(obj);
     }
-
-    template<typename T>
-    inline void RegisterClass()
+    template<cltype_concept T>
+    inline bool isinstof(Object* obj)
     {
-        cltypeof<T>();
+        return cltypeof<T>()->IsInstanceOfType(obj);
     }
 
     struct ParameterPackage
@@ -326,7 +345,7 @@ namespace JxCoreLib
 
     class StdAny;
 
-    template<typename T, bool is_corelib = is_corelib_type<T>::value>
+    template<typename T, bool b = cltype_concept<T>>
     struct get_cltype
     {};
 
@@ -460,21 +479,51 @@ namespace JxCoreLib
     template<> struct get_cltype<std::any> { using type = StdAny; };
     template<> inline Type* cltypeof<std::any>() { return cltypeof<StdAny>(); }
 
-    class StdMap : public Object
+    //class StdMap : public Object
+    //{
+    //    CORELIB_DEF_TYPE(JxCoreLib::StdMap, Object);
+    //public:
+    //    std::map<Object*, Object*> value;
+    //    using type = std::map<Object*, Object*>;
+    //    StdMap(const std::map<Object*, Object*>& map) : value(map) {}
+    //    operator type() { return value; }
+    //};
+
+    //template<cltype_ptr_concept K, cltype_ptr_concept V>
+    //struct get_cltype<std::map<K, V>, false> { using type = StdMap; };
+
+    //template<cltype_ptr_concept K, cltype_ptr_concept V>
+    //inline Type* cltypeof<std::map<K, V>>() { return cltypeof<StdMap>(); }
+
+
+    class ManagedMapTemplateBase : public Object
     {
-        CORELIB_DEF_TYPE(JxCoreLib::StdMap, Object);
+        CORELIB_DEF_TYPE(JxCoreLib::ManagedMapTemplateBase, Object);
     public:
         std::map<Object*, Object*> value;
-        using type = std::map<Object*, Object*>;
-        StdMap(const std::map<Object*, Object*>& map) : value(map) {}
-        operator type() { return value; }
     };
-    template<>
-    struct get_cltype<std::map<Object*, Object*>> { using type = StdMap; };
-    template<> inline Type* cltypeof<std::map<Object*, Object*>>() { return cltypeof<StdMap>(); }
 
 
-    template<typename T, bool is_corelib = is_corelib_type<T>::value>
+
+    template<typename K, typename V>
+    class ManagedMap : public ManagedMapTemplateBase
+    {
+    public:
+        CORELIB_DEF_TEMPLATE_TYPE(JxCoreLib::ManagedMap, ManagedMapTemplateBase, K, V);
+    public:
+        V& operator[](K k)
+        {
+            return value[k];
+        }
+        void insert(K k, V v)
+        {
+            value[k] = v;
+        }
+        void at(K k) { return value[k]; }
+    };
+
+
+    template<typename T, bool iscl = cltype_concept<T>>
     struct get_object_pointer
     {
     };

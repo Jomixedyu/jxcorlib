@@ -52,13 +52,11 @@ namespace JxCoreLib
     };
 
     template<typename T>
-    concept baseof_object_concept =
+    concept cltype_concept =
         std::is_base_of<Object, typename std::remove_pointer<T>::type>::value;
 
     template<typename T>
-    concept baseof_object_pointer_concept =
-        baseof_object_concept<T>
-        && std::is_pointer<T>::value;
+    concept cltype_ptr_concept = cltype_concept<T> && std::is_pointer<T>::value;
 
     template<typename T>
     concept newable_concept = requires { new T; };

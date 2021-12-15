@@ -1,6 +1,7 @@
 ﻿#include <CoreLib/CoreLib.h>
 #include <iostream>
 #include <cassert>
+#include <CoreLib/Converter.hpp>
 
 using namespace JxCoreLib;
 
@@ -11,10 +12,10 @@ public:
 
 };
 
-template<typename T>
+template<typename T, typename K>
 class TemplateClass : public Object
 {
-    CORELIB_DEF_TEMPLATE_TYPE(TemplateClass, Object, T);
+    CORELIB_DEF_TEMPLATE_TYPE(TemplateClass, Object, T, K);
 public:
 
 };
@@ -33,10 +34,10 @@ void TestOOP()
 
     assert(cltypeof<ExampleClass>()->IsSubclassOf(cltypeof<Object>()));
 
-    TemplateClass<int>* templc = new TemplateClass<int>;
+    auto* templc = new TemplateClass<int, double>;
     Type* templc_type = templc->GetType();
-    assert(templc_type->get_name() == "TemplateClass<int>");
 
-    assert(templc->GetType()->get_typeinfo() == typeid(TemplateClass<int>));
+    assert(templc_type->get_template_types()->at(0) == cltypeof<int>());
+    assert(templc_type->get_template_types()->at(1) == cltypeof<double>());
 
 }

@@ -7,7 +7,7 @@
 
 namespace JxCoreLib
 {
-    template<baseof_object_pointer_concept T>
+    template<cltype_concept T>
     class ManagedVector : public Object, public std::vector<T>
     {
         //TODO: Template Macro
