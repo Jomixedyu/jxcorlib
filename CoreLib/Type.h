@@ -87,6 +87,7 @@ namespace JxCoreLib
     {
         enum Enum : int32_t
         {
+            None = 0,
             NonPublic = 1,
             Static = 1 << 1,
         };
@@ -174,11 +175,11 @@ namespace JxCoreLib
         friend class MethodInfo;
         friend class ReflectionBuilder;
     public:
-        std::vector<MemberInfo*> get_memberinfos(TypeBinding::Enum attr);
+        std::vector<MemberInfo*> get_memberinfos(TypeBinding::Enum attr = TypeBinding::None);
         MemberInfo* get_memberinfo(const string& name);
-        std::vector<FieldInfo*> get_fieldinfos(TypeBinding::Enum attr);
+        std::vector<FieldInfo*> get_fieldinfos(TypeBinding::Enum attr = TypeBinding::None);
         FieldInfo* get_fieldinfo(const string& name);
-        std::vector<MethodInfo*> get_methodinfos(TypeBinding::Enum attr);
+        std::vector<MethodInfo*> get_methodinfos(TypeBinding::Enum attr = TypeBinding::None);
         MethodInfo* get_methodinfo(const string& name);
     private:
         std::map<string, MemberInfo*> member_infos_;
