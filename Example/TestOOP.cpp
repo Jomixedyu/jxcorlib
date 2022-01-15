@@ -15,8 +15,8 @@ public:
 template<typename T, typename K>
 class TemplateClass : public Object
 {
-    CORELIB_DEF_TEMPLATE_TYPE(TemplateClass, Object, T, K);
 public:
+    CORELIB_DEF_TEMPLATE_TYPE(TemplateClass, Object, T, K);
 
 };
 
@@ -39,5 +39,6 @@ void TestOOP()
 
     assert(templc_type->get_template_types()->at(0) == cltypeof<int>());
     assert(templc_type->get_template_types()->at(1) == cltypeof<double>());
-
+    auto b = templc_type == cltypeof<TemplateClass<int, double>>();
+    assert(b);
 }

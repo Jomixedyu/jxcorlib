@@ -73,7 +73,7 @@ private: \
         } \
     private: \
         static inline struct _TypeInit { \
-            _TypeInit() { NAME::__meta_type(); } \
+            _TypeInit() { NAME<__VA_ARGS__>::__meta_type(); } \
         } __corelib_type_init_;
 
 //反射工厂创建函数声明
@@ -182,7 +182,7 @@ namespace JxCoreLib
             int32_t structure_size,
             std::vector<Type*>* template_types = nullptr);
 
-        template<typename T>
+        template<cltype_concept T>
         static inline Type* Typeof()
         {
             return T::__meta_type();
@@ -509,7 +509,39 @@ namespace JxCoreLib
     class ManagedMap : public ManagedMapTemplateBase
     {
     public:
-        CORELIB_DEF_TEMPLATE_TYPE(JxCoreLib::ManagedMap, ManagedMapTemplateBase, K, V);
+        //CORELIB_DEF_TEMPLATE_TYPE(JxCoreLib::ManagedMap, ManagedMapTemplateBase, K, V);
+        static inline Type* __meta_type()
+        {
+            static int id = -1;
+            if (id == -1)
+            {
+                auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value();
+                if (dynptr == nullptr)
+                {
+                    dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get();
+                }
+                id = Type::Register(dynptr, cltypeof<ManagedMapTemplateBase>(), StringUtil::Concat(
+                    "JxCoreLib::ManagedMap", "<", typeid(JxCoreLib::TemplateTypePair<K, V>).name(), ">"),
+                    typeid(JxCoreLib::ManagedMap<K, V>), sizeof(JxCoreLib::ManagedMap<K, V>),
+                    JxCoreLib::TemplateTypePair<K, V>::GetTemplateTypes());
+            }
+            return Type::GetType(id);
+        }
+    private:
+        using base = ManagedMapTemplateBase;
+        using __corelib_curclass = JxCoreLib::ManagedMap<K, V>;
+        friend class Type;
+        friend class TypeTraits;
+    public:
+        inline virtual Type* GetType() const override {
+
+            return __meta_type();
+        }
+    private:
+        static inline struct _TypeInit {
+
+            _TypeInit() { JxCoreLib::ManagedMap<K, V>::__meta_type(); }
+        } __corelib_type_init_;
     public:
         V& operator[](K k)
         {

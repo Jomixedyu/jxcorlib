@@ -31,7 +31,7 @@ int main()
     TestString();
     TestEvents();
     TestReflection();
-    TestJsonSerializer();
+    //TestJsonSerializer();
     TestManagedPtr();
     TestDynCreateInst();
     TestManagedVector();
