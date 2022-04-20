@@ -23,37 +23,37 @@ namespace JxCoreLib::Serializer
                     js[info->get_name()] = json::object();
                 }
 
-                if (inst != nullptr)
-                {
-                    if (isinstof<ManagedMapTemplateBase>(inst))
-                    {
-                        ManagedMapTemplateBase* map = static_cast<ManagedMapTemplateBase*>(inst);
+                //if (inst != nullptr)
+                //{
+                //    if (isinstof<ManagedMapTemplateBase>(inst))
+                //    {
+                //        ManagedMapTemplateBase* map = static_cast<ManagedMapTemplateBase*>(inst);
 
-                        json _js;
+                //        json _js;
 
-                        for (auto& [k, v] : map->value)
-                        {
-                            if (v->GetType()->is_primitive_type())
-                            {
-                                FieldInfo::Assign(&_js[k->ToString()], v);
-                            }
-                            else
-                            {
-                                _Serialize(v, v->GetType()->get_fieldinfos(TypeBinding::NonPublic), _js);
-                                js[k->ToString()] = _js;
-                            }
-                        }
+                //        for (auto& [k, v] : map->value)
+                //        {
+                //            if (v->GetType()->is_primitive_type())
+                //            {
+                //                FieldInfo::Assign(&_js[k->ToString()], v);
+                //            }
+                //            else
+                //            {
+                //                _Serialize(v, v->GetType()->get_fieldinfos(TypeBinding::NonPublic), _js);
+                //                js[k->ToString()] = _js;
+                //            }
+                //        }
 
-                        js[info->get_name()] = _js;
-                    }
-                    else
-                    {
-                        json _js;
-                        _Serialize(inst, info->get_field_type()->get_fieldinfos(TypeBinding::NonPublic), _js);
-                        js[info->get_name()] = _js;
-                    }
+                //        js[info->get_name()] = _js;
+                //    }
+                //    else
+                //    {
+                //        json _js;
+                //        _Serialize(inst, info->get_field_type()->get_fieldinfos(TypeBinding::NonPublic), _js);
+                //        js[info->get_name()] = _js;
+                //    }
 
-                }
+                //}
 
             }
         }
@@ -138,7 +138,7 @@ namespace JxCoreLib::Serializer
 
             if ((*it).is_object())
             {
-                if (field_info->get_field_type()->IsSubclassOf(cltypeof<ManagedMapTemplateBase>()))
+                //if (field_info->get_field_type()->IsSubclassOf(cltypeof<ManagedMapTemplateBase>()))
                 {
                     //map
                     //ManagedMap<Object*, Object*>* map = new ManagedMap<Object*, Object*>;
@@ -157,7 +157,7 @@ namespace JxCoreLib::Serializer
 
                     //field_info->SetValue(obj, map);
                 }
-                else
+                //else
                 {
                     //field object
                     field_info->SetValue(obj, _Deserialize(*it, field_info->get_field_type()));

@@ -26,17 +26,17 @@ int main()
 {
     using namespace std;
 
-    TestOOP();
-    TestProperty();
-    TestString();
-    TestEvents();
-    TestReflection();
+    //TestOOP();
+    //TestProperty();
+    //TestString();
+    //TestEvents();
+    //TestReflection();
     //TestJsonSerializer();
-    TestManagedPtr();
-    TestDynCreateInst();
-    TestManagedVector();
-    TestFormater();
-    TestFile();
+    //TestManagedPtr();
+    //TestDynCreateInst();
+    //TestManagedVector();
+    //TestFormater();
+    //TestFile();
 
     return 0;
 }

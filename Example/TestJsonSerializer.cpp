@@ -41,10 +41,10 @@ public:
         template<typename T> using _Detected = decltype(std::declval<T&>().score);
         __corelib_refl_score()
         {
-            using _Ty = decltype(std::declval<__corelib_curclass&>().score);
-            using _Fuldecay = fulldecay<_Ty>::type;
-            using cc = std::remove_cv<_Ty>::type;
-            using dd = get_cltype<cc>::type;
+            //using _Ty = decltype(std::declval<__corelib_curclass&>().score);
+            //using _Fuldecay = fulldecay<_Ty>::type;
+            //using cc = std::remove_cv<_Ty>::type;
+            //using dd = get_cltype<cc>::type;
             //using _CTy = get_cltype<std::remove_cv<_Ty>::type>::type;
             //using _TyOncePtr = get_cltype<_Fuldecay>::type*;
             //ReflectionBuilder::CreateFieldInfo<__corelib_curclass, _Ty>(
@@ -60,7 +60,7 @@ public:
         }
     } __corelib_refl_score_;
 
-    ManagedMap<String*, Integer32*>* score;
+    //ManagedMap<String*, Integer32*>* score;
 
     virtual string ToString() const override
     {

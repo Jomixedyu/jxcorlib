@@ -495,7 +495,7 @@ namespace JxCoreLib
     //template<cltype_ptr_concept K, cltype_ptr_concept V>
     //inline Type* cltypeof<std::map<K, V>>() { return cltypeof<StdMap>(); }
 
-
+    /*
     class ManagedMapTemplateBase : public Object
     {
         CORELIB_DEF_TYPE(JxCoreLib::ManagedMapTemplateBase, Object);
@@ -554,7 +554,7 @@ namespace JxCoreLib
         void at(K k) { return value[k]; }
     };
 
-
+    */
     template<typename T, bool iscl = cltype_concept<T>>
     struct get_object_pointer
     {
