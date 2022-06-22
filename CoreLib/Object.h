@@ -11,29 +11,27 @@
 
 #include <vector>
 #include <type_traits>
+#include <memory>
 #include "UString.h"
 
 namespace JxCoreLib
 {
     class Type;
 
+    template<typename T>
+    using sptr = std::shared_ptr;
+
     class Object
     {
+    public:
+        static Type* StaticType();
     private:
-        static Type* __meta_type();
         static inline struct _ObjectInit {
             _ObjectInit() {
-                Object::__meta_type();
+                Object::StaticType();
             }
         } _object_init_;
     private:
-        std::vector<Object*>* managed_child_ = nullptr;
-        Object* parent_ = nullptr;
-    private:
-        void AddManagedChild(Object* child);
-        void RemoveManagedChild(Object* child);
-    public:
-        void SetManagedParent(Object* parent);
     public:
         virtual Type* GetType() const;
         friend class Type;
@@ -42,13 +40,6 @@ namespace JxCoreLib
         virtual ~Object();
     public:
         virtual string ToString() const;
-    };
-
-    class ManagedptrTree final
-    {
-    public:
-        inline static Object* const Root = new Object;
-        static void GCollect();
     };
 
     template<typename T>

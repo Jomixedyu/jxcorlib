@@ -32,6 +32,8 @@ void TestOOP()
     assert(exm->GetType()->get_name() == string("ExampleClass"));
 
     assert(cltypeof<Object>()->IsInstanceOfType(exm));
+    
+    ExampleClass::StaticType() == cltypeof<ExampleClass>();
 
     //assert(cltypeof<ExampleClass>()->IsSubclassOf(cltypeof<Object>()));
 

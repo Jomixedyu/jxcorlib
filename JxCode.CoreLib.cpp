@@ -16,9 +16,7 @@ extern void TestString();
 extern void TestEvents();
 extern void TestReflection();
 extern void TestJsonSerializer();
-extern void TestManagedPtr();
 extern void TestDynCreateInst();
-extern void TestManagedVector();
 extern void TestFormater();
 extern void TestFile();
 

@@ -18,16 +18,16 @@ private: \
     friend class TypeTraits; \
     public: \
         inline virtual Type* GetType() const override { \
-            return __meta_type(); \
+            return StaticType(); \
         } \
     private: \
         static inline struct _TypeInit { \
-            _TypeInit() { NAME::__meta_type(); } \
+            _TypeInit() { NAME::StaticType(); } \
         } __corelib_type_init_;
 
 //声明CoreLib元数据
 #define CORELIB_DEF_TYPE(NAME, BASE) \
-    static inline Type* __meta_type() \
+public: static inline Type* StaticType() \
     { \
         static int id = -1; \
         if (id == -1) \
@@ -45,7 +45,7 @@ private: \
 
 //声明CoreLib模板元数据
 #define CORELIB_DEF_TEMPLATE_TYPE(NAME, BASE, ...) \
-static inline Type* __meta_type() \
+public: static inline Type* StaticType() \
 { \
     static int id = -1; \
     if (id == -1) \
@@ -69,11 +69,11 @@ private: \
     friend class TypeTraits; \
     public: \
         inline virtual Type* GetType() const override { \
-            return __meta_type(); \
+            return StaticType(); \
         } \
     private: \
         static inline struct _TypeInit { \
-            _TypeInit() { NAME<__VA_ARGS__>::__meta_type(); } \
+            _TypeInit() { NAME<__VA_ARGS__>::StaticType(); } \
         } __corelib_type_init_;
 
 //反射工厂创建函数声明
@@ -88,6 +88,7 @@ private: \
 
 #include "UString.h"
 #include "Object.h"
+#include "EnumUtil.h"
 
 namespace JxCoreLib
 {
@@ -98,17 +99,16 @@ namespace JxCoreLib
     class MethodInfo;
     class ReflectionBuilder;
 
-    struct TypeBinding
-    {
-        enum Enum : int32_t
-        {
-            None = 0,
-            NonPublic = 1,
-            Static = 1 << 1,
-        };
-    };
 
-    template<typename... T>
+    enum class TypeBinding : int32_t
+    {
+        None = 0,
+        NonPublic = 1,
+        Static = 1 << 1,
+    };
+    ENUM_CLASS_FLAGS(TypeBinding)
+
+        template<typename... T>
     struct TemplateTypePair
     {
         static std::vector<Type*>* GetTemplateTypes()
@@ -143,13 +143,14 @@ namespace JxCoreLib
 
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
-        static Type* __meta_type();
+        
         static inline struct _TypeInit {
             _TypeInit() {
-                Type::__meta_type();
+                Type::StaticType();
             }
         } _type_init_;
     public:
+        static Type* StaticType();
         virtual Type* GetType() const;
     public:
         virtual int get_structure_size() const;
@@ -185,7 +186,7 @@ namespace JxCoreLib
         template<cltype_concept T>
         static inline Type* Typeof()
         {
-            return T::__meta_type();
+            return T::StaticType();
         }
         /* Reflection */
     public:
@@ -194,11 +195,11 @@ namespace JxCoreLib
         friend class MethodInfo;
         friend class ReflectionBuilder;
     public:
-        std::vector<MemberInfo*> get_memberinfos(TypeBinding::Enum attr = TypeBinding::None);
+        std::vector<MemberInfo*> get_memberinfos(TypeBinding attr = TypeBinding::None);
         MemberInfo* get_memberinfo(const string& name);
-        std::vector<FieldInfo*> get_fieldinfos(TypeBinding::Enum attr = TypeBinding::None);
+        std::vector<FieldInfo*> get_fieldinfos(TypeBinding attr = TypeBinding::None);
         FieldInfo* get_fieldinfo(const string& name);
-        std::vector<MethodInfo*> get_methodinfos(TypeBinding::Enum attr = TypeBinding::None);
+        std::vector<MethodInfo*> get_methodinfos(TypeBinding attr = TypeBinding::None);
         MethodInfo* get_methodinfo(const string& name);
     private:
         std::map<string, MemberInfo*> member_infos_;
@@ -507,7 +508,7 @@ namespace JxCoreLib
     {
     public:
         //CORELIB_DEF_TEMPLATE_TYPE(JxCoreLib::ManagedMap, ManagedMapTemplateBase, K, V);
-        static inline Type* __meta_type()
+        static inline Type* StaticType()
         {
             static int id = -1;
             if (id == -1)
@@ -532,12 +533,12 @@ namespace JxCoreLib
     public:
         inline virtual Type* GetType() const override {
 
-            return __meta_type();
+            return StaticType();
         }
     private:
         static inline struct _TypeInit {
 
-            _TypeInit() { JxCoreLib::ManagedMap<K, V>::__meta_type(); }
+            _TypeInit() { JxCoreLib::ManagedMap<K, V>::StaticType(); }
         } __corelib_type_init_;
     public:
         V& operator[](K k)

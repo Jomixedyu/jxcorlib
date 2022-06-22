@@ -106,7 +106,7 @@ namespace JxCoreLib
     {
     }
 
-    Type* Type::__meta_type()
+    Type* Type::StaticType()
     {
         static int32_t id = -1;
         if (id == -1) {
@@ -117,7 +117,7 @@ namespace JxCoreLib
 
     Type* Type::GetType() const
     {
-        return __meta_type();
+        return StaticType();
     }
 
     int Type::get_structure_size() const
@@ -206,18 +206,18 @@ namespace JxCoreLib
     }
 
 
-    std::vector<MemberInfo*> Type::get_memberinfos(TypeBinding::Enum attr)
+    std::vector<MemberInfo*> Type::get_memberinfos(TypeBinding attr)
     {
         std::vector<MemberInfo*> v;
         v.reserve(this->member_infos_.size());
 
         for (auto& [name, info] : this->member_infos_)
         {
-            if (!(attr & TypeBinding::NonPublic))
+            if (!EnumHasFlag(attr, TypeBinding::NonPublic))
             {
                 if (!info->is_public_) continue;
             }
-            if (attr & TypeBinding::Static)
+            if (EnumHasFlag(attr, TypeBinding::Static))
             {
                 if (!info->is_static_) continue;
             }
@@ -236,7 +236,7 @@ namespace JxCoreLib
         return this->member_infos_.at(name);
     }
 
-    std::vector<FieldInfo*> Type::get_fieldinfos(TypeBinding::Enum attr)
+    std::vector<FieldInfo*> Type::get_fieldinfos(TypeBinding attr)
     {
         std::vector<FieldInfo*> v;
         v.reserve(this->member_infos_.size());
@@ -249,11 +249,11 @@ namespace JxCoreLib
             {
                 continue;
             }
-            if (!(attr & TypeBinding::NonPublic))
+            if (!EnumHasFlag(attr, TypeBinding::NonPublic))
             {
                 if (!info->is_public_) continue;
             }
-            if (attr & TypeBinding::Static)
+            if (EnumHasFlag(attr, TypeBinding::Static))
             {
                 if (!info->is_static_) continue;
             }
@@ -276,7 +276,7 @@ namespace JxCoreLib
         return static_cast<FieldInfo*>(info);
     }
 
-    std::vector<MethodInfo*> Type::get_methodinfos(TypeBinding::Enum attr)
+    std::vector<MethodInfo*> Type::get_methodinfos(TypeBinding attr)
     {
         std::vector<MethodInfo*> v;
         v.reserve(this->member_infos_.size());
@@ -289,11 +289,11 @@ namespace JxCoreLib
             {
                 continue;
             }
-            if (!(attr & TypeBinding::NonPublic))
+            if (!EnumHasFlag(attr, TypeBinding::NonPublic))
             {
                 if (!info->is_public_) continue;
             }
-            if (attr & TypeBinding::Static)
+            if (EnumHasFlag(attr, TypeBinding::Static))
             {
                 if (!info->is_static_) continue;
             }
