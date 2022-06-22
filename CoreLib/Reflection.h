@@ -228,8 +228,8 @@ namespace JxCoreLib
             info.is_const = std::is_const<TField>::value;
             info.is_reference = std::is_reference<TField>::value;
             info.is_volatile = std::is_volatile<TField>::value;
-
-            Type* field_type = cltypeof<fulldecay<TField>::type>();
+            
+            Type* field_type = cltypeof<get_cltype<fulldecay<TField>::type>::type>();
 
             cltypeof<T>()->_AddMemberInfo(new FieldInfo{ name, is_static, is_public, info, field_type, getter, setter });
         }

@@ -28,7 +28,7 @@ int main()
 
     //TestOOP();
     //TestProperty();
-    //TestString();
+    TestString();
     //TestEvents();
     //TestReflection();
     //TestJsonSerializer();

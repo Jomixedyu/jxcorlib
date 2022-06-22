@@ -19,18 +19,19 @@ public:
     CORELIB_DEF_TEMPLATE_TYPE(TemplateClass, Object, T, K);
 
 };
+template<typename T>
+
 
 void TestOOP()
 {
     using namespace std;
 
-    //ExampleClass* exm = new ExampleClass;
+    ExampleClass* exm = new ExampleClass;
 
-    //assert(exm->GetType()->get_base() == cltypeof<Object>());
+    assert(exm->GetType()->get_base() == cltypeof<Object>());
+    assert(exm->GetType()->get_name() == string("ExampleClass"));
 
-    //assert(exm->GetType()->get_name() == string("ExampleClass"));
-
-    //assert(cltypeof<Object>()->IsInstanceOfType(exm));
+    assert(cltypeof<Object>()->IsInstanceOfType(exm));
 
     //assert(cltypeof<ExampleClass>()->IsSubclassOf(cltypeof<Object>()));
 

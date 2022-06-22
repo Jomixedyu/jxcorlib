@@ -25,7 +25,7 @@ namespace JxCoreLib
         }
         void WriteAllText(std::string_view path, std::string_view content)
         {
-            ofstream outfile(path, ios::ate);
+            ofstream outfile(path.data(), ios::ate);
             outfile << content;
             outfile.close();
         }

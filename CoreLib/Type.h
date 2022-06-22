@@ -215,7 +215,7 @@ namespace JxCoreLib
     template<typename T> struct fulldecay<T[]> : fulldecay<T> { };
     template<typename T, int I>  struct fulldecay<T[I]> : fulldecay<T> { };
 
-    template<typename T>
+    template<cltype_concept T>
     inline Type* cltypeof()
     {
         return Type::Typeof<T>();
@@ -398,7 +398,7 @@ namespace JxCoreLib
     static bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
     static bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
     template<> struct get_cltype<DataType> { using type = Class; }; \
-    template<> inline Type* cltypeof<DataType>() { return cltypeof<Class>(); }
+
 
     __CORELIB_DEF_BASE_TYPE(CharType, char);
     __CORELIB_DEF_BASE_TYPE(Integer8, int8_t);
@@ -435,7 +435,6 @@ namespace JxCoreLib
         virtual string ToString() const override { return value; }
     };
     template<> struct get_cltype<string> { using type = String; };
-    template<> inline Type* cltypeof<string>() { return cltypeof<String>(); }
 
     class StdAny : public Object
     {
@@ -477,7 +476,7 @@ namespace JxCoreLib
         }
     };
     template<> struct get_cltype<std::any> { using type = StdAny; };
-    template<> inline Type* cltypeof<std::any>() { return cltypeof<StdAny>(); }
+
 
     //class StdMap : public Object
     //{
@@ -502,8 +501,6 @@ namespace JxCoreLib
     public:
         std::map<Object*, Object*> value;
     };
-
-
 
     template<typename K, typename V>
     class ManagedMap : public ManagedMapTemplateBase
