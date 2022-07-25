@@ -35,32 +35,23 @@ namespace JxCoreLib
         return false;
     }
 
-    Object* Type::CreateInstance()
+    sptr<Object> Type::CreateInstance()
     {
         if (this->c_inst_ptr_ == nullptr) {
             throw NotImplementException(this->get_name() + ": the creation method is not implemented");
         }
 
-        return (*this->c_inst_ptr_)({});
+        return mksptr((*this->c_inst_ptr_)({}));
     }
 
-    Object* Type::CreateInstance(const ParameterPackage& v)
+    sptr<Object> Type::CreateInstance(const ParameterPackage& v)
     {
         if (this->c_inst_ptr_ == nullptr) {
             throw NotImplementException(this->get_name() + ": the creation method is not implemented");
         }
-        return (*this->c_inst_ptr_)(v);
+        return mksptr((*this->c_inst_ptr_)(v));
     }
 
-    std::unique_ptr<Object> Type::CreateInstanceUnique()
-    {
-        return std::unique_ptr<Object>(CreateInstance());
-    }
-
-    std::unique_ptr<Object> Type::CreateInstanceUnique(const ParameterPackage& v)
-    {
-        return std::unique_ptr<Object>(CreateInstance(v));
-    }
 
     Type* Type::GetType(const string& str)
     {

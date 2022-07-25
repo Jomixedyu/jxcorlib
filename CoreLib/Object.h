@@ -18,6 +18,17 @@ namespace JxCoreLib
 {
     class Type;
 
+    template<typename T>
+    using sptr = std::shared_ptr<T>;
+
+    template<typename T>
+    sptr<T> mksptr(T* t) { return sptr<T>(t); }
+
+    template<typename T>
+    using wptr = std::weak_ptr<T>;
+
+    template<typename T>
+    wptr<T> mkwptr(const sptr<T>& ptr) { return wptr<T>(ptr); }
 
     class Object
     {
@@ -38,19 +49,10 @@ namespace JxCoreLib
         virtual ~Object();
     public:
         virtual string ToString() const;
+        virtual bool Equals(const sptr<Object>& object) const;
     };
 
-    template<typename T>
-    using sptr = std::shared_ptr<T>;
 
-    template<typename T>
-    sptr<T> mksptr(T* t) { return sptr<T>(t); }
-
-    template<typename T>
-    using wptr = std::weak_ptr<T>;
-
-    template<typename T>
-    wptr<T> mkwptr(const sptr<T>& ptr) { return wptr<T>(ptr); }
 
     template<typename T>
     concept cltype_concept =

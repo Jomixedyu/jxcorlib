@@ -165,10 +165,8 @@ namespace JxCoreLib
         bool IsInstanceOfType(Object* object);
         bool IsSubclassOf(Type* type);
     public:
-        [[nodiscard]] Object* CreateInstance();
-        [[nodiscard]] Object* CreateInstance(const ParameterPackage& v);
-        std::unique_ptr<Object> CreateInstanceUnique();
-        std::unique_ptr<Object> CreateInstanceUnique(const ParameterPackage& v);
+        sptr<Object> CreateInstance();
+        sptr<Object> CreateInstance(const ParameterPackage& v);
     public:
         static Type* GetType(const string& str);
         static Type* GetType(const char*& str);
@@ -222,10 +220,10 @@ namespace JxCoreLib
         return Type::Typeof<T>();
     }
 
-    inline bool istype(Object* obj, Type* type)
-    {
-        return type->IsInstanceOfType(obj);
-    }
+    //inline bool istype(Object* obj, Type* type)
+    //{
+    //    return type->IsInstanceOfType(obj);
+    //}
 
     struct ParameterPackage
     {
@@ -398,6 +396,7 @@ namespace JxCoreLib
     public: \
         using type = DataType; \
         DataType value; \
+        DataType get_raw_value() const { return this->value; } \
         Class(DataType value) : value(value) { } \
         operator DataType() { return value; } \
         DataType operator()() { \
@@ -425,7 +424,7 @@ namespace JxCoreLib
     __CORELIB_DEF_BASE_TYPE(Double64, double);
     __CORELIB_DEF_BASE_TYPE(Boolean, bool);
 
-    class String : public Object
+    class String : public Object, public string
     {
         CORELIB_DEF_TYPE(JxCoreLib::String, Object);
         CORELIB_DECL_DYNCINST()
@@ -436,28 +435,26 @@ namespace JxCoreLib
             }
             return new String{ params.Get<const char*>(0) };
         }
-    private:
     public:
-        using type = string;
-        string value;
-        String(const string& str) : value(str) {}
-        String(const char* str) : value(str) {}
-        operator string() { return value; }
-        string operator()() { return value; }
-        virtual string ToString() const override { return value; }
+        using string::basic_string;
+        String(const string& right) { *this = right; }
+
+        virtual string ToString() const override { return *this; }
+        string get_raw_value() const { return *this; }
+        static sptr<String> FromString(string_view str)
+        {
+            return mksptr(new String(str));
+        }
     };
     template<> struct get_cltype<string> { using type = String; };
 
-    class StdAny : public Object
+    class StdAny : public Object, public std::any
     {
         CORELIB_DEF_TYPE(JxCoreLib::StdAny, Object);
         CORELIB_DECL_DYNCINST() {
             return nullptr;
         }
     public:
-        std::any value;
-        StdAny(std::any value) : value(value) { }
-        operator std::any() { return this->value; }
 
     private:
         template<typename TValue>
@@ -498,27 +495,42 @@ namespace JxCoreLib
     template<typename T>
     struct get_object_pointer<T, true>
     {
-        static Object* get(const T* t)
+        static sptr<Object> get(sptr<T>& t)
         {
-            return const_cast<T*>(t);
-        }
-        static Object* get(const T& t)
-        {
-            return &const_cast<T&>(t);
+            return t;
         }
     };
 
     template<typename T>
     struct get_object_pointer<T, false>
     {
-        using _CTy = get_cltype<T>::type;
-        static Object* get(const T* t)
+        using ClType = get_cltype<T>::type;
+        static sptr<Object> get(const T& t)
         {
-            return new _CTy{ *t };
+            return mksptr(new ClType(t));
         }
-        static Object* get(const T& t)
+    };
+
+    template<typename T, bool iscl = cltype_concept<T>>
+    struct object_assign
+    {};
+
+    template<typename T>
+    struct object_assign<T, true>
+    {
+        static void assign(sptr<T>* target, sptr<Object>& value)
         {
-            return new _CTy{ t };
+            *target = std::static_pointer_cast<T>(value);
+        }
+    };
+    template<typename T>
+    struct object_assign<T, false>
+    {
+        using ClType = get_cltype<T>::type;
+        static void assign(T* target, sptr<Object>& value)
+        {
+            auto ptr = static_cast<ClType*>(value.get());
+            *target = ptr->get_raw_value();
         }
     };
 
@@ -554,9 +566,5 @@ namespace JxCoreLib
     template <template <typename...> class Op, typename... T>
     using is_detected = is_detected_impl<void, Op, T...>;
 
-    void Assign()
-    {
-
-    }
 }
 

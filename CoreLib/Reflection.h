@@ -22,19 +22,19 @@
         template<typename T> using _Detected = decltype(std::declval<T&>().NAME); \
         __corelib_refl_##NAME() \
         { \
-            using _Ty = decltype(std::declval<__corelib_curclass&>().NAME); \
-            using _Fuldecay = fulldecay<_Ty>::type; \
-            using _CTy = get_cltype<std::remove_cv<_Ty>::type>::type; \
-            using _TyOncePtr = get_cltype<_Fuldecay>::type*; \
-            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, _Ty>( \
+            using FieldType = decltype(std::declval<__corelib_curclass&>().NAME); \
+            using DecayType = fulldecay<FieldType>::type; \
+            using CleanType = remove_shared_ptr<DecayType>::type; \
+            using ClType = get_cltype<remove_shared_ptr<std::remove_cv<FieldType>::type>::type>::type; \
+            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, FieldType>( \
                 #NAME, false, JxCoreLib::is_detected<_Detected, __corelib_curclass>::value, \
-                [](Object* p) -> Object* { \
-                    return get_object_pointer<_Fuldecay>::get(((__corelib_curclass*)p)->NAME); \
+                [](sptr<Object>& p) -> sptr<Object> { \
+                    auto rawptr = (__corelib_curclass*)p.get(); \
+                    return get_object_pointer<CleanType>::get(rawptr->NAME); \
                 }, \
-                [](Object* p, Object* value) { \
-                    auto dp = const_cast<std::remove_cv<_Ty>::type*>(&((__corelib_curclass*)p)->NAME); \
-                    _TyOncePtr obj = static_cast<_TyOncePtr>(value); \
-                    *dp = *find_pointer_if<_CTy, !std::is_pointer<_Ty>::value>::get(&obj); \
+                [](sptr<Object>& p, sptr<Object>& value) { \
+                    auto rawptr = (__corelib_curclass*)p.get(); \
+                    object_assign<CleanType>::assign(&rawptr->NAME, value); \
                 }); \
         } \
     } __corelib_refl_##NAME##_;
@@ -75,39 +75,36 @@ namespace JxCoreLib
         {
             bool is_raw_pointer;
             bool is_shared_pointer;
-            bool is_weak_pointer;
             bool is_const;
         };
-        using GetterType = std::function<Object* (Object* p)>;
-        using SetterType = std::function<void(Object* p, Object* value)>;
+        using GetterFunction = std::function<sptr<Object>(sptr<Object>& instance)>;
+        using SetterFunction = std::function<void(sptr<Object>& instance, sptr<Object>& value)>;
     protected:
         FieldTypeInfo info_;
         Type* field_type_;
-        GetterType getter_;
-        SetterType setter_;
+        GetterFunction getter_;
+        SetterFunction setter_;
     public:
         Type* get_field_type() const { return this->field_type_; }
         bool is_raw_pointer() const { return this->info_.is_raw_pointer; }
         bool is_shared_pointer() const { return this->info_.is_shared_pointer; }
-        bool is_weak_pointer() const { return this->info_.is_weak_pointer; }
-        bool is_pointer() const { return is_raw_pointer() || is_shared_pointer() || is_weak_pointer(); }
+        bool is_pointer() const { return is_raw_pointer() || is_shared_pointer(); }
         bool is_const() const { return this->info_.is_const; }
 
     public:
         FieldInfo(
             const string& name, bool is_static, bool is_public,
             FieldTypeInfo info, Type* field_type,
-            const GetterType& getter, const SetterType& setter);
+            const GetterFunction& getter, const SetterFunction& setter);
 
         FieldInfo(const FieldInfo& right) = delete;
         FieldInfo(FieldInfo&& right) = delete;
     public:
-        void SetValue(Object* instance, Object* value);
-        [[nodiscard]] Object* GetValue(Object* instance) const;
-        std::unique_ptr<Object> GetValueUnique(Object* instance) const;
+        void SetValue(sptr<Object>& instance, sptr<Object>& value);
+        sptr<Object> GetValue(sptr<Object>& instance) const;
     private:
         template<typename TValue, typename TType>
-        static inline bool _Assign(TValue* t, Object* value)
+        static inline bool _Assign(TValue* t, const sptr<Object>& value)
         {
             if (value->GetType() == cltypeof<TType>())
             {
@@ -118,7 +115,7 @@ namespace JxCoreLib
         }
     public:
         template<typename T>
-        static bool Assign(T* t, Object* value)
+        static bool Assign(T* t, const sptr<Object>& value)
         {
             return
                 _Assign<T, String>(t, value) ||
@@ -135,10 +132,10 @@ namespace JxCoreLib
                 _Assign<T, UInteger64>(t, value);
         }
         template<typename T>
-        static bool Assign(T* t, Object* inst, FieldInfo* info)
+        static bool Assign(T* t, const sptr<Object>& inst, FieldInfo* info)
         {
-            auto _info = info->GetValueUnique(inst);
-            return Assign(t, _info.get());
+            auto _info = info->GetValue(inst);
+            return Assign(t, _info);
         }
     };
     class ParameterInfo : public TypeInfo
@@ -199,18 +196,16 @@ namespace JxCoreLib
         static inline void CreateFieldInfo(
             const string& name,
             bool is_static, bool is_public,
-            const FieldInfo::GetterType& getter,
-            const FieldInfo::SetterType& setter
+            const FieldInfo::GetterFunction& getter,
+            const FieldInfo::SetterFunction& setter
         )
         {
             FieldInfo::FieldTypeInfo info;
-            info.is_pointer = std::is_pointer<TField>::value;
+            info.is_raw_pointer = std::is_pointer<TField>::value;
             info.is_const = std::is_const<TField>::value;
-            info.is_reference = std::is_reference<TField>::value;
-            info.is_volatile = std::is_volatile<TField>::value;
+            info.is_shared_pointer = is_shared_ptr<TField>::value;
             
-            using CleanType = fulldecay<TField>::type;
-            using ClType = get_cltype<CleanType>::type;
+            using ClType = get_cltype<typename fulldecay<TField>::type>::type;
             Type* field_type = cltypeof<ClType>();
 
             cltypeof<T>()->_AddMemberInfo(new FieldInfo{ name, is_static, is_public, info, field_type, getter, setter });

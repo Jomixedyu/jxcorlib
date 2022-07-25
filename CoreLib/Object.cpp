@@ -34,6 +34,11 @@ namespace JxCoreLib
         return this->GetType()->get_name();
     }
 
+    bool Object::Equals(const sptr<Object>& object) const
+    {
+        return this == object.get();
+    }
+
 }
 
 std::string std::to_string(JxCoreLib::Object* obj)

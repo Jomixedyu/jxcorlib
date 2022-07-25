@@ -6,8 +6,8 @@ namespace JxCoreLib
     FieldInfo::FieldInfo(
         const string& name, bool is_static, bool is_public,
         FieldTypeInfo info, Type* field_type,
-        const GetterType& getter,
-        const SetterType& setter
+        const GetterFunction& getter,
+        const SetterFunction& setter
     )
         : base(name, is_static, is_public),
         info_(info), field_type_(field_type), getter_(getter), setter_(setter)
@@ -16,19 +16,14 @@ namespace JxCoreLib
     }
 
 
-    void FieldInfo::SetValue(Object* instance, Object* value)
+    void FieldInfo::SetValue(sptr<Object>& instance, sptr<Object>& value)
     {
         this->setter_(instance, value);
     }
 
-    Object* FieldInfo::GetValue(Object* instance) const
+    sptr<Object> FieldInfo::GetValue(sptr<Object>& instance) const
     {
         return this->getter_(instance);
-    }
-
-    std::unique_ptr<Object> FieldInfo::GetValueUnique(Object* instance) const
-    {
-        return std::unique_ptr<Object>(this->GetValue(instance));
     }
 
     MemberInfo::MemberInfo(const string& name, bool is_static, bool is_public)
