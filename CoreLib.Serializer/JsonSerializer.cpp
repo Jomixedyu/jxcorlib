@@ -74,7 +74,7 @@ namespace JxCoreLib::Serializer
     {
         if (type == cltypeof<T>())
         {
-            *out_obj = new T{ js.get<T::type>() };
+            *out_obj = new T{ js.get<typename T::type>() };
         }
     }
 

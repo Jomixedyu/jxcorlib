@@ -120,9 +120,9 @@ namespace JxCoreLib
         return StaticType();
     }
 
-    int Type::get_structure_size() const
+    int32_t Type::get_structure_size() const
     {
-        return sizeof(Type);
+        return this->structure_size_;
     }
 
     const string& Type::get_name() const
