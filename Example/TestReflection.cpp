@@ -39,13 +39,36 @@ public:
     CORELIB_REFL_DECL_FIELD(is_human);
     bool is_human = true;
 
-    COERLIB_REFL_DECL_FIELD_STATIC(name);
-    static inline Object* name;
+    //CORELIB_REFL_DECL_FIELD(name);
+    static inline struct __corelib_refl_name \
+    { \
+        template<typename T> using _Detected = decltype(std::declval<T&>().NAME); \
+        __corelib_refl_name() \
+    { \
+        using _Ty = decltype(std::declval<__corelib_curclass&>().name); \
+        using _Fuldecay = remove_shared_ptr< fulldecay<_Ty>::type>::type; \
+        using _CTy = get_cltype<std::remove_cv<_Ty>::type>::type; \
+        using _TyOncePtr = get_cltype<_Fuldecay>::type*; \
+        ReflectionBuilder::CreateFieldInfo<__corelib_curclass, _Ty>(\
+            "name", false, JxCoreLib::is_detected<_Detected, __corelib_curclass>::value, \
+            [](Object* p) -> Object* { \
+            return get_object_pointer<_Fuldecay>::get(((__corelib_curclass*)p)->name); \
+            }, \
+            [](Object* p, Object* value) { \
+            auto dp = const_cast<std::remove_cv<_Ty>::type*>(&((__corelib_curclass*)p)->name); \
+            _TyOncePtr obj = static_cast<_TyOncePtr>(value); \
+            * dp = *find_pointer_if<_CTy, !std::is_pointer<_Ty>::value >::get(&obj); \
+            }); \
+    } \
+    } __corelib_refl_name;
+    sptr<Object> name;
 };
 
 
 void TestReflection()
 {
+    sptr<Object> n;
+
     //dynamic create
     Type* dyn_type = Type::GetType("space::DynCreateClass");
     Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });

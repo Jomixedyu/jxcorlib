@@ -15,7 +15,7 @@
 #include <functional>
 #include <any>
 #include <memory>
-
+//支持 基础值类型 系统内指针（包括智能指针）类型
 #define CORELIB_REFL_DECL_FIELD(NAME) \
     static inline struct __corelib_refl_##NAME \
     { \
@@ -39,28 +39,6 @@
         } \
     } __corelib_refl_##NAME##_;
 
-#define COERLIB_REFL_DECL_FIELD_STATIC(NAME) \
-    static inline struct __corelib_refl_##NAME \
-    { \
-        template<typename T> using _Detected = decltype(std::declval<T&>().NAME); \
-        __corelib_refl_##NAME() \
-        { \
-            using _Ty = decltype(NAME); \
-            using _Fuldecay = fulldecay<_Ty>::type; \
-            using _CTy = get_cltype<std::remove_cv<_Ty>::type>::type; \
-            using _TyOncePtr = get_cltype<_Fuldecay>::type*; \
-            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, _Ty>( \
-                #NAME, true, JxCoreLib::is_detected<_Detected, __corelib_curclass>::value, \
-                [](Object* p) -> Object* { \
-                    return get_object_pointer<_Fuldecay>::get(__corelib_curclass::NAME); \
-                }, \
-                [](Object*, Object* value) { \
-                    auto p = const_cast<std::remove_cv<_Ty>::type*>(&__corelib_curclass::NAME); \
-                    _TyOncePtr obj = static_cast<_TyOncePtr>(value); \
-                    *p = *find_pointer_if<_CTy, !std::is_pointer<_Ty>::value>::get(&obj); \
-                }); \
-        } \
-    } __corelib_refl_##NAME##_;
 
 namespace JxCoreLib
 {
@@ -95,10 +73,10 @@ namespace JxCoreLib
     public:
         struct FieldTypeInfo
         {
-            bool is_pointer;
+            bool is_raw_pointer;
+            bool is_shared_pointer;
+            bool is_weak_pointer;
             bool is_const;
-            bool is_reference;
-            bool is_volatile;
         };
         using GetterType = std::function<Object* (Object* p)>;
         using SetterType = std::function<void(Object* p, Object* value)>;
@@ -109,10 +87,12 @@ namespace JxCoreLib
         SetterType setter_;
     public:
         Type* get_field_type() const { return this->field_type_; }
-        bool is_pointer() const { return this->info_.is_pointer; }
+        bool is_raw_pointer() const { return this->info_.is_raw_pointer; }
+        bool is_shared_pointer() const { return this->info_.is_shared_pointer; }
+        bool is_weak_pointer() const { return this->info_.is_weak_pointer; }
+        bool is_pointer() const { return is_raw_pointer() || is_shared_pointer() || is_weak_pointer(); }
         bool is_const() const { return this->info_.is_const; }
-        bool is_reference() const { return this->info_.is_reference; }
-        bool is_volatile() const { return this->info_.is_volatile; }
+
     public:
         FieldInfo(
             const string& name, bool is_static, bool is_public,

@@ -108,7 +108,7 @@ namespace JxCoreLib
     };
     ENUM_CLASS_FLAGS(TypeBinding)
 
-        template<typename... T>
+    template<typename... T>
     struct TemplateTypePair
     {
         static std::vector<Type*>* GetTemplateTypes()
@@ -272,6 +272,29 @@ namespace JxCoreLib
             return _Check<0, TArgs...>();
         }
     };
+
+    template<typename T, typename = void>
+    struct is_shared_ptr
+    {
+        constexpr inline static bool value = false;
+    };
+    template<typename T>
+    struct is_shared_ptr<T, std::void_t<typename T::element_type>>
+    {
+        constexpr inline static bool value = std::is_same<T, std::shared_ptr<typename T::element_type>>::value;
+    };
+
+    template<typename T, typename = void>
+    struct remove_shared_ptr
+    {
+        using type = T;
+    };
+    template<typename T>
+    struct remove_shared_ptr<T, std::void_t<typename T::element_type>>
+    {
+        using type = T::element_type;
+    };
+
     class TypeTraits final
     {
     public:

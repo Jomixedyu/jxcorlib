@@ -4,7 +4,7 @@
 #include <CoreLib/CoreLib.h>
 #include <CoreLib/Reflection.h>
 #include <memory>
-
+#include "json.hpp"
 namespace JxCoreLib::Serializer
 {
     class JsonSerializer
@@ -24,6 +24,13 @@ namespace JxCoreLib::Serializer
         {
             return std::unique_ptr<T>{ static_cast<T*>(Deserialize(str, cltypeof<T>())) };
         }
+    };
+
+    class JsonSerializable
+    {
+    public:
+        virtual nlohmann::json Serialize() = 0;
+        virtual void Deserialize(const nlohmann::json& json) = 0;
     };
 }
 
