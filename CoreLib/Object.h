@@ -13,6 +13,7 @@
 #include <type_traits>
 #include <memory>
 #include "UString.h"
+#include "istring.h"
 
 namespace JxCoreLib
 {
@@ -29,6 +30,28 @@ namespace JxCoreLib
 
     template<typename T>
     wptr<T> mkwptr(const sptr<T>& ptr) { return wptr<T>(ptr); }
+
+    template<typename T, typename = void>
+    struct is_shared_ptr
+    {
+        constexpr inline static bool value = false;
+    };
+    template<typename T>
+    struct is_shared_ptr<T, std::void_t<typename T::element_type>>
+    {
+        constexpr inline static bool value = std::is_same<T, std::shared_ptr<typename T::element_type>>::value;
+    };
+
+    template<typename T, typename = void>
+    struct remove_shared_ptr
+    {
+        using type = T;
+    };
+    template<typename T>
+    struct remove_shared_ptr<T, std::void_t<typename T::element_type>>
+    {
+        using type = T::element_type;
+    };
 
     class Object
     {
@@ -51,15 +74,14 @@ namespace JxCoreLib
         virtual string ToString() const;
         virtual bool Equals(const sptr<Object>& object) const;
     };
+    
+#define SPTR_DECL(CLASS) using s##CLASS = sptr<class CLASS>; using rs##CLASS = const sptr<class CLASS>&;
 
-
+    SPTR_DECL(Object);
 
     template<typename T>
     concept cltype_concept =
-        std::is_base_of<Object, typename std::remove_pointer<T>::type>::value;
-
-    template<typename T>
-    concept cltype_ptr_concept = cltype_concept<T> && std::is_pointer<T>::value;
+        std::is_base_of<Object, typename remove_shared_ptr<typename std::remove_pointer<T>::type>::type>::value;
 
     template<typename T>
     concept newable_concept = requires { new T; };

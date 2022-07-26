@@ -54,10 +54,11 @@ public: static inline Type* StaticType() \
         { \
             dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
         } \
+        using TemplateType = JxCoreLib::TemplateTypePair<__VA_ARGS__>; \
         id = Type::Register(dynptr, cltypeof<BASE>(), StringUtil::Concat( \
-            #NAME, "<", typeid(JxCoreLib::TemplateTypePair<__VA_ARGS__>).name(), ">"), \
+            #NAME, "<", typeid(TemplateType).name(), ">"), \
             typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>), \
-            JxCoreLib::TemplateTypePair<__VA_ARGS__>::GetTemplateTypes()); \
+            TemplateType::GetTemplateTypes()); \
     } \
     return Type::GetType(id); \
 } \
@@ -89,6 +90,7 @@ private: \
 #include "UString.h"
 #include "Object.h"
 #include "EnumUtil.h"
+#include "IInterface.h"
 
 namespace JxCoreLib
 {
@@ -108,20 +110,13 @@ namespace JxCoreLib
     };
     ENUM_CLASS_FLAGS(TypeBinding);
 
-    template<typename... T>
-    struct TemplateTypePair
-    {
-        static std::vector<Type*>* GetTemplateTypes()
-        {
-            std::vector<Type*>* vec = new std::vector<Type*>;
-            (vec->push_back(cltypeof<T>()), ...);
-            return vec;
-        }
-    };
+    template<typename T>
+    using array_list = std::vector<T>;
 
-    class Type final : public Object
+    class Type : public Object
     {
     private:
+        friend class Assembly;
         using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
     private:
         int32_t id_;
@@ -130,7 +125,7 @@ namespace JxCoreLib
         Type* base_;
         c_inst_ptr_t c_inst_ptr_;
         const std::type_info& typeinfo_;
-        std::vector<Type*>* template_types_;
+        array_list<Type*>* template_types_;
 
     private:
         Type(int32_t id,
@@ -139,7 +134,7 @@ namespace JxCoreLib
             c_inst_ptr_t c_inst_ptr,
             const std::type_info& typeinfo,
             int32_t structure_size,
-            std::vector<Type*>* template_types = nullptr);
+            array_list<Type*>* template_types = nullptr);
 
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
@@ -206,6 +201,11 @@ namespace JxCoreLib
 
     };
 
+    class RuntimeType : public Type
+    {
+
+    };
+
     template<typename T> struct fulldecay { using type = T; };
     template<typename T> struct fulldecay<const T> : fulldecay<T> { };
     template<typename T> struct fulldecay<T&> : fulldecay<T> { };
@@ -259,27 +259,7 @@ namespace JxCoreLib
         }
     };
 
-    template<typename T, typename = void>
-    struct is_shared_ptr
-    {
-        constexpr inline static bool value = false;
-    };
-    template<typename T>
-    struct is_shared_ptr<T, std::void_t<typename T::element_type>>
-    {
-        constexpr inline static bool value = std::is_same<T, std::shared_ptr<typename T::element_type>>::value;
-    };
 
-    template<typename T, typename = void>
-    struct remove_shared_ptr
-    {
-        using type = T;
-    };
-    template<typename T>
-    struct remove_shared_ptr<T, std::void_t<typename T::element_type>>
-    {
-        using type = T::element_type;
-    };
 
     class TypeTraits final
     {
@@ -360,25 +340,15 @@ namespace JxCoreLib
     {};
 
     template<typename T>
-    struct get_cltype<T, false>
+    struct get_cltype<T, true>
     {
-        using type = StdAny;
-    };
-    template<typename T>
-    struct get_cltype<T*, false>
-    {
-        using type = get_cltype<T>::type*;
+        using type = remove_shared_ptr<T>::type;
     };
 
     template<typename T>
-    struct get_cltype<T, true>
+    struct get_cltype<T, false>
     {
-        using type = T;
-    };
-    template<typename T>
-    struct get_cltype<T*, true>
-    {
-        using type = get_cltype<T>::type*;
+        using type = StdAny;
     };
 
 
@@ -486,6 +456,40 @@ namespace JxCoreLib
     };
     template<> struct get_cltype<std::any> { using type = StdAny; };
 
+
+
+    template<typename... T>
+    struct TemplateTypePair
+    {
+        static std::vector<Type*>* GetTemplateTypes()
+        {
+            std::vector<Type*>* vec = new std::vector<Type*>;
+            (vec->push_back(cltypeof<typename get_cltype<T>::type>()), ...);
+            return vec;
+        }
+    };
+
+
+    class IList : IInterface {};
+
+    template<typename T>
+    class List : public Object, public array_list<T>, public IList
+    {
+        CORELIB_DEF_TEMPLATE_TYPE(JxCoreLib::List, Object, T);
+    public:
+
+    };
+
+
+    //template<> struct get_cltype<array_list> { using type = ArrayList; };
+
+    //using map = std::map<sptr<Object>, sptr<Object>>;
+    //class Map : public Object, public map
+    //{
+    //    CORELIB_DEF_TYPE(JxCoreLib::Map, Object);
+    //public:
+    //};
+    //template<> struct get_cltype<map> { using type = map; };
 
     template<typename T, bool iscl = cltype_concept<T>>
     struct get_object_pointer

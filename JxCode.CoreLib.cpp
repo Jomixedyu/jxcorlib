@@ -26,10 +26,10 @@ int main()
 
     //TestOOP();
     //TestProperty();
-    TestString();
+    //TestString();
     //TestEvents();
     //TestReflection();
-    //TestJsonSerializer();
+    TestJsonSerializer();
     //TestManagedPtr();
     //TestDynCreateInst();
     //TestManagedVector();

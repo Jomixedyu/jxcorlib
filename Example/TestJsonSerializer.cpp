@@ -35,6 +35,8 @@ public:
     CORELIB_REFL_DECL_FIELD(person_info);
     sptr<PersonInfo> person_info;
 
+    CORELIB_REFL_DECL_FIELD(list);
+    sptr<List<StudentInfo>> list;
 
     //ManagedMap<String*, Integer32*>* score;
 
@@ -46,17 +48,23 @@ public:
 
 void TestJsonSerializer()
 {
-    StudentInfo* student = new StudentInfo;
-    student->id = 33;
-    student->president = true;
+    sptr< StudentInfo> info = mksptr(new StudentInfo);
+    auto infos = info->GetType()->get_fieldinfos();
+    sptr<List<StudentInfo>> k = mksptr(new List<StudentInfo>());
+    
+    auto info2 = k->GetType();
 
-    student->person_info = mksptr(new PersonInfo);
-    student->person_info->name = "jx";
-    student->person_info->age = 12;
+    //StudentInfo* student = new StudentInfo;
+    //student->id = 33;
+    //student->president = true;
+
+    //student->person_info = mksptr(new PersonInfo);
+    //student->person_info->name = "jx";
+    //student->person_info->age = 12;
     //student->score->insert(new String{"math"}, new Integer32{ 50 });
 
-    string json_str = JsonSerializer::Serialize(student, true);
-    cout << json_str << endl;
+    //string json_str = JsonSerializer::Serialize(student, true);
+    //cout << json_str << endl;
 
     //StudentInfo* newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
     //cout << newstudent->ToString() << endl;
