@@ -56,7 +56,7 @@ namespace JxCoreLib
         }
         std::string GetFilenameExt(std::string_view path)
         {
-            for (int i = path.length() - 1; i >= 0; i--)
+            for (int i = (int)path.length() - 1; i >= 0; i--)
             {
                 char c = path[i];
                 if (c == '.')
@@ -68,10 +68,11 @@ namespace JxCoreLib
                     return string{};
                 }
             }
+            return string{};
         }
         std::string GetDirectory(std::string_view path)
         {
-            for (int i = path.length() - 1; i >= 0; i--)
+            for (int i = (int)path.length() - 1; i >= 0; i--)
             {
                 char c = path[i];
                 if (path[i] == '/' || path[i] == '\\')
@@ -79,6 +80,7 @@ namespace JxCoreLib
                     return string{ path.substr(0, i) };
                 }
             }
+            return string{};
         }
     }
 }

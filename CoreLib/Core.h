@@ -35,6 +35,8 @@ SOFTWARE.
 #include "UString.h"
 #include "Object.h"
 #include "Type.h"
-#include "CommonException.h"
+#include "Assembly.h"
+#include "BasicTypes.h"
+
 
 #endif // !_CORELIB_OOPCORE_H

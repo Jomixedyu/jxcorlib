@@ -5,11 +5,54 @@ namespace JxCoreLib
 
     Type* Assembly::FindType(string_view name) const
     {
+        for (auto item : this->types)
+        {
+            if (item->get_name() == name)
+            {
+                return item;
+            }
+        }
         return nullptr;
     }
-    sptr<List<Type*>> Assembly::GetAllTypes() const
+
+    void Assembly::RegisterType(Type* type)
     {
-        return ArrayList<Type*>();
+        this->types.push_back(type);
+    }
+
+    static array_list<Assembly*> assemblies;
+
+    Assembly* Assembly::StaticFindAssemblyByName(string_view name)
+    {
+        for (Assembly* assembly : assemblies)
+        {
+            if (assembly->get_name() == name)
+            {
+                return assembly;
+            }
+        }
+        return nullptr;
+    }
+    Assembly* Assembly::StaticFindAssembly(const AssemblyTypeObject& obj)
+    {
+        return StaticFindAssemblyByName(obj.name);
+    }
+
+    void Assembly::StaticUnloadAssemblyByName(string_view name)
+    {
+    }
+    Assembly* Assembly::StaticBuildAssemblyByName(string_view name)
+    {
+        Assembly* ass = StaticFindAssemblyByName(name);
+        if (ass == nullptr)
+        {
+            ass = new Assembly(name);
+        }
+        return ass;
+    }
+    Assembly* Assembly::StaticBuildAssembly(const AssemblyTypeObject& obj)
+    {
+        return StaticBuildAssemblyByName(obj.name);
     }
 }
 

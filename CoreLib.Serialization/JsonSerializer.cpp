@@ -1,7 +1,7 @@
 #include "JsonSerializer.h"
 #include "json.hpp"
 
-namespace JxCoreLib::Serializer
+namespace JxCoreLib::Serialization
 {
     using namespace nlohmann;
 

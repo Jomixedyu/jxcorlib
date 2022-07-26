@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include "Type.h"
+#include "Assembly.h"
 
 namespace JxCoreLib
 {
@@ -13,11 +14,14 @@ namespace JxCoreLib
 
     Type* Object::StaticType()
     {
-        static int id = -1;
-        if (id == -1) {
-            id = Type::Register(CreateInstance, nullptr, "JxCoreLib::Object", typeid(Object), sizeof(Object));
+        static Type* type = nullptr;
+        if (type == nullptr)
+        {
+            Assembly* assm = Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib);
+            Type* type = new Type(CreateInstance, assm, nullptr, "JxCoreLib::Object", typeid(Object), sizeof(Object));
+            assm->RegisterType(type);
         }
-        return Type::GetType(id);
+        return type;
     }
 
     Type* Object::GetType() const
@@ -38,6 +42,7 @@ namespace JxCoreLib
     {
         return this == object.get();
     }
+
 
 }
 

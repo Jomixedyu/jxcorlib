@@ -11,7 +11,7 @@ static struct strstruct
 static std::vector<std::string>* istring_table[256] = { nullptr };
 static uint32_t istring_index = 0;
 
-std::map<uint32_t, std::string>
+std::map<uint32_t, std::string> d;
 
 static uint32_t create(std::string_view str, int* out_pos)
 {

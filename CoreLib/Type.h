@@ -7,6 +7,16 @@
 */
 
 #pragma once
+#include <vector>
+#include <map>
+#include <any>
+#include <type_traits>
+#include <memory>
+
+#include "UString.h"
+#include "Object.h"
+#include "EnumUtil.h"
+#include "IInterface.h"
 
 
 #define __CORELIB_DEF_BASETYPE_META(NAME, BASE) \
@@ -25,29 +35,31 @@ private: \
         } __corelib_type_init_;
 
 //声明CoreLib元数据
-#define CORELIB_DEF_TYPE(NAME, BASE) \
+#define CORELIB_DEF_TYPE(ASSEMBLY, NAME, BASE) \
 public: static inline Type* StaticType() \
     { \
-        static int id = -1; \
-        if (id == -1) \
+        static Type* type = nullptr; \
+        if (type == nullptr) \
         { \
             auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
             if (dynptr == nullptr) \
             { \
                 dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
             } \
-            id = Type::Register(dynptr, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
+            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+            type = new Type(dynptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
+            assm->RegisterType(type); \
         } \
-        return Type::GetType(id); \
+        return type; \
     } \
     __CORELIB_DEF_BASETYPE_META(NAME, BASE)
 
 //声明CoreLib模板元数据
-#define CORELIB_DEF_TEMPLATE_TYPE(NAME, BASE, ...) \
+#define CORELIB_DEF_TEMPLATE_TYPE(ASSEMBLY, NAME, BASE, ...) \
 public: static inline Type* StaticType() \
 { \
-    static int id = -1; \
-    if (id == -1) \
+    static Type* type = nullptr; \
+    if (type == nullptr) \
     { \
         auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
         if (dynptr == nullptr) \
@@ -55,12 +67,11 @@ public: static inline Type* StaticType() \
             dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
         } \
         using TemplateType = JxCoreLib::TemplateTypePair<__VA_ARGS__>; \
-        id = Type::Register(dynptr, cltypeof<BASE>(), StringUtil::Concat( \
-            #NAME, "<", typeid(TemplateType).name(), ">"), \
-            typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>), \
-            TemplateType::GetTemplateTypes()); \
+        Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+        type = new Type(dynptr, assm, cltypeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(TemplateType).name(), ">"), typeid(NAME), sizeof(NAME)); \
+        assm->RegisterType(type); \
     } \
-    return Type::GetType(id); \
+    return type; \
 } \
 private: \
     using base = BASE; \
@@ -81,16 +92,6 @@ private: \
     static Object* DynCreateInstance(const ParameterPackage& params)
 
 
-#include <vector>
-#include <map>
-#include <any>
-#include <type_traits>
-#include <memory>
-
-#include "UString.h"
-#include "Object.h"
-#include "EnumUtil.h"
-#include "IInterface.h"
 
 namespace JxCoreLib
 {
@@ -119,23 +120,14 @@ namespace JxCoreLib
         friend class Assembly;
         using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
     private:
-        int32_t id_;
         string name_;
         int32_t structure_size_;
         Type* base_;
         c_inst_ptr_t c_inst_ptr_;
         const std::type_info& typeinfo_;
         array_list<Type*>* template_types_;
-
+        Assembly* assembly_;
     private:
-        Type(int32_t id,
-            const string& name,
-            Type* base,
-            c_inst_ptr_t c_inst_ptr,
-            const std::type_info& typeinfo,
-            int32_t structure_size,
-            array_list<Type*>* template_types = nullptr);
-
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
 
@@ -146,35 +138,42 @@ namespace JxCoreLib
         } _type_init_;
     public:
         static Type* StaticType();
-        virtual Type* GetType() const;
+        virtual Type* GetType() const { return StaticType(); }
+        Assembly* GetAssembly() const { return this->assembly_; }
     public:
-        virtual int32_t get_structure_size() const;
-        const string& get_name() const;
-        Type* get_base() const;
-        const std::type_info& get_typeinfo() const;
+        virtual int32_t get_structure_size() const { return this->structure_size_; }
+        const string& get_name() const { return this->name_; }
+        Type* get_base() const { return this->base_; }
+        const std::type_info& get_typeinfo() const { return this->typeinfo_; }
         bool is_primitive_type() const;
-        std::vector<Type*>* const get_template_types() const;
+
     public:
         virtual string ToString() const override;
     public:
         bool IsInstanceOfType(Object* object);
         bool IsSubclassOf(Type* type);
     public:
-        sptr<Object> CreateInstance();
-        sptr<Object> CreateInstance(const ParameterPackage& v);
+        
+        Object* CreateInstance(const ParameterPackage& v);
+        sptr<Object> CreateSharedInstance(const ParameterPackage& v);
+
     public:
-        static Type* GetType(const string& str);
-        static Type* GetType(const char*& str);
-        static Type* GetType(int32_t id);
-        static std::vector<Type*> GetTypes();
-    public:
-        static int Register(
+        Type(
             c_inst_ptr_t dyncreate,
+            Assembly* assembly,
             Type* base,
             const string& name,
             const std::type_info& info,
-            int32_t structure_size,
-            std::vector<Type*>* template_types = nullptr);
+            int32_t structure_size)
+            :
+            c_inst_ptr_(dyncreate),
+            base_(base),
+            name_(name),
+            typeinfo_(info),
+            structure_size_(structure_size),
+            assembly_(assembly)
+        {
+        }
 
         template<cltype_concept T>
         static inline Type* Typeof()
@@ -201,10 +200,6 @@ namespace JxCoreLib
 
     };
 
-    class RuntimeType : public Type
-    {
-
-    };
 
     template<typename T> struct fulldecay { using type = T; };
     template<typename T> struct fulldecay<const T> : fulldecay<T> { };
@@ -352,133 +347,6 @@ namespace JxCoreLib
     };
 
 
-#define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
-    class Class : public Object \
-    { \
-        CORELIB_DEF_TYPE(JxCoreLib::Class, Object);\
-        CORELIB_DECL_DYNCINST() { \
-            if (params.Count() != 1 || !params.Check<DataType>()) \
-            { \
-                return nullptr; \
-            } \
-            return new Class{ params.Get<DataType>(0) }; \
-        } \
-    public: \
-        using type = DataType; \
-        DataType value; \
-        DataType get_raw_value() const { return this->value; } \
-        Class(DataType value) : value(value) { } \
-        operator DataType() { return value; } \
-        DataType operator()() { \
-            return value; \
-        } \
-        virtual string ToString() const override { return std::to_string(value); } \
-    }; \
-    static bool operator==(const Class& l, const DataType& r) { return l.value == r; } \
-    static bool operator==(const DataType& l, const Class& r) { return l == r.value; } \
-    static bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
-    static bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
-    template<> struct get_cltype<DataType> { using type = Class; }; \
-
-
-    __CORELIB_DEF_BASE_TYPE(CharType, char);
-    __CORELIB_DEF_BASE_TYPE(Integer8, int8_t);
-    __CORELIB_DEF_BASE_TYPE(UInteger8, uint8_t);
-    __CORELIB_DEF_BASE_TYPE(Integer16, int16_t);
-    __CORELIB_DEF_BASE_TYPE(UInteger16, uint16_t);
-    __CORELIB_DEF_BASE_TYPE(Integer32, int32_t);
-    __CORELIB_DEF_BASE_TYPE(UInteger32, uint32_t);
-    __CORELIB_DEF_BASE_TYPE(Integer64, int64_t);
-    __CORELIB_DEF_BASE_TYPE(UInteger64, uint64_t);
-    __CORELIB_DEF_BASE_TYPE(Single32, float);
-    __CORELIB_DEF_BASE_TYPE(Double64, double);
-    __CORELIB_DEF_BASE_TYPE(Boolean, bool);
-
-    class String : public Object, public string
-    {
-        CORELIB_DEF_TYPE(JxCoreLib::String, Object);
-        CORELIB_DECL_DYNCINST()
-        {
-            if (params.Count() != 1 || !params.Check<const char*>())
-            {
-                return nullptr;
-            }
-            return new String{ params.Get<const char*>(0) };
-        }
-    public:
-        using string::basic_string;
-        String(const string& right) { *this = right; }
-
-        virtual string ToString() const override { return *this; }
-        string get_raw_value() const { return *this; }
-        static sptr<String> FromString(string_view str)
-        {
-            return mksptr(new String(str));
-        }
-    };
-    template<> struct get_cltype<string> { using type = String; };
-
-    class StdAny : public Object, public std::any
-    {
-        CORELIB_DEF_TYPE(JxCoreLib::StdAny, Object);
-        CORELIB_DECL_DYNCINST() {
-            return nullptr;
-        }
-    public:
-
-    private:
-        template<typename TValue>
-        static bool _AnyCast(const std::any& any, TValue* t) { return false; }
-
-        template<typename TValue, typename TCastable1, typename... TCastable>
-        static bool _AnyCast(const std::any& any, TValue* t)
-        {
-            auto name = any.type().name();
-            auto cname = typeid(TCastable1).name();
-            if (any.type() == typeid(TCastable1))
-            {
-                *t = std::any_cast<TCastable1>(any);
-                return true;
-            }
-            else
-            {
-                return _AnyCast<TValue, TCastable...>(any, t);
-            }
-            return false;
-        }
-
-    public:
-        template<typename TValue, typename... TCastable>
-        static bool AnyCast(const std::any& any, TValue* t)
-        {
-            return _AnyCast<TValue, TCastable...>(any, t);
-        }
-    };
-    template<> struct get_cltype<std::any> { using type = StdAny; };
-
-
-
-    template<typename... T>
-    struct TemplateTypePair
-    {
-        static std::vector<Type*>* GetTemplateTypes()
-        {
-            std::vector<Type*>* vec = new std::vector<Type*>;
-            (vec->push_back(cltypeof<typename get_cltype<T>::type>()), ...);
-            return vec;
-        }
-    };
-
-
-    class IList : IInterface {};
-
-    template<typename T>
-    class List : public Object, public array_list<T>, public IList
-    {
-        CORELIB_DEF_TEMPLATE_TYPE(JxCoreLib::List, Object, T);
-    public:
-
-    };
 
 
     //template<> struct get_cltype<array_list> { using type = ArrayList; };

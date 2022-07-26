@@ -9,8 +9,7 @@
 #ifndef _CORELIB_REFLECTION_H
 #define _CORELIB_REFLECTION_H
 
-#include "Object.h"
-#include "Type.h"
+#include "Core.h"
 
 #include <functional>
 #include <any>
@@ -39,12 +38,13 @@
         } \
     } __corelib_refl_##NAME##_;
 
+#define CORELIB_REFL_DECL_FUNC(NAME)
 
 namespace JxCoreLib
 {
     class TypeInfo : public Object
     {
-        CORELIB_DEF_TYPE(JxCoreLib::TypeInfo, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::TypeInfo, Object);
     public:
         TypeInfo(const TypeInfo&) = delete;
         TypeInfo(TypeInfo&&) = delete;
@@ -52,7 +52,7 @@ namespace JxCoreLib
 
     class MemberInfo : public Object
     {
-        CORELIB_DEF_TYPE(JxCoreLib::MemberInfo, TypeInfo);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::MemberInfo, TypeInfo);
     protected:
         string name_;
         bool is_static_;
@@ -69,7 +69,7 @@ namespace JxCoreLib
 
     class FieldInfo final : public MemberInfo
     {
-        CORELIB_DEF_TYPE(JxCoreLib::FieldInfo, MemberInfo);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::FieldInfo, MemberInfo);
     public:
         struct FieldTypeInfo
         {
@@ -140,7 +140,7 @@ namespace JxCoreLib
     };
     class ParameterInfo : public TypeInfo
     {
-        CORELIB_DEF_TYPE(JxCoreLib::ParameterInfo, TypeInfo);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::ParameterInfo, TypeInfo);
     protected:
         Type* param_type_;
         bool is_pointer_;
@@ -167,7 +167,7 @@ namespace JxCoreLib
     //TODO
     class MethodInfo final : public MemberInfo
     {
-        CORELIB_DEF_TYPE(JxCoreLib::MethodInfo, MemberInfo);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::MethodInfo, MemberInfo);
     protected:
         std::vector<ParameterInfo*> param_types_;
         ParameterInfo* ret_type_;

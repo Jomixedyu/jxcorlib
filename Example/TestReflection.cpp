@@ -1,5 +1,4 @@
-#include <CoreLib/CoreLib.h>
-#include <CoreLib/Reflection.h>
+#include "Assembly.h"
 #include <cassert>
 #include <functional>
 #include <map>
@@ -11,7 +10,7 @@ namespace space
 {
     class DynCreateClass : public Object
     {
-        CORELIB_DEF_TYPE(space::DynCreateClass, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_Test, space::DynCreateClass, Object);
         CORELIB_DECL_DYNCINST() {
             if (!params.Check<int>()) {
                 return nullptr;
@@ -29,7 +28,7 @@ namespace space
 
 class DataModel : public Object
 {
-    CORELIB_DEF_TYPE(DataModel, Object);
+    CORELIB_DEF_TYPE(AssemblyObject_Test, DataModel, Object);
 
 private:
     //static inline struct __corelib_refl_id \
@@ -92,7 +91,7 @@ void TestReflection()
     sptr<Object> n;
 
     //dynamic create
-    Type* dyn_type = Type::GetType("space::DynCreateClass");
+    Type* dyn_type =  Assembly::StaticFindAssembly(AssemblyObject_Test)->FindType("space::DynCreateClass");
     auto dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 
     assert(dyn->GetType() == cltypeof<space::DynCreateClass>());

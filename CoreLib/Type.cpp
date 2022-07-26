@@ -5,6 +5,8 @@
 
 #include "CommonException.h"
 #include "Reflection.h"
+#include "Assembly.h"
+#include "BasicTypes.h"
 
 namespace JxCoreLib
 {
@@ -35,16 +37,16 @@ namespace JxCoreLib
         return false;
     }
 
-    sptr<Object> Type::CreateInstance()
+    Object* Type::CreateInstance(const ParameterPackage& v)
     {
         if (this->c_inst_ptr_ == nullptr) {
             throw NotImplementException(this->get_name() + ": the creation method is not implemented");
         }
 
-        return mksptr((*this->c_inst_ptr_)({}));
+        return (*this->c_inst_ptr_)(v);
     }
 
-    sptr<Object> Type::CreateInstance(const ParameterPackage& v)
+    sptr<Object> Type::CreateSharedInstance(const ParameterPackage& v)
     {
         if (this->c_inst_ptr_ == nullptr) {
             throw NotImplementException(this->get_name() + ": the creation method is not implemented");
@@ -53,82 +55,16 @@ namespace JxCoreLib
     }
 
 
-    Type* Type::GetType(const string& str)
-    {
-        for (auto& item : *g_types) {
-            if (item->get_name() == str) {
-                return item;
-            }
-        }
-        return nullptr;
-    }
-
-    Type* Type::GetType(const char*& str)
-    {
-        for (auto& item : *g_types) {
-            if (item->get_name() == str) {
-                return item;
-            }
-        }
-        return nullptr;
-    }
-
-    Type* Type::GetType(int32_t id)
-    {
-        return g_types->at(id);
-    }
-
-    std::vector<Type*> Type::GetTypes()
-    {
-        return *g_types;
-    }
-
-    Type::Type(
-        int32_t id,
-        const string& name,
-        Type* base,
-        c_inst_ptr_t c_inst_ptr,
-        const std::type_info& typeinfo,
-        int32_t structure_size,
-        std::vector<Type*>* template_types
-    ) : id_(id), name_(name), base_(base),
-        c_inst_ptr_(c_inst_ptr), typeinfo_(typeinfo), structure_size_(structure_size),
-        template_types_(template_types)
-    {
-    }
-
     Type* Type::StaticType()
     {
-        static int32_t id = -1;
-        if (id == -1) {
-            id = Type::Register(nullptr, cltypeof<Object>(), "JxCoreLib::Type", typeid(Type), sizeof(Type));
+        static Type* type = nullptr;
+        if (type == nullptr)
+        {
+            Assembly* assm = Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib);
+            Type* type = new Type(nullptr, assm, cltypeof<Object>(), "JxCoreLib::Type", typeid(Object), sizeof(Object));
+            assm->RegisterType(type);
         }
-        return Type::GetType(id);
-    }
-
-    Type* Type::GetType() const
-    {
-        return StaticType();
-    }
-
-    int32_t Type::get_structure_size() const
-    {
-        return this->structure_size_;
-    }
-
-    const string& Type::get_name() const
-    {
-        return this->name_;
-    }
-
-    Type* Type::get_base() const
-    {
-        return this->base_;
-    }
-
-    const std::type_info& Type::get_typeinfo() const
-    {
-        return this->typeinfo_;
+        return type;
     }
 
     bool Type::is_primitive_type() const
@@ -147,53 +83,6 @@ namespace JxCoreLib
             this == cltypeof<Single32>() ||
             this == cltypeof<Double64>() ||
             this == cltypeof<Boolean>();
-    }
-
-    std::vector<Type*>* const Type::get_template_types() const
-    {
-        return this->template_types_;
-    }
-
-
-    static int32_t _Type_Get_Index()
-    {
-        static int32_t i = -1;
-        ++i;
-        return i;
-    }
-
-    struct _ObjectTypeRegister
-    {
-        _ObjectTypeRegister()
-        {
-            g_types = new std::vector<Type*>;
-
-        }
-    };
-
-    int Type::Register(c_inst_ptr_t dyncreate, Type* base, const string& name, const std::type_info& info, int32_t structure_size, std::vector<Type*>* template_types)
-    {
-        int id = _Type_Get_Index();
-
-        Type* type = new Type(id, name, nullptr, dyncreate, info, structure_size, template_types);
-
-        static bool is_init = false;
-        static _ObjectTypeRegister obj_reg;
-
-        if (is_init)
-        {
-            if (base == nullptr) {
-                base = cltypeof<Object>();
-            }
-            type->base_ = base;
-        }
-        else
-        {
-            is_init = true;
-        }
-
-        g_types->push_back(type);
-        return id;
     }
 
 

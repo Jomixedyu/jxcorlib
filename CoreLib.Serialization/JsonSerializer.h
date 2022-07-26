@@ -1,11 +1,12 @@
 #ifndef CORELIB_JSONSERIALIZER_H
 #define CORELIB_JSONSERIALIZER_H
 
-#include <CoreLib/CoreLib.h>
+#include "Module.h"
 #include <CoreLib/Reflection.h>
 #include <memory>
 #include "json.hpp"
-namespace JxCoreLib::Serializer
+
+namespace JxCoreLib::Serialization
 {
     class JsonSerializer
     {

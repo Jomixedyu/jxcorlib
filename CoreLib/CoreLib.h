@@ -32,9 +32,7 @@ SOFTWARE.
 #ifndef _CORELIB_CORELIB_H
 #define _CORELIB_CORELIB_H
 
-#include "UString.h"
-#include "Object.h"
-#include "Type.h"
+#include "Core.h"
 #include "CommonException.h"
 #include "DebugTool.hpp"
 #include "Reflection.h"

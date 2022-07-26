@@ -10,8 +10,7 @@
 #define _CORELIB_EXCEPTION_H
 
 #include <stdexcept>
-#include "Object.h"
-#include "Type.h"
+#include "Core.h"
 
 #define DEF_EXCEPTION_CTOR(class) \
 class() {} \
@@ -21,7 +20,7 @@ namespace JxCoreLib
 {
     class ExceptionBase : public std::exception, public Object
     {
-        CORELIB_DEF_TYPE(JxCoreLib::ExceptionBase, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::ExceptionBase, Object);
     protected:
         string message_;
         mutable string whatcache_;
@@ -43,42 +42,42 @@ namespace JxCoreLib
 
     class RangeOutException : public ExceptionBase
     {
-        CORELIB_DEF_TYPE(JxCoreLib::RangeOutException, ExceptionBase);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::RangeOutException, ExceptionBase);
     public:
         DEF_EXCEPTION_CTOR(RangeOutException)
     };
 
     class ArgumentException : public ExceptionBase
     {
-        CORELIB_DEF_TYPE(JxCoreLib::ArgumentException, ExceptionBase);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::ArgumentException, ExceptionBase);
     public:
         DEF_EXCEPTION_CTOR(ArgumentException)
     };
 
     class ArgumentNullException : public ArgumentException
     {
-        CORELIB_DEF_TYPE(JxCoreLib::ArgumentNullException, ArgumentException);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::ArgumentNullException, ArgumentException);
     public:
         DEF_EXCEPTION_CTOR(ArgumentNullException);
     };
 
     class NotImplementException : public ArgumentException
     {
-        CORELIB_DEF_TYPE(JxCoreLib::NotImplementException, ArgumentException);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::NotImplementException, ArgumentException);
     public:
         DEF_EXCEPTION_CTOR(NotImplementException);
     };
 
     class NullPointerException : public ExceptionBase
     {
-        CORELIB_DEF_TYPE(JxCoreLib::NullPointerException, ExceptionBase);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::NullPointerException, ExceptionBase);
     public:
         DEF_EXCEPTION_CTOR(NullPointerException);
     };
 
     class DivisionByZeroException : public ExceptionBase
     {
-        CORELIB_DEF_TYPE(JxCoreLib::DivisionByZeroException, ExceptionBase);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::DivisionByZeroException, ExceptionBase);
     public:
         DEF_EXCEPTION_CTOR(DivisionByZeroException);
     };

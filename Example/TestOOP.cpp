@@ -1,25 +1,29 @@
 ﻿#include <CoreLib/CoreLib.h>
 #include <iostream>
 #include <cassert>
-#include <CoreLib/Converter.hpp>
 
 using namespace JxCoreLib;
 
+
+
 class ExampleClass : public Object
 {
-    CORELIB_DEF_TYPE(ExampleClass, Object);
+    CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, ExampleClass, Object);
 public:
 
+
+    CORELIB_REFL_DECL_FUNC(create)
+        sptr<ExampleClass> create() { return mksptr(new ExampleClass); }
 };
 
 template<typename T, typename K>
 class TemplateClass : public Object
 {
 public:
-    CORELIB_DEF_TEMPLATE_TYPE(TemplateClass, Object, T, K);
+    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, TemplateClass, Object, T, K);
 
 };
-template<typename T>
+
 
 
 void TestOOP()

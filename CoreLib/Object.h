@@ -6,18 +6,31 @@
 * @StdRequired : c++20
 */
 
-#ifndef _CORELIB_OBJECT_H
-#define _CORELIB_OBJECT_H
+#pragma once
 
 #include <vector>
 #include <type_traits>
 #include <memory>
 #include "UString.h"
-#include "istring.h"
+
 
 namespace JxCoreLib
 {
     class Type;
+    class Assembly;
+
+    struct AssemblyTypeObject
+    {
+        const char* name;
+    };
+
+#define CORELIB_DECL_ASSEMBLY(NAME) \
+    inline struct __corelib_AssemblyClass_##NAME : public ::JxCoreLib::AssemblyTypeObject \
+    {  __corelib_AssemblyClass_##NAME##() { name = #NAME; } } AssemblyObject_##NAME;
+
+    CORELIB_DECL_ASSEMBLY(JxCoreLib);
+
+
 
     template<typename T>
     using sptr = std::shared_ptr<T>;
@@ -74,9 +87,8 @@ namespace JxCoreLib
         virtual string ToString() const;
         virtual bool Equals(const sptr<Object>& object) const;
     };
-    
-#define SPTR_DECL(CLASS) using s##CLASS = sptr<class CLASS>; using rs##CLASS = const sptr<class CLASS>&;
 
+#define SPTR_DECL(CLASS) using s##CLASS = sptr<class CLASS>; using rs##CLASS = const sptr<class CLASS>&;
     SPTR_DECL(Object);
 
     template<typename T>
@@ -94,4 +106,3 @@ namespace std
 {
     string to_string(JxCoreLib::Object* obj);
 }
-#endif // !_CORELIB_OBJECT_H
