@@ -47,6 +47,7 @@ namespace JxCoreLib
         if (ass == nullptr)
         {
             ass = new Assembly(name);
+            assemblies.push_back(ass);
         }
         return ass;
     }

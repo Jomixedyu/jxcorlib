@@ -21,6 +21,10 @@ namespace JxCoreLib
     {
         return object->GetType()->IsSubclassOf(this);
     }
+    bool Type::IsSharedInstanceOfType(const sptr<Object>& ptr)
+    {
+        return this->IsInstanceOfType(ptr.get());
+    }
 
     bool Type::IsSubclassOf(Type* type)
     {
@@ -61,7 +65,7 @@ namespace JxCoreLib
         if (type == nullptr)
         {
             Assembly* assm = Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib);
-            Type* type = new Type(nullptr, assm, cltypeof<Object>(), "JxCoreLib::Type", typeid(Object), sizeof(Object));
+            type = new Type(nullptr, assm, cltypeof<Object>(), "JxCoreLib::Type", typeid(Object), sizeof(Object));
             assm->RegisterType(type);
         }
         return type;

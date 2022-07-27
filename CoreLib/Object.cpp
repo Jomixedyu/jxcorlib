@@ -18,7 +18,7 @@ namespace JxCoreLib
         if (type == nullptr)
         {
             Assembly* assm = Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib);
-            Type* type = new Type(CreateInstance, assm, nullptr, "JxCoreLib::Object", typeid(Object), sizeof(Object));
+            type = new Type(CreateInstance, assm, nullptr, "JxCoreLib::Object", typeid(Object), sizeof(Object));
             assm->RegisterType(type);
         }
         return type;

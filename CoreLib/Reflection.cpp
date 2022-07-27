@@ -16,12 +16,13 @@ namespace JxCoreLib
     }
 
 
-    void FieldInfo::SetValue(sptr<Object>& instance, sptr<Object>& value)
+
+    void FieldInfo::SetValue(Object* instance, sptr<Object> value)
     {
         this->setter_(instance, value);
     }
 
-    sptr<Object> FieldInfo::GetValue(sptr<Object>& instance) const
+    sptr<Object> FieldInfo::GetValue(Object* instance) const
     {
         return this->getter_(instance);
     }

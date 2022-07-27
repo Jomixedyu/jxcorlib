@@ -151,6 +151,7 @@ namespace JxCoreLib
         virtual string ToString() const override;
     public:
         bool IsInstanceOfType(Object* object);
+        bool IsSharedInstanceOfType(const sptr<Object>& ptr);
         bool IsSubclassOf(Type* type);
     public:
         

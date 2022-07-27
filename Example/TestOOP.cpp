@@ -37,15 +37,11 @@ void TestOOP()
 
     assert(cltypeof<Object>()->IsInstanceOfType(exm));
     
-    ExampleClass::StaticType() == cltypeof<ExampleClass>();
+    assert(ExampleClass::StaticType() == cltypeof<ExampleClass>());
 
-    //assert(cltypeof<ExampleClass>()->IsSubclassOf(cltypeof<Object>()));
+    assert(cltypeof<ExampleClass>()->IsSubclassOf(cltypeof<Object>()));
 
-    //auto* templc = new TemplateClass<int, double>;
-    //Type* templc_type = templc->GetType();
+    auto* templc = new TemplateClass<int, double>;
+    Type* templc_type = templc->GetType();
 
-    //assert(templc_type->get_template_types()->at(0) == cltypeof<int>());
-    //assert(templc_type->get_template_types()->at(1) == cltypeof<double>());
-    //auto b = templc_type == cltypeof<TemplateClass<int, double>>();
-    //assert(b);
 }
