@@ -54,6 +54,9 @@ public: static inline Type* StaticType() \
     } \
     __CORELIB_DEF_BASETYPE_META(NAME, BASE)
 
+#define CORELIB_CLASS(NAME, BASE) \
+    CORELIB_DEF_TYPE(CURRENT_ASSEMBLY, NAME, BASE)
+
 //声明CoreLib模板元数据
 #define CORELIB_DEF_TEMPLATE_TYPE(ASSEMBLY, NAME, BASE, ...) \
 public: static inline Type* StaticType() \

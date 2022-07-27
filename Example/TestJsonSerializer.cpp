@@ -11,9 +11,11 @@ using namespace std;
 
 class PersonInfo : public Object
 {
-    CORELIB_DEF_TYPE(AssemblyObject_Test, PersonInfo, Object);
+    //CORELIB_DEF_TYPE(AssemblyObject_Test, PersonInfo, Object);
+    CORELIB_CLASS(PersonInfo, Object);
+    
 public:
-
+    
     CORELIB_REFL_DECL_FIELD(name);
     string name;
     //CORELIB_REFL_DECL_FIELD(age);

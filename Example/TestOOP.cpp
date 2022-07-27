@@ -1,4 +1,4 @@
-﻿#include <CoreLib/CoreLib.h>
+﻿#include "Assembly.h"
 #include <iostream>
 #include <cassert>
 
@@ -8,7 +8,7 @@ using namespace JxCoreLib;
 
 class ExampleClass : public Object
 {
-    CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, ExampleClass, Object);
+    CORELIB_CLASS(ExampleClass, Object);
 public:
 
 
@@ -20,7 +20,7 @@ template<typename T, typename K>
 class TemplateClass : public Object
 {
 public:
-    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, TemplateClass, Object, T, K);
+    CORELIB_CLASS(TemplateClass, Object, T, K);
 
 };
 
