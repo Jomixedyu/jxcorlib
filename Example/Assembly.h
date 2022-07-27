@@ -1,4 +1,4 @@
 #pragma once
 #include <CoreLib/CoreLib.h>
 
-CORELIB_DECL_ASSEMBLY(Example);
+CORELIB_DECL_ASSEMBLY(Test);

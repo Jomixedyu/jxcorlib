@@ -8,7 +8,7 @@ using namespace JxCoreLib;
 
 class CreateFactory : public Object
 {
-    CORELIB_CLASS(CreateFactory, Object);
+    CORELIB_DEF_TYPE(AssemblyObject_Test, CreateFactory, Object);
     //create by factory
     CORELIB_DECL_DYNCINST() {
         auto p = new CreateFactory;
@@ -21,7 +21,7 @@ public:
 
 class NonCreateFactory : public Object
 {
-    CORELIB_CLASS(NonCreateFactory, Object);
+    CORELIB_DEF_TYPE(AssemblyObject_Test, NonCreateFactory, Object);
 public:
     int i;
     //create by default constructor
@@ -35,7 +35,7 @@ public:
 
 class NotImplCreate : public Object
 {
-    CORELIB_CLASS(NotImplCreate, Object);
+    CORELIB_DEF_TYPE(AssemblyObject_Test, NotImplCreate, Object);
     //throw NotImplementException
     NotImplCreate(int)
     {
@@ -45,7 +45,7 @@ class NotImplCreate : public Object
 void TestDynCreateInst()
 {
 
-    Assembly* assm = Assembly::StaticFindAssembly(CURRENT_ASSEMBLY);
+    Assembly* assm = Assembly::StaticFindAssembly(AssemblyObject_Test);
     auto p1 = std::static_pointer_cast<CreateFactory>(assm->FindType("CreateFactory")->CreateSharedInstance({}));
     assert(p1->i == 1);
 
