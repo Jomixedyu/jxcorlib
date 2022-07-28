@@ -12,6 +12,23 @@ namespace JxCoreLib
 {
     static std::vector<Type*>* g_types = nullptr;
 
+    bool Type::IsImplementedInterface(Type* type)
+    {
+        for (auto item : this->interfaces_)
+        {
+            if (type->IsSubclassOf(item))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    array_list<Type*> Type::GetInterfaces() const
+    {
+        return this->interfaces_;
+    }
+
     string Type::ToString() const
     {
         return this->name_;

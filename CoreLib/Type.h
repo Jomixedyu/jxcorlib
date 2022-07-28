@@ -25,14 +25,14 @@ private: \
     using __corelib_curclass = NAME; \
     friend class Type; \
     friend class TypeTraits; \
-    public: \
-        inline virtual Type* GetType() const override { \
-            return StaticType(); \
-        } \
-    private: \
-        static inline struct _TypeInit { \
-            _TypeInit() { NAME::StaticType(); } \
-        } __corelib_type_init_;
+public: \
+    inline virtual Type* GetType() const { \
+        return StaticType(); \
+    } \
+private: \
+    static inline struct __corelib_type { \
+        __corelib_type() { NAME::StaticType(); } \
+    } __corelib_type_init_;
 
 //声明CoreLib元数据
 #define CORELIB_DEF_TYPE(ASSEMBLY, NAME, BASE) \
@@ -55,6 +55,41 @@ public: static inline Type* StaticType() \
     } \
     __CORELIB_DEF_BASETYPE_META(NAME, BASE)
 
+#define __CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
+public: static inline Type* StaticType() \
+    { \
+        static Type* type = nullptr; \
+        if (type == nullptr) \
+        { \
+            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+            if (dynptr == nullptr) \
+            { \
+                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
+            } \
+            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+            type = new Type(dynptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME), true); \
+            assm->RegisterType(type); \
+        } \
+        return type; \
+    } \
+private: \
+    using base = BASE; \
+    using __corelib_curclass = NAME; \
+    friend class Type; \
+    friend class TypeTraits; \
+private: \
+    static inline struct __corelib_type { \
+        __corelib_type() { NAME::StaticType(); } \
+    } __corelib_type_init_;
+
+#define CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
+    static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
+    __CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
+public:
+
+#define __CORELIB_DEF_ROOT_INTERFACE(ASSEMBLY, NAME, BASE) \
+    __CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE)
+
 //声明CoreLib模板元数据
 #define CORELIB_DEF_TEMPLATE_TYPE(ASSEMBLY, NAME, BASE, ...) \
 public: static inline Type* StaticType() \
@@ -69,7 +104,7 @@ public: static inline Type* StaticType() \
         } \
         using TemplateType = JxCoreLib::TemplateTypePair<__VA_ARGS__>; \
         Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-        type = new Type(dynptr, assm, cltypeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(TemplateType).name(), ">"), typeid(NAME), sizeof(NAME)); \
+        type = new Type(dynptr, assm, cltypeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(TemplateType).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
         assm->RegisterType(type); \
     } \
     return type; \
@@ -84,9 +119,14 @@ private: \
             return StaticType(); \
         } \
     private: \
-        static inline struct _TypeInit { \
-            _TypeInit() { NAME<__VA_ARGS__>::StaticType(); } \
+        static inline struct __corelib_type { \
+            __corelib_type() { NAME<__VA_ARGS__>::StaticType(); } \
         } __corelib_type_init_;
+
+#define CORELIB_INTERFACE_LIST(...) \
+    static inline struct __corelib_interface_list { \
+        __corelib_interface_list() { StaticType()->RegisterInterface<__VA_ARGS__>(); } \
+    } __corelib_interface_list_init_;
 
 //反射工厂创建函数声明
 #define CORELIB_DECL_DYNCINST() \
@@ -115,6 +155,8 @@ namespace JxCoreLib
     template<typename T>
     using array_list = std::vector<T>;
 
+
+
     class Type : public Object
     {
     private:
@@ -128,6 +170,8 @@ namespace JxCoreLib
         const std::type_info& typeinfo_;
         array_list<Type*>* template_types_;
         Assembly* assembly_;
+        array_list<Type*> interfaces_;
+        bool is_interface_;
     private:
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
@@ -147,18 +191,19 @@ namespace JxCoreLib
         Type* get_base() const { return this->base_; }
         const std::type_info& get_typeinfo() const { return this->typeinfo_; }
         bool is_primitive_type() const;
+        bool is_interface() const { return this->is_interface_; }
+    public:
+        bool IsImplementedInterface(Type* type);
+        array_list<Type*> GetInterfaces() const;
 
-    public:
-        virtual string ToString() const override;
-    public:
         bool IsInstanceOfType(const Object* object) const;
         bool IsSharedInstanceOfType(const sptr<Object>& ptr) const;
         bool IsSubclassOf(const Type* type) const;
-    public:
-        
+
         Object* CreateInstance(const ParameterPackage& v);
         sptr<Object> CreateSharedInstance(const ParameterPackage& v);
-
+    public:
+        virtual string ToString() const override;
     public:
         Type(
             c_inst_ptr_t dyncreate,
@@ -166,14 +211,16 @@ namespace JxCoreLib
             Type* base,
             const string& name,
             const std::type_info& info,
-            int32_t structure_size)
+            int32_t structure_size,
+            bool is_interface = false)
             :
             c_inst_ptr_(dyncreate),
             base_(base),
             name_(name),
             typeinfo_(info),
             structure_size_(structure_size),
-            assembly_(assembly)
+            assembly_(assembly),
+            is_interface_(is_interface)
         {
         }
 
@@ -200,6 +247,12 @@ namespace JxCoreLib
     private:
         void _AddMemberInfo(MemberInfo* info);
 
+    public:
+        template<typename... TInterfaces>
+        void RegisterInterfaces()
+        {
+            this->interfaces_->push_back((Typeof<TInterfaces>(),0)...);
+        }
     };
 
 

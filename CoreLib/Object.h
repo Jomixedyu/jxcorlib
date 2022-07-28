@@ -85,7 +85,7 @@ namespace JxCoreLib
         virtual ~Object();
     public:
         virtual string ToString() const;
-        virtual bool Equals(const sptr<Object>& object) const;
+        virtual bool Equals(Object* object) const;
     };
 
 #define SPTR_DECL(CLASS) using s##CLASS = sptr<class CLASS>; using rs##CLASS = const sptr<class CLASS>&;

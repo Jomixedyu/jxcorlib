@@ -38,9 +38,9 @@ namespace JxCoreLib
         return this->GetType()->get_name();
     }
 
-    bool Object::Equals(const sptr<Object>& object) const
+    bool Object::Equals(Object* object) const
     {
-        return this == object.get();
+        return this == object;
     }
 
 

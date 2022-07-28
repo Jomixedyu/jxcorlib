@@ -31,20 +31,17 @@ public:
 
     CORELIB_REFL_DECL_FIELD(id);
     int id;
-    CORELIB_REFL_DECL_FIELD(president);
-    bool president;
+    CORELIB_REFL_DECL_FIELD(level);
+    bool level;
     CORELIB_REFL_DECL_FIELD(person_info);
     sptr<PersonInfo> person_info;
 
-    CORELIB_REFL_DECL_FIELD(list);
-    sptr<List<int>> list;
-
-    //CORELIB_REFL_DECL_FIELD(list);
-    //sptr<List<StudentInfo>> list;
+    CORELIB_REFL_DECL_FIELD(score);
+    sptr<List<int>> score;
 
     virtual string ToString() const override
     {
-        return std::format("id: {}, president: {}, person_info: {{{}}}", id, president, person_info->ToString());
+        return std::format("id: {}, level: {}, person_info: {{{}}}", id, level, person_info->ToString());
     }
 };
 
@@ -53,7 +50,9 @@ void TestJsonSerializer()
 
     StudentInfo* student = new StudentInfo;
     student->id = 33;
-    student->president = true;
+    student->level = true;
+    student->score = mksptr(new List<int>());
+    student->score->push_back(3);
 
     student->person_info = mksptr(new PersonInfo);
     student->person_info->name = "jx";
@@ -65,4 +64,5 @@ void TestJsonSerializer()
     sptr<StudentInfo> newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
     cout << newstudent->ToString() << endl;
 
+    
 }

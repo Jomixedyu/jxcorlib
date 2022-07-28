@@ -1,10 +1,7 @@
 #ifndef CORELIB_JSONSERIALIZER_H
 #define CORELIB_JSONSERIALIZER_H
 
-#include "Module.h"
-#include <CoreLib/Reflection.h>
-#include <memory>
-#include "json.hpp"
+#include "Assembly.h"
 
 namespace JxCoreLib::Serialization
 {
@@ -21,12 +18,6 @@ namespace JxCoreLib::Serialization
         }
     };
 
-    class JsonSerializable
-    {
-    public:
-        virtual nlohmann::json Serialize() = 0;
-        virtual void Deserialize(const nlohmann::json& json) = 0;
-    };
 }
 
 #endif // !CORELIB_JSONSERIALIZER_H

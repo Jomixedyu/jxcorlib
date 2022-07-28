@@ -129,48 +129,39 @@ namespace JxCoreLib
         }
     };
 
+    class IInterface
+    {
+        __CORELIB_DEF_ROOT_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IInterface, Object);
+    };
 
-    class IList : IInterface {};
+    class IList : public IInterface
+    {
+        CORELIB_DEF_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IList, IInterface);
+
+        virtual void Add(const sptr<Object>& value) = 0;
+        virtual sptr<Object> At(int32_t index) = 0;
+        virtual void Clear() = 0;
+        virtual void RemoveAt(int32_t index) = 0;
+        virtual void Contains(const sptr<Object>& value) = 0;
+        virtual int32_t GetCount() const = 0;
+    };
 
     template<typename T>
     class List : public Object, public array_list<T>, public IList
     {
         CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
-
-    public: static inline Type* StaticType() \
-    { \
-        static Type* type = nullptr; \
-        if (type == nullptr) \
-        { \
-            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
-            if (dynptr == nullptr) \
-            { \
-                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
-            } \
-                using TemplateType = JxCoreLib::TemplateTypePair<T>; \
-                Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib); \
-                type = new Type(dynptr, assm, cltypeof<Object>(), StringUtil::Concat("JxCoreLib::List", "<", typeid(TemplateType).name(), ">"), typeid(JxCoreLib::List<T>), sizeof(JxCoreLib::List<T>)); \
-                assm->RegisterType(type); \
-        } \
-            return type; \
-    } \
-    private: \
-                using base = Object; \
-                using __corelib_curclass = List<T>; \
-                friend class Type; \
-                friend class TypeTraits; \
-    public: \
-                inline virtual Type* GetType() const override {
-                \
-                    return StaticType(); \
-            } \
-    private: \
-                    static inline struct _TypeInit {
-                    \
-                        _TypeInit() { JxCoreLib::List<T>::StaticType(); } \
-                } __corelib_type_init_;
+        //CORELIB_INTERFACE_LIST(IList);
+        static inline struct __corelib_interface_list 
+        {
+            __corelib_interface_list() { StaticType()->RegisterInterface<IList>(); } \
+        } __corelib_interface_list_init_;
     public:
-
+        virtual void Add(const sptr<Object>& value) override;
+        virtual sptr<Object> At(int32_t index) override;
+        virtual void Clear() override;
+        virtual void RemoveAt(int32_t index) override;
+        virtual void Contains(const sptr<Object>& value) override;
+        virtual int32_t GetCount() const override;
     };
 
     //template<typename TEle>

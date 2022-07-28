@@ -1,5 +1,6 @@
 #include "JsonSerializer.h"
 #include "json.hpp"
+#include <CoreLib/Reflection.h>
 
 namespace JxCoreLib::Serialization
 {

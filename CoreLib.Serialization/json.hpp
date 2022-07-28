@@ -8521,7 +8521,7 @@ class binary_reader
 
         while (auto element_type = get())
         {
-            if (JSON_HEDLEY_UNLIKELY(!unexpect_eof(input_format_t::bson, "element list")))
+            if (JSON_HEDLEY_UNLIKELY(!unexpect_eof(input_format_t::bson, "element score")))
             {
                 return false;
             }
@@ -18726,7 +18726,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             // if object is wanted but impossible, throw an exception
             if (JSON_HEDLEY_UNLIKELY(manual_type == value_t::object && !is_an_object))
             {
-                JSON_THROW(type_error::create(301, "cannot create object from initializer list", basic_json()));
+                JSON_THROW(type_error::create(301, "cannot create object from initializer score", basic_json()));
             }
         }
 

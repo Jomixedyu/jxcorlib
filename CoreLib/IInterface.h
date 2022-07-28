@@ -1,6 +1,2 @@
 #pragma once
 
-class IInterface
-{
-
-};
