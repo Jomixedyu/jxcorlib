@@ -30,10 +30,8 @@ int main()
     TestEvents();
     TestReflection();
     TestJsonSerializer();
-    //TestManagedPtr();
-    //TestDynCreateInst();
-    //TestManagedVector();
-    //TestFormater();
+    TestDynCreateInst();
+    TestFormater();
     //TestFile();
 
     return 0;
