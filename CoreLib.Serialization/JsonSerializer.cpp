@@ -12,48 +12,23 @@ namespace JxCoreLib::Serialization
         {
             if (info->get_field_type()->is_primitive_type())
             {
-                //FieldInfo::Assign(&js[info->get_name()], obj, info);
+                FieldInfo::Assign(&js[info->get_name()], obj, info);
             }
             else
             {
-                //Object* inst = info->GetValue(obj);
+                sptr<Object> inst = info->GetValue(obj);
 
-                //if (inst == nullptr)
-                //{
-                //    js[info->get_name()] = json::object();
-                //}
+                if (inst == nullptr)
+                {
+                    js[info->get_name()] = json::object();
+                }
 
-                //if (inst != nullptr)
-                //{
-                //    if (isinstof<ManagedMapTemplateBase>(inst))
-                //    {
-                //        ManagedMapTemplateBase* map = static_cast<ManagedMapTemplateBase*>(inst);
-
-                //        json _js;
-
-                //        for (auto& [k, v] : map->value)
-                //        {
-                //            if (v->GetType()->is_primitive_type())
-                //            {
-                //                FieldInfo::Assign(&_js[k->ToString()], v);
-                //            }
-                //            else
-                //            {
-                //                _Serialize(v, v->GetType()->get_fieldinfos(TypeBinding::NonPublic), _js);
-                //                js[k->ToString()] = _js;
-                //            }
-                //        }
-
-                //        js[info->get_name()] = _js;
-                //    }
-                //    else
-                //    {
-                //        json _js;
-                //        _Serialize(inst, info->get_field_type()->get_fieldinfos(TypeBinding::NonPublic), _js);
-                //        js[info->get_name()] = _js;
-                //    }
-
-                //}
+                if (inst != nullptr)
+                {
+                    json _js;
+                    _Serialize(inst.get(), info->get_field_type()->get_fieldinfos(TypeBinding::NonPublic), _js);
+                    js[info->get_name()] = _js;
+                }
 
             }
         }
@@ -106,7 +81,7 @@ namespace JxCoreLib::Serialization
         }
         if (js.is_string())
         {
-            //return new String{ js.get<string>() };
+            return new String{ js.get<string>() };
         }
         return nullptr;
     }
@@ -114,19 +89,19 @@ namespace JxCoreLib::Serialization
     template<typename T>
     static bool _DeserializeSetValue(Object* obj, FieldInfo* info, const nlohmann::json& js, bool b)
     {
-        //if (b) {
-        //    auto p = new get_cltype<T>::type(js.get<T>());
-        //    info->SetValue(obj, p);
-        //    return true;
-        //}
+        if (b) {
+            auto p = new get_cltype<T>::type(js.get<T>());
+            info->SetValue(obj, p);
+            return true;
+        }
         return false;
     }
 
 
     static Object* _Deserialize(const json& js, Type* type)
     {
-        /*
-        Object* obj = type->CreateInstance();
+        
+        Object* obj = type->CreateInstance({});
 
         for (auto it = js.begin(); it != js.end(); it++)
         {
@@ -176,8 +151,6 @@ namespace JxCoreLib::Serialization
         }
 
         return obj;
-        */
-        return nullptr;
     }
 
     Object* JsonSerializer::Deserialize(const string& jstr, Type* type)

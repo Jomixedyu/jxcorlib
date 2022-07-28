@@ -109,7 +109,7 @@ namespace JxCoreLib
         sptr<Object> GetValue(Object* instance) const;
     private:
         template<typename TValue, typename TType>
-        static inline bool _Assign(TValue* t, const sptr<Object>& value)
+        static inline bool _Assign(TValue* t, Object* value)
         {
             if (value->GetType() == cltypeof<TType>())
             {
@@ -120,7 +120,7 @@ namespace JxCoreLib
         }
     public:
         template<typename T>
-        static bool Assign(T* t, const sptr<Object>& value)
+        static bool Assign(T* t, Object* value)
         {
             return
                 _Assign<T, String>(t, value) ||
@@ -137,7 +137,7 @@ namespace JxCoreLib
                 _Assign<T, UInteger64>(t, value);
         }
         template<typename T>
-        static bool Assign(T* t, const sptr<Object>& inst, FieldInfo* info)
+        static bool Assign(T* t, Object* inst, FieldInfo* info)
         {
             auto _info = info->GetValue(inst);
             return Assign(t, _info);

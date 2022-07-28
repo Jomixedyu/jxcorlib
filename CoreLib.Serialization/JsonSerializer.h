@@ -19,11 +19,15 @@ namespace JxCoreLib::Serialization
         {
             return static_cast<T*>(Deserialize(str, cltypeof<T>()));
         }
+        static sptr<Object> DeserializeShared(const string& str, Type* type)
+        {
+            return mksptr(Deserialize(str, type));
+        }
 
         template<typename T>
-        static std::unique_ptr<T> DeserializeUnique(const string& str)
+        static sptr<T> DeserializeShared(const string& str)
         {
-            return std::unique_ptr<T>{ static_cast<T*>(Deserialize(str, cltypeof<T>())) };
+            return std::static_pointer_cast<T>(DeserializeShared(str, cltypeof<T>()));
         }
     };
 
