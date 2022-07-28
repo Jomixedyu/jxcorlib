@@ -36,6 +36,9 @@ public:
     CORELIB_REFL_DECL_FIELD(person_info);
     sptr<PersonInfo> person_info;
 
+    CORELIB_REFL_DECL_FIELD(list);
+    sptr<List<int>> list;
+
     //CORELIB_REFL_DECL_FIELD(list);
     //sptr<List<StudentInfo>> list;
 

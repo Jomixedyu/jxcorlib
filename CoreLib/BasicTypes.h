@@ -135,7 +135,40 @@ namespace JxCoreLib
     template<typename T>
     class List : public Object, public array_list<T>, public IList
     {
-        CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
+        //CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
+
+    public: static inline Type* StaticType() \
+    { \
+        static Type* type = nullptr; \
+        if (type == nullptr) \
+        { \
+            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+            if (dynptr == nullptr) \
+            { \
+                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
+            } \
+                using TemplateType = JxCoreLib::TemplateTypePair<T>; \
+                Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib); \
+                type = new Type(dynptr, assm, cltypeof<Object>(), StringUtil::Concat("JxCoreLib::List", "<", typeid(TemplateType).name(), ">"), typeid(JxCoreLib::List<T>), sizeof(JxCoreLib::List<T>)); \
+                assm->RegisterType(type); \
+        } \
+            return type; \
+    } \
+    private: \
+                using base = Object; \
+                using __corelib_curclass = List<T>; \
+                friend class Type; \
+                friend class TypeTraits; \
+    public: \
+                inline virtual Type* GetType() const override {
+                \
+                    return StaticType(); \
+            } \
+    private: \
+                    static inline struct _TypeInit {
+                    \
+                        _TypeInit() { JxCoreLib::List<T>::StaticType(); } \
+                } __corelib_type_init_;
     public:
 
     };
