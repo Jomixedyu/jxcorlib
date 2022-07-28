@@ -38,6 +38,7 @@ private: \
 #define CORELIB_DEF_TYPE(ASSEMBLY, NAME, BASE) \
 public: static inline Type* StaticType() \
     { \
+        static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
         static Type* type = nullptr; \
         if (type == nullptr) \
         { \
@@ -150,9 +151,9 @@ namespace JxCoreLib
     public:
         virtual string ToString() const override;
     public:
-        bool IsInstanceOfType(Object* object);
-        bool IsSharedInstanceOfType(const sptr<Object>& ptr);
-        bool IsSubclassOf(Type* type);
+        bool IsInstanceOfType(const Object* object) const;
+        bool IsSharedInstanceOfType(const sptr<Object>& ptr) const;
+        bool IsSubclassOf(const Type* type) const;
     public:
         
         Object* CreateInstance(const ParameterPackage& v);

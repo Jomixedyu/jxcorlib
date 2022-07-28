@@ -17,18 +17,18 @@ namespace JxCoreLib
         return this->name_;
     }
 
-    bool Type::IsInstanceOfType(Object* object)
+    bool Type::IsInstanceOfType(const Object* object) const
     {
         return object->GetType()->IsSubclassOf(this);
     }
-    bool Type::IsSharedInstanceOfType(const sptr<Object>& ptr)
+    bool Type::IsSharedInstanceOfType(const sptr<Object>& ptr) const
     {
         return this->IsInstanceOfType(ptr.get());
     }
 
-    bool Type::IsSubclassOf(Type* type)
+    bool Type::IsSubclassOf(const Type* type) const
     {
-        Type* base = this;
+        const Type* base = this;
         while (base != nullptr)
         {
             if (base == type) {
@@ -73,20 +73,7 @@ namespace JxCoreLib
 
     bool Type::is_primitive_type() const
     {
-        return
-            this == cltypeof<String>() ||
-            this == cltypeof<CharType>() ||
-            this == cltypeof<Integer8>() ||
-            this == cltypeof<UInteger8>() ||
-            this == cltypeof<Integer16>() ||
-            this == cltypeof<UInteger16>() ||
-            this == cltypeof<Integer32>() ||
-            this == cltypeof<UInteger32>() ||
-            this == cltypeof<Integer64>() ||
-            this == cltypeof<UInteger64>() ||
-            this == cltypeof<Single32>() ||
-            this == cltypeof<Double64>() ||
-            this == cltypeof<Boolean>();
+        return this->IsSubclassOf(cltypeof<PrimitiveObject>());
     }
 
 

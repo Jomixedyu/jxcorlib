@@ -44,53 +44,53 @@ namespace JxCoreLib::Serialization
 
 
 
-    template<typename T>
-    static bool _GetPrimitiveValue(const json& js, Type* type, Object** out_obj)
-    {
-        if (type == cltypeof<T>())
-        {
-            *out_obj = new T{ js.get<typename T::type>() };
-        }
-    }
+    //template<typename T>
+    //static bool _GetPrimitiveValue(const json& js, Type* type, Object** out_obj)
+    //{
+    //    if (type == cltypeof<T>())
+    //    {
+    //        *out_obj = new T{ js.get<typename T::type>() };
+    //    }
+    //}
 
-    static Object* _GetPrimitiveValue(const json& js, Type* field_type)
-    {
-        if (js.is_boolean()) return new Boolean{ js.get<bool>() };
-        if (js.is_number_integer())
-        {
-            Object* obj = nullptr;
-            auto r =
-                _GetPrimitiveValue<Integer32>(js, field_type, &obj) ||
-                _GetPrimitiveValue<Integer64>(js, field_type, &obj) ||
-                _GetPrimitiveValue<Integer16>(js, field_type, &obj) ||
-                _GetPrimitiveValue<Integer8>(js, field_type, &obj) ||
-                _GetPrimitiveValue<UInteger32>(js, field_type, &obj) ||
-                _GetPrimitiveValue<UInteger64>(js, field_type, &obj) ||
-                _GetPrimitiveValue<UInteger16>(js, field_type, &obj) ||
-                _GetPrimitiveValue<UInteger8>(js, field_type, &obj);
-            return obj;
-        }
+    //static Object* _GetPrimitiveValue(const json& js, Type* field_type)
+    //{
+    //    if (js.is_boolean()) return new Boolean{ js.get<bool>() };
+    //    if (js.is_number_integer())
+    //    {
+    //        Object* obj = nullptr;
+    //        auto r =
+    //            _GetPrimitiveValue<Integer32>(js, field_type, &obj) ||
+    //            _GetPrimitiveValue<Integer64>(js, field_type, &obj) ||
+    //            _GetPrimitiveValue<Integer16>(js, field_type, &obj) ||
+    //            _GetPrimitiveValue<Integer8>(js, field_type, &obj) ||
+    //            _GetPrimitiveValue<UInteger32>(js, field_type, &obj) ||
+    //            _GetPrimitiveValue<UInteger64>(js, field_type, &obj) ||
+    //            _GetPrimitiveValue<UInteger16>(js, field_type, &obj) ||
+    //            _GetPrimitiveValue<UInteger8>(js, field_type, &obj);
+    //        return obj;
+    //    }
 
-        if (js.is_number_float())
-        {
-            Object* obj = nullptr;
-            auto r =
-                _GetPrimitiveValue<Single32>(js, field_type, &obj) ||
-                _GetPrimitiveValue<Double64>(js, field_type, &obj);
-            return obj;
-        }
-        if (js.is_string())
-        {
-            return new String{ js.get<string>() };
-        }
-        return nullptr;
-    }
+    //    if (js.is_number_float())
+    //    {
+    //        Object* obj = nullptr;
+    //        auto r =
+    //            _GetPrimitiveValue<Single32>(js, field_type, &obj) ||
+    //            _GetPrimitiveValue<Double64>(js, field_type, &obj);
+    //        return obj;
+    //    }
+    //    if (js.is_string())
+    //    {
+    //        return new String{ js.get<string>() };
+    //    }
+    //    return nullptr;
+    //}
 
     template<typename T>
     static bool _DeserializeSetValue(Object* obj, FieldInfo* info, const nlohmann::json& js, bool b)
     {
         if (b) {
-            auto p = new get_cltype<T>::type(js.get<T>());
+            sptr<Object> p = mksptr((Object*)new get_cltype<T>::type(js.get<T>()));
             info->SetValue(obj, p);
             return true;
         }
@@ -98,10 +98,10 @@ namespace JxCoreLib::Serialization
     }
 
 
-    static Object* _Deserialize(const json& js, Type* type)
+    static sptr<Object> _Deserialize(const json& js, Type* type)
     {
         
-        Object* obj = type->CreateInstance({});
+        sptr<Object> obj = type->CreateSharedInstance({});
 
         for (auto it = js.begin(); it != js.end(); it++)
         {
@@ -115,6 +115,7 @@ namespace JxCoreLib::Serialization
             if ((*it).is_object())
             {
                 //if (field_info->get_field_type()->IsSubclassOf(cltypeof<ManagedMapTemplateBase>()))
+                if(false)
                 {
                     //map
                     //ManagedMap<Object*, Object*>* map = new ManagedMap<Object*, Object*>;
@@ -133,19 +134,19 @@ namespace JxCoreLib::Serialization
 
                     //field_info->SetValue(obj, map);
                 }
-                //else
+                else
                 {
                     //field object
-                    //field_info->SetValue(obj, _Deserialize(*it, field_info->get_field_type()));
+                    field_info->SetValue(obj.get(), _Deserialize(*it, field_info->get_field_type()));
                 }
             }
             else
             {
                 bool result =
-                    _DeserializeSetValue<bool>(obj, field_info, *it, (*it).is_boolean()) ||
-                    _DeserializeSetValue<int>(obj, field_info, *it, (*it).is_number_integer()) ||
-                    _DeserializeSetValue<string>(obj, field_info, *it, (*it).is_string()) ||
-                    _DeserializeSetValue<float>(obj, field_info, *it, (*it).is_number_float());
+                    _DeserializeSetValue<bool>(obj.get(), field_info, *it, (*it).is_boolean()) ||
+                    _DeserializeSetValue<int>(obj.get(), field_info, *it, (*it).is_number_integer()) ||
+                    _DeserializeSetValue<string>(obj.get(), field_info, *it, (*it).is_string()) ||
+                    _DeserializeSetValue<float>(obj.get(), field_info, *it, (*it).is_number_float());
             }
 
         }
@@ -153,7 +154,7 @@ namespace JxCoreLib::Serialization
         return obj;
     }
 
-    Object* JsonSerializer::Deserialize(const string& jstr, Type* type)
+    sptr<Object> JsonSerializer::Deserialize(const string& jstr, Type* type)
     {
         return _Deserialize(nlohmann::json::parse(jstr), type);
     }

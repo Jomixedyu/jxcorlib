@@ -46,11 +46,12 @@ namespace JxCoreLib
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::TypeInfo, Object);
     public:
+        TypeInfo() {}
         TypeInfo(const TypeInfo&) = delete;
         TypeInfo(TypeInfo&&) = delete;
     };
 
-    class MemberInfo : public Object
+    class MemberInfo : public TypeInfo
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::MemberInfo, TypeInfo);
     protected:
@@ -101,11 +102,6 @@ namespace JxCoreLib
         FieldInfo(FieldInfo&& right) = delete;
     public:
         void SetValue(Object* instance, sptr<Object> value);
-        /*template<cltype_concept T>
-        void SetValue(Object* instance, sptr<T>& value)
-        {
-            return SetValue;
-        }*/
         sptr<Object> GetValue(Object* instance) const;
     private:
         template<typename TValue, typename TType>
@@ -113,7 +109,7 @@ namespace JxCoreLib
         {
             if (value->GetType() == cltypeof<TType>())
             {
-                *t = static_cast<TType*>(value)->value;
+                *t = static_cast<TType*>(value)->get_raw_value();
                 return true;
             }
             return false;
@@ -139,8 +135,8 @@ namespace JxCoreLib
         template<typename T>
         static bool Assign(T* t, Object* inst, FieldInfo* info)
         {
-            auto _info = info->GetValue(inst);
-            return Assign(t, _info);
+            sptr<Object> _info = info->GetValue(inst);
+            return Assign(t, _info.get());
         }
     };
     class ParameterInfo : public TypeInfo

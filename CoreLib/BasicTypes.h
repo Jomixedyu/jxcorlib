@@ -1,14 +1,21 @@
 #pragma once
+#include "Object.h"
 #include "Type.h"
 #include "Assembly.h"
 
 namespace JxCoreLib
 {
+    class PrimitiveObject : public Object
+    {
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::PrimitiveObject, Object);
+
+
+    };
 
 #define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
-    class Class : public Object \
+    class Class final : public PrimitiveObject \
     { \
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Class, Object);\
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Class, PrimitiveObject);\
         CORELIB_DECL_DYNCINST() { \
             if (params.Count() != 1 || !params.Check<DataType>()) \
             { \
@@ -34,7 +41,7 @@ namespace JxCoreLib
     template<> struct get_cltype<DataType> { using type = Class; }; \
 
 
-    __CORELIB_DEF_BASE_TYPE(CharType, char);
+    __CORELIB_DEF_BASE_TYPE(CharObject, char);
     __CORELIB_DEF_BASE_TYPE(Integer8, int8_t);
     __CORELIB_DEF_BASE_TYPE(UInteger8, uint8_t);
     __CORELIB_DEF_BASE_TYPE(Integer16, int16_t);
@@ -47,9 +54,9 @@ namespace JxCoreLib
     __CORELIB_DEF_BASE_TYPE(Double64, double);
     __CORELIB_DEF_BASE_TYPE(Boolean, bool);
 
-    class String : public Object, public string
+    class String final : public PrimitiveObject, public string
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::String, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::String, PrimitiveObject);
         CORELIB_DECL_DYNCINST()
         {
             if (params.Count() != 1 || !params.Check<const char*>())
@@ -60,7 +67,7 @@ namespace JxCoreLib
         }
     public:
         using string::basic_string;
-        String(const string& right) { *this = right; }
+        String(const string& right) : string::basic_string(right) {  }
 
         virtual string ToString() const override { return *this; }
         string get_raw_value() const { return *this; }

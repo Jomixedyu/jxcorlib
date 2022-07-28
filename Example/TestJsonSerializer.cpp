@@ -16,56 +16,50 @@ public:
 
     CORELIB_REFL_DECL_FIELD(name);
     string name;
-    //CORELIB_REFL_DECL_FIELD(age);
-    //int age;
-    //virtual string ToString() const override
-    //{
-    //    return std::format("name: {}, age: {}", name, age);
-    //}
+    CORELIB_REFL_DECL_FIELD(age);
+    int age;
+    virtual string ToString() const override
+    {
+        return std::format("name: {}, age: {}", name, age);
+    }
 };
-//
-//class StudentInfo : public Object
-//{
-//    CORELIB_DEF_TYPE(AssemblyObject_Test, StudentInfo, Object);
-//public:
-//
-//    CORELIB_REFL_DECL_FIELD(id);
-//    int id;
-//    CORELIB_REFL_DECL_FIELD(president);
-//    bool president;
-//    CORELIB_REFL_DECL_FIELD(person_info);
-//    sptr<PersonInfo> person_info;
-//
-//    //CORELIB_REFL_DECL_FIELD(list);
-//    //sptr<List<StudentInfo>> list;
-//
-//    virtual string ToString() const override
-//    {
-//        return std::format("id: {}, president: {}, person_info: {{{}}}", id, president, person_info->ToString());
-//    }
-//};
+
+class StudentInfo : public Object
+{
+    CORELIB_DEF_TYPE(AssemblyObject_Test, StudentInfo, Object);
+public:
+
+    CORELIB_REFL_DECL_FIELD(id);
+    int id;
+    CORELIB_REFL_DECL_FIELD(president);
+    bool president;
+    CORELIB_REFL_DECL_FIELD(person_info);
+    sptr<PersonInfo> person_info;
+
+    //CORELIB_REFL_DECL_FIELD(list);
+    //sptr<List<StudentInfo>> list;
+
+    virtual string ToString() const override
+    {
+        return std::format("id: {}, president: {}, person_info: {{{}}}", id, president, person_info->ToString());
+    }
+};
 
 void TestJsonSerializer()
 {
-    //sptr< StudentInfo> info = mksptr(new StudentInfo);
-    //auto infos = info->GetType()->get_fieldinfos();
-    //sptr<List<StudentInfo>> k = mksptr(new List<StudentInfo>());
-    
-    //auto info2 = k->GetType();
 
-    //StudentInfo* student = new StudentInfo;
-    //student->id = 33;
-    //student->president = true;
+    StudentInfo* student = new StudentInfo;
+    student->id = 33;
+    student->president = true;
 
-    //student->person_info = mksptr(new PersonInfo);
-    //student->person_info->name = "jx";
-    //student->person_info->age = 12;
-    //student->score->insert(new String{"math"}, new Integer32{ 50 });
+    student->person_info = mksptr(new PersonInfo);
+    student->person_info->name = "jx";
+    student->person_info->age = 12;
 
-    //string json_str = JsonSerializer::Serialize(student, true);
-    //cout << json_str << endl;
+    string json_str = JsonSerializer::Serialize(student, true);
+    cout << json_str << endl;
 
-    //StudentInfo* newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
-    //cout << newstudent->ToString() << endl;
+    sptr<StudentInfo> newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
+    cout << newstudent->ToString() << endl;
 
 }
