@@ -135,7 +135,7 @@ namespace JxCoreLib
     template<typename T>
     class List : public Object, public array_list<T>, public IList
     {
-        //CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
+        CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
 
     public: static inline Type* StaticType() \
     { \
