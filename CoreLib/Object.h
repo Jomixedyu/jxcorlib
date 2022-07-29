@@ -91,16 +91,6 @@ namespace JxCoreLib
 #define SPTR_DECL(CLASS) using s##CLASS = sptr<class CLASS>; using rs##CLASS = const sptr<class CLASS>&;
     SPTR_DECL(Object);
 
-    template<typename T>
-    concept cltype_concept =
-        std::is_base_of<Object, typename remove_shared_ptr<typename std::remove_pointer<T>::type>::type>::value;
-
-    template<typename T>
-    concept newable_concept = requires { new T; };
-
-    template<typename T>
-    concept non_newable_concept = !requires { new T; };
-
 }
 namespace std
 {

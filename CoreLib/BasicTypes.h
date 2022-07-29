@@ -38,7 +38,7 @@ namespace JxCoreLib
     static bool operator==(const DataType& l, const Class& r) { return l == r.value; } \
     static bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
     static bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
-    template<> struct get_cltype<DataType> { using type = Class; }; \
+    template<> struct get_cltype<DataType> { using type = Class; };
 
 
     __CORELIB_DEF_BASE_TYPE(CharObject, char);
@@ -129,10 +129,6 @@ namespace JxCoreLib
         }
     };
 
-    class IInterface
-    {
-        __CORELIB_DEF_ROOT_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IInterface, Object);
-    };
 
     class IList : public IInterface
     {
@@ -146,15 +142,17 @@ namespace JxCoreLib
         virtual int32_t GetCount() const = 0;
     };
 
+
     template<typename T>
     class List : public Object, public array_list<T>, public IList
     {
         CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
         //CORELIB_INTERFACE_LIST(IList);
-        static inline struct __corelib_interface_list 
+        static inline struct __corelib_interface_list
         {
-            __corelib_interface_list() { StaticType()->RegisterInterface<IList>(); } \
+            __corelib_interface_list() { StaticType()->RegisterInterfaces<IList>(); } \
         } __corelib_interface_list_init_;
+        using element_type = array_list<T>::value_type;
     public:
         virtual void Add(const sptr<Object>& value) override;
         virtual sptr<Object> At(int32_t index) override;
@@ -163,6 +161,7 @@ namespace JxCoreLib
         virtual void Contains(const sptr<Object>& value) override;
         virtual int32_t GetCount() const override;
     };
+
 
     //template<typename TEle>
     //class Map : public Object

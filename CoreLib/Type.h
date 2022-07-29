@@ -19,21 +19,6 @@
 #include "IInterface.h"
 
 
-#define __CORELIB_DEF_BASETYPE_META(NAME, BASE) \
-private: \
-    using base = BASE; \
-    using __corelib_curclass = NAME; \
-    friend class Type; \
-    friend class TypeTraits; \
-public: \
-    inline virtual Type* GetType() const { \
-        return StaticType(); \
-    } \
-private: \
-    static inline struct __corelib_type { \
-        __corelib_type() { NAME::StaticType(); } \
-    } __corelib_type_init_;
-
 //声明CoreLib元数据
 #define CORELIB_DEF_TYPE(ASSEMBLY, NAME, BASE) \
 public: static inline Type* StaticType() \
@@ -53,42 +38,69 @@ public: static inline Type* StaticType() \
         } \
         return type; \
     } \
-    __CORELIB_DEF_BASETYPE_META(NAME, BASE)
+private: \
+    using base = BASE; \
+    using __corelib_curclass = NAME; \
+    friend class Type; \
+    friend class TypeTraits; \
+public: \
+    inline virtual Type* GetType() const { \
+        return StaticType(); \
+    } \
+private: \
+    static inline struct __corelib_type { \
+        __corelib_type() { NAME::StaticType(); } \
+    } __corelib_type_init_;
 
-#define __CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
+
+
+#define CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
 public: static inline Type* StaticType() \
     { \
+        static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
         static Type* type = nullptr; \
         if (type == nullptr) \
         { \
-            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
-            if (dynptr == nullptr) \
-            { \
-                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
-            } \
             Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-            type = new Type(dynptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME), true); \
+            type = new Type(nullptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME), true); \
             assm->RegisterType(type); \
         } \
         return type; \
     } \
 private: \
-    using base = BASE; \
     using __corelib_curclass = NAME; \
     friend class Type; \
     friend class TypeTraits; \
 private: \
     static inline struct __corelib_type { \
         __corelib_type() { NAME::StaticType(); } \
-    } __corelib_type_init_;
-
-#define CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
-    static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
-    __CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
+    } __corelib_type_init_; \
 public:
 
-#define __CORELIB_DEF_ROOT_INTERFACE(ASSEMBLY, NAME, BASE) \
-    __CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE)
+
+#define CORELIB_DEF_TINTERFACE(ASSEMBLY, NAME, BASE, ...) \
+public: static inline Type* StaticType() \
+    static_assert(std::is_base_of<BASE, NAME<__VA_ARGS__>>::value, "The base class does not match"); \
+    { \
+        static Type* type = nullptr; \
+        if (type == nullptr) \
+        { \
+            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+            type = new Type(nullptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>), true); \
+            assm->RegisterType(type); \
+        } \
+        return type; \
+    } \
+private: \
+    using base = BASE; \
+    using __corelib_curclass = NAME__VA_ARGS__<>; \
+    friend class Type; \
+    friend class TypeTraits; \
+private: \
+    static inline struct __corelib_type { \
+        __corelib_type() { NAME<__VA_ARGS__>::StaticType(); } \
+    } __corelib_type_init_; \
+public:
 
 //声明CoreLib模板元数据
 #define CORELIB_DEF_TEMPLATE_TYPE(ASSEMBLY, NAME, BASE, ...) \
@@ -125,7 +137,7 @@ private: \
 
 #define CORELIB_INTERFACE_LIST(...) \
     static inline struct __corelib_interface_list { \
-        __corelib_interface_list() { StaticType()->RegisterInterface<__VA_ARGS__>(); } \
+        __corelib_interface_list() { StaticType()->RegisterInterfaces<__VA_ARGS__>(); } \
     } __corelib_interface_list_init_;
 
 //反射工厂创建函数声明
@@ -155,7 +167,29 @@ namespace JxCoreLib
     template<typename T>
     using array_list = std::vector<T>;
 
+    class IInterface
+    {
+    private:
+        friend class Type;
+        friend class TypeTraits;
+        using __corelib_curclass = IInterface;
+        static inline struct __corelib_type {
+            __corelib_type() { IInterface::StaticType(); }
+        } __corelib_type_init_;
+    public:
+        static Type* StaticType();
+    };
 
+    template<typename T>
+    concept cltype_concept =
+        std::is_base_of<Object, typename remove_shared_ptr<typename std::remove_pointer<T>::type>::type>::value ||
+        std::is_base_of<IInterface, typename remove_shared_ptr<typename std::remove_pointer<T>::type>::type>::value;
+
+    template<typename T>
+    concept newable_concept = requires { new T; };
+
+    template<typename T>
+    concept non_newable_concept = !requires { new T; };
 
     class Type : public Object
     {
@@ -253,6 +287,21 @@ namespace JxCoreLib
         {
             this->interfaces_->push_back((Typeof<TInterfaces>(),0)...);
         }
+
+    public:
+        
+    };
+
+    template<typename T>
+    struct BoxUtil
+    {
+        //static inline sptr<Object> Box(const T& value) { return value; }
+    };
+
+    template<typename T>
+    struct UnboxUtil
+    {
+        //static inline T UnBox(Object* value) { return value; }
     };
 
 
@@ -458,29 +507,6 @@ namespace JxCoreLib
         {
             auto ptr = static_cast<ClType*>(value.get());
             *target = ptr->get_raw_value();
-        }
-    };
-
-    template<typename T, bool is_add>
-    struct find_pointer_if
-    {
-    };
-
-    template<typename T>
-    struct find_pointer_if<T, false>
-    {
-        using type = T*;
-        static T* get(T* t) {
-            return t;
-        }
-    };
-
-    template<typename T>
-    struct find_pointer_if<T, true>
-    {
-        using type = T;
-        static T* get(T** t) {
-            return *t;
         }
     };
 

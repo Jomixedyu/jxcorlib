@@ -207,4 +207,16 @@ namespace JxCoreLib
         this->member_infos_.insert({ info->get_name(), info });
     }
 
+    Type* IInterface::StaticType()
+    {
+        static Type* type = nullptr;
+        if (type == nullptr)
+        {
+            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib);
+            type = new Type(nullptr, assm, cltypeof<Object>(), "IInterface", typeid(IInterface), sizeof(IInterface), true);
+            assm->RegisterType(type);
+        }
+        return type;
+    }
+
 }
