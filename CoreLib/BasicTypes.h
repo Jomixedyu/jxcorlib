@@ -5,10 +5,15 @@
 
 namespace JxCoreLib
 {
-    class PrimitiveObject : public Object
+    class ValueTypeObject : public Object
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::PrimitiveObject, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::ValueTypeObject, Object);
 
+    };
+
+    class PrimitiveObject : public ValueTypeObject
+    {
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::PrimitiveObject, ValueTypeObject);
 
     };
 
@@ -26,12 +31,9 @@ namespace JxCoreLib
     public: \
         using type = DataType; \
         DataType value; \
-        DataType get_raw_value() const { return this->value; } \
+        DataType get_raw_value() { return this->value; } \
         Class(DataType value) : value(value) { } \
         operator DataType() { return value; } \
-        DataType operator()() { \
-            return value; \
-        } \
         virtual string ToString() const override { return std::to_string(value); } \
     }; \
     static bool operator==(const Class& l, const DataType& r) { return l.value == r; } \
@@ -70,7 +72,7 @@ namespace JxCoreLib
         String(const string& right) : string::basic_string(right) {  }
 
         virtual string ToString() const override { return *this; }
-        string get_raw_value() const { return *this; }
+        string get_raw_value()  { return *this; }
         static sptr<String> FromString(string_view str)
         {
             return mksptr(new String(str));
@@ -144,18 +146,40 @@ namespace JxCoreLib
 
 
     template<typename T>
+    struct BoxUtil
+    {
+        static inline sptr<Object> Box(const T& value) { return mksptr((Object*)new get_cltype<T>::type(value)); }
+    };
+
+    template<typename T>
+    struct UnboxUtil
+    {
+        static inline T UnBox(Object* value)
+        {
+            //value->GetType()->is_valuetype(); //assert
+            return static_cast<get_cltype<T>::type*>(value)->get_raw_data();
+        }
+    };
+
+
+    template<typename T>
     class List : public Object, public array_list<T>, public IList
     {
         CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
-        //CORELIB_INTERFACE_LIST(IList);
-        static inline struct __corelib_interface_list
-        {
-            __corelib_interface_list() { StaticType()->RegisterInterfaces<IList>(); } \
-        } __corelib_interface_list_init_;
-        using element_type = array_list<T>::value_type;
+
     public:
-        virtual void Add(const sptr<Object>& value) override;
-        virtual sptr<Object> At(int32_t index) override;
+        virtual void Add(const sptr<Object>& value) override
+        {
+            if (cltype_concept<T>)
+            {
+                
+            }
+            this->push_back(UnboxUtil<T>::UnBox(value.get()));
+        }
+        virtual sptr<Object> At(int32_t index) override
+        {
+
+        }
         virtual void Clear() override;
         virtual void RemoveAt(int32_t index) override;
         virtual void Contains(const sptr<Object>& value) override;
@@ -163,40 +187,4 @@ namespace JxCoreLib
     };
 
 
-    //template<typename TEle>
-    //class Map : public Object
-    //{
-    //public: static inline Type* StaticType() \
-    //{ \
-    //    static Type* type = nullptr; \
-    //    if (type == nullptr) \
-    //    { \
-    //        auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
-    //        if (dynptr == nullptr) \
-    //        { \
-    //            dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
-    //        } \
-    //            using TemplateType = JxCoreLib::TemplateTypePair<TEle>; \
-    //            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib); \
-    //            Type* type = new Type(dynptr, assm, cltypeof<Object>(), StringUtil::Concat("Map", "<", typeid(TemplateType).name(), ">"), typeid(Map), sizeof(Map)); \
-    //            assm->RegisterType(type); \
-    //    } \
-    //        return type; \
-    //} \
-    //private: \
-    //            using base = Object; \
-    //            using __corelib_curclass = Map<TEle>; \
-    //            friend class Type; \
-    //            friend class TypeTraits; \
-    //public: \
-    //            inline virtual Type* GetType() const override {
-    //            \
-    //                return StaticType(); \
-    //        } \
-    //private: \
-    //                static inline struct _TypeInit {
-    //                \
-    //                    _TypeInit() { Map<TEle>::StaticType(); } \
-    //            } __corelib_type_init_;
-    //};
 }

@@ -225,6 +225,7 @@ namespace JxCoreLib
         Type* get_base() const { return this->base_; }
         const std::type_info& get_typeinfo() const { return this->typeinfo_; }
         bool is_primitive_type() const;
+        bool is_valuetype() const;
         bool is_interface() const { return this->is_interface_; }
     public:
         bool IsImplementedInterface(Type* type);
@@ -292,17 +293,6 @@ namespace JxCoreLib
         
     };
 
-    template<typename T>
-    struct BoxUtil
-    {
-        //static inline sptr<Object> Box(const T& value) { return value; }
-    };
-
-    template<typename T>
-    struct UnboxUtil
-    {
-        //static inline T UnBox(Object* value) { return value; }
-    };
 
 
     template<typename T> struct fulldecay { using type = T; };

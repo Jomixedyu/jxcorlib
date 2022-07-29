@@ -93,6 +93,11 @@ namespace JxCoreLib
         return this->IsSubclassOf(cltypeof<PrimitiveObject>());
     }
 
+    bool Type::is_valuetype() const
+    {
+        return this->IsSubclassOf(cltypeof<ValueTypeObject>());
+    }
+
 
     std::vector<MemberInfo*> Type::get_memberinfos(TypeBinding attr)
     {
