@@ -166,15 +166,18 @@ namespace JxCoreLib
     class List : public Object, public array_list<T>, public IList
     {
         CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
-
+        static_assert(!cltype_concept<T> || (cltype_concept<T> && !std::is_pointer<T>::value), "as");
     public:
         virtual void Add(const sptr<Object>& value) override
         {
-            if (cltype_concept<T>)
+            if (!cltype_concept<T>)
             {
-                
-            }
             this->push_back(UnboxUtil<T>::UnBox(value.get()));
+            }
+            else
+            {
+
+            }
         }
         virtual sptr<Object> At(int32_t index) override
         {
