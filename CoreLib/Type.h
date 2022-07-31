@@ -80,8 +80,8 @@ public:
 
 #define CORELIB_DEF_TINTERFACE(ASSEMBLY, NAME, BASE, ...) \
 public: static inline Type* StaticType() \
-    static_assert(std::is_base_of<BASE, NAME<__VA_ARGS__>>::value, "The base class does not match"); \
     { \
+        static_assert(std::is_base_of<BASE, NAME<__VA_ARGS__>>::value, "The base class does not match"); \
         static Type* type = nullptr; \
         if (type == nullptr) \
         { \
@@ -437,9 +437,23 @@ namespace JxCoreLib
     template<typename T>
     struct get_cltype<T, false>
     {
-        using type = StdAny;
+        static_assert(true, "not boxing type!");
+        //using type = StdAny;
     };
 
+    //TODO: testing
+    template<typename T, typename Ty>
+    struct has_boxtype
+    {
+    };
+    template<typename T>
+    struct has_boxtype<T, typename get_cltype<T>::type> : public std::bool_constant<true>
+    {
+    };
+    template<typename T>
+    struct has_boxtype<T, void> : public std::bool_constant<false>
+    {
+    };
 
 
 

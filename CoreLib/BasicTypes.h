@@ -72,7 +72,7 @@ namespace JxCoreLib
         String(const string& right) : string::basic_string(right) {  }
 
         virtual string ToString() const override { return *this; }
-        string get_raw_value()  { return *this; }
+        string get_raw_value() { return *this; }
         static sptr<String> FromString(string_view str)
         {
             return mksptr(new String(str));
@@ -140,7 +140,8 @@ namespace JxCoreLib
         virtual sptr<Object> At(int32_t index) = 0;
         virtual void Clear() = 0;
         virtual void RemoveAt(int32_t index) = 0;
-        virtual void Contains(const sptr<Object>& value) = 0;
+        virtual int32_t IndexOf(const sptr<Object>& value) = 0;
+        virtual bool Contains(const sptr<Object>& value) = 0;
         virtual int32_t GetCount() const = 0;
     };
 
@@ -154,10 +155,15 @@ namespace JxCoreLib
     template<typename T>
     struct UnboxUtil
     {
-        static inline T UnBox(Object* value)
+        static inline T Unbox(Object* value)
         {
             //value->GetType()->is_valuetype(); //assert
-            return static_cast<get_cltype<T>::type*>(value)->get_raw_data();
+            return static_cast<get_cltype<T>::type*>(value)->get_raw_value();
+        }
+        static inline T Unbox(const sptr<Object>& value)
+        {
+            //value->GetType()->is_valuetype(); //assert
+            return static_cast<get_cltype<T>::type*>(value.get())->get_raw_value();
         }
     };
 
@@ -166,27 +172,67 @@ namespace JxCoreLib
     class List : public Object, public array_list<T>, public IList
     {
         CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
-        static_assert(!cltype_concept<T> || (cltype_concept<T> && !std::is_pointer<T>::value), "as");
+        static_assert( (cltype_concept<T> && is_shared_ptr<T>::value) || !cltype_concept<T>, "");
+        constexpr static bool is_shared_cltype = cltype_concept<T> && is_shared_ptr<T>::value;
     public:
         virtual void Add(const sptr<Object>& value) override
         {
-            if (!cltype_concept<T>)
+            if constexpr (is_shared_cltype)
             {
-            this->push_back(UnboxUtil<T>::UnBox(value.get()));
+                this->push_back(std::static_pointer_cast<typename remove_shared_ptr<T>::type>(value));
             }
             else
             {
-
+                this->push_back(UnboxUtil<T>::Unbox(value.get()));
             }
         }
         virtual sptr<Object> At(int32_t index) override
         {
-
+            if constexpr (is_shared_cltype)
+            {
+                return std::static_pointer_cast<Object>(this->at(index));
+            }
+            else
+            {
+                return BoxUtil<T>::Box(this->at(index));
+            }
         }
-        virtual void Clear() override;
-        virtual void RemoveAt(int32_t index) override;
-        virtual void Contains(const sptr<Object>& value) override;
-        virtual int32_t GetCount() const override;
+        virtual void Clear() override { this->clear(); }
+        virtual void RemoveAt(int32_t index) override
+        {
+            this->erase(this->begin() + index);
+        }
+        virtual int32_t IndexOf(const sptr<Object>& value) override
+        {
+            for (int32_t i = 0; i < this->size(); i++)
+            {
+                auto& item = this->at(i);
+                if constexpr (is_shared_cltype)
+                {
+                    if (value == nullptr && item == nullptr)
+                    {
+                        return i;
+                    }
+                    else if (item != nullptr && item->Equals(value))
+                    {
+                        return i;
+                    }
+                }
+                else
+                {
+                    if (item == UnboxUtil<T>::Unbox(value.get()))
+                    {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+        virtual bool Contains(const sptr<Object>& value) override
+        {
+            return this->IndexOf(value) >= 0;
+        }
+        virtual int32_t GetCount() const override { return this->size(); }
     };
 
 

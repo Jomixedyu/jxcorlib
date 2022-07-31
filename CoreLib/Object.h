@@ -35,6 +35,17 @@ namespace JxCoreLib
     template<typename T>
     using sptr = std::shared_ptr<T>;
 
+    template<typename Tout, typename Tin>
+    sptr<Tout> sptr_cast(const sptr<Tin>& other)
+    {
+        return std::static_pointer_cast<Tout, Tin>(other);
+    }
+    template<typename Tout, typename Tin>
+    void sptr_cast(sptr<Tin>&& other)
+    {
+        return std::static_pointer_cast<Tout, Tin>(std::forward(other));
+    }
+
     template<typename T>
     sptr<T> mksptr(T* t) { return sptr<T>(t); }
 

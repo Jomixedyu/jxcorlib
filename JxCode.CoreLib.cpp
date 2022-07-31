@@ -34,5 +34,18 @@ int main()
     TestFormater();
     //TestFile();
 
+    sptr<List<int>> intlist = mksptr(new List<int>);
+    //interface
+    auto list = sptr_cast<IList>(intlist);
+
+    list->Add(BoxUtil<int>::Box(3));
+
+    for (auto item : *intlist)
+    {
+        cout << item << endl;
+    }
+
+    cout << UnboxUtil<int>::Unbox(list->At(0)) << endl;
+
     return 0;
 }
