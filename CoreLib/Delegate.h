@@ -5,7 +5,7 @@
 
 namespace JxCoreLib
 {
-    SPTR_DECL(Delegate);
+
     class Delegate : public Object
     {
         CORELIB_DEF_TYPE(JxCoreLib::Delegate, Object);
@@ -14,7 +14,7 @@ namespace JxCoreLib
 
 
     private:
-        sObject target_;
+        Object_sp target_;
         //std::function
     };
     

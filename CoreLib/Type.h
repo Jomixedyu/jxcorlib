@@ -135,7 +135,7 @@ private: \
             __corelib_type() { NAME<__VA_ARGS__>::StaticType(); } \
         } __corelib_type_init_;
 
-#define CORELIB_INTERFACE_LIST(...) \
+#define CORELIB_IMPL_INTERFACES(...) \
     static inline struct __corelib_interface_list { \
         __corelib_interface_list() { StaticType()->RegisterInterfaces<__VA_ARGS__>(); } \
     } __corelib_interface_list_init_;
@@ -282,11 +282,14 @@ namespace JxCoreLib
     private:
         void _AddMemberInfo(MemberInfo* info);
 
+
     public:
+        void RegisterInterface(Type* type) { this->interfaces_.push_back(type); }
+
         template<typename... TInterfaces>
         void RegisterInterfaces()
         {
-            this->interfaces_->push_back((Typeof<TInterfaces>(),0)...);
+            RegisterInterface(Typeof<TInterfaces>()...);
         }
 
     public:

@@ -5,7 +5,7 @@
 #include <array>
 #include <iostream>
 #include <string>
-
+#include <cassert>
 
 using namespace std;
 using namespace JxCoreLib;
@@ -45,7 +45,7 @@ int main()
         cout << item << endl;
     }
 
-    cout << UnboxUtil<int>::Unbox(list->At(0)) << endl;
+    assert(intlist->GetType()->IsImplementedInterface(cltypeof<IList>()));
 
     return 0;
 }

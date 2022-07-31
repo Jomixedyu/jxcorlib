@@ -69,14 +69,14 @@ void TestReflection()
 
     id_field->SetValue(model, mksptr(new Integer32{ 3 }));
 
-    sObject id_value = id_field->GetValue(model);
+    Object_sp id_value = id_field->GetValue(model);
     assert(id_value->GetType() == cltypeof<get_cltype<int>::type>());
     assert(*(Integer32*)id_value.get() == 3);
 
     ////name : Object*
     FieldInfo* name_field = model_type->get_fieldinfo("name");
 
-    sObject obj = mksptr(new Object());
+    Object_sp obj = mksptr(new Object());
     name_field->SetValue(model, obj);
 
     auto value = name_field->GetValue(model);

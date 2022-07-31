@@ -36,6 +36,7 @@ namespace JxCoreLib
         operator DataType() { return value; } \
         virtual string ToString() const override { return std::to_string(value); } \
     }; \
+    CORELIB_DECL_SHORTSPTR(Class); \
     static bool operator==(const Class& l, const DataType& r) { return l.value == r; } \
     static bool operator==(const DataType& l, const Class& r) { return l == r.value; } \
     static bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
@@ -78,6 +79,7 @@ namespace JxCoreLib
             return mksptr(new String(str));
         }
     };
+    CORELIB_DECL_SHORTSPTR(String);
     template<> struct get_cltype<string> { using type = String; };
 
     class StdAny : public Object, public std::any
@@ -144,7 +146,7 @@ namespace JxCoreLib
         virtual bool Contains(const sptr<Object>& value) = 0;
         virtual int32_t GetCount() const = 0;
     };
-
+    CORELIB_DECL_SHORTSPTR(IList);
 
     template<typename T>
     struct BoxUtil
@@ -172,6 +174,7 @@ namespace JxCoreLib
     class List : public Object, public array_list<T>, public IList
     {
         CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
+        CORELIB_IMPL_INTERFACES(IList);
         static_assert( (cltype_concept<T> && is_shared_ptr<T>::value) || !cltype_concept<T>, "");
         constexpr static bool is_shared_cltype = cltype_concept<T> && is_shared_ptr<T>::value;
     public:
@@ -232,8 +235,7 @@ namespace JxCoreLib
         {
             return this->IndexOf(value) >= 0;
         }
-        virtual int32_t GetCount() const override { return this->size(); }
+        virtual int32_t GetCount() const override { return static_cast<int32_t>(this->size()); }
     };
-
 
 }

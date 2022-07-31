@@ -13,6 +13,11 @@
 #include <memory>
 #include "UString.h"
 
+#define CORELIB_DECL_ASSEMBLY(NAME) \
+    inline struct __corelib_AssemblyClass_##NAME : public ::JxCoreLib::AssemblyTypeObject \
+    {  __corelib_AssemblyClass_##NAME##() { name = #NAME; } } AssemblyObject_##NAME;
+
+#define CORELIB_DECL_SHORTSPTR(CLASS) using CLASS##_sp = sptr<class CLASS>; using CLASS##_rsp = const sptr<class CLASS>&;
 
 namespace JxCoreLib
 {
@@ -24,13 +29,7 @@ namespace JxCoreLib
         const char* name;
     };
 
-#define CORELIB_DECL_ASSEMBLY(NAME) \
-    inline struct __corelib_AssemblyClass_##NAME : public ::JxCoreLib::AssemblyTypeObject \
-    {  __corelib_AssemblyClass_##NAME##() { name = #NAME; } } AssemblyObject_##NAME;
-
     CORELIB_DECL_ASSEMBLY(JxCoreLib);
-
-
 
     template<typename T>
     using sptr = std::shared_ptr<T>;
@@ -99,8 +98,8 @@ namespace JxCoreLib
         virtual bool Equals(Object* object) const;
     };
 
-#define SPTR_DECL(CLASS) using s##CLASS = sptr<class CLASS>; using rs##CLASS = const sptr<class CLASS>&;
-    SPTR_DECL(Object);
+
+    CORELIB_DECL_SHORTSPTR(Object);
 
 }
 namespace std
