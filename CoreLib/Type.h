@@ -459,6 +459,15 @@ namespace JxCoreLib
     };
 
 
+    template<typename T>
+    T* cast_interface(Object* obj) 
+    {
+        if (obj->GetType()->IsImplementedInterface(cltypeof<T>()))
+        {
+            return static_cast<T*>(obj);
+        }
+        return nullptr;
+    }
 
     //template<> struct get_cltype<array_list> { using type = ArrayList; };
 

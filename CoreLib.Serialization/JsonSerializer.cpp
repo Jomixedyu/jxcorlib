@@ -6,40 +6,76 @@ namespace JxCoreLib::Serialization
 {
     using namespace nlohmann;
 
-    static void _Serialize(Object* obj, std::vector<FieldInfo*> infos, nlohmann::json& js)
+    //在子函数内处理对象
+
+    static void _SerializeArray(IList* list, json& js)
     {
-        using namespace nlohmann;
-        for (FieldInfo* info : infos)
+        int32_t count = list->GetCount();
+        for (int32_t i = 0; i < count; i++)
         {
-            if (info->get_field_type()->is_primitive_type())
+            Object_rsp element = list->At(i);
+            _Serialize(element.get(), )
+        }
+    }
+    static void _SerializeClassObject(Object* obj, json& obj_js)
+    {
+        for (FieldInfo* info : obj->GetType()->get_fieldinfos(TypeBinding::NonPublic))
+        {
+            Object_sp field_inst = info->GetValue(obj);
+
+            json item_js;
+
+            _Serialize(field_inst.get(), info->get_name(), item_js);
+            obj_js[info->get_name()] = item_js;
+        }
+    }
+    static void _Serialize(Object* obj, const string& name, json& js)
+    {
+        if (obj == nullptr)
+        {
+            js[name] = json::object();
+            return;
+        }
+
+        if (obj->GetType()->is_primitive_type())
+        {
+            PrimitiveObject::Assign(&js[name], obj);
+        }
+        else
+        {
+            //object
+
+            if (IList* list = cast_interface<IList>(obj))
             {
-                FieldInfo::Assign(&js[info->get_name()], obj, info);
+                json arr = json::array();
+                _SerializeArray(list, arr);
+                js[name] = arr;
             }
             else
             {
-                sptr<Object> inst = info->GetValue(obj);
+                //other object
 
-                if (inst == nullptr)
+                json _js;
+
+                for (FieldInfo* info : obj->GetType()->get_fieldinfos(TypeBinding::NonPublic))
                 {
-                    js[info->get_name()] = json::object();
-                }
+                    Object_sp field_inst = info->GetValue(obj);
 
-                if (inst != nullptr)
-                {
-                    json _js;
-                    _Serialize(inst.get(), info->get_field_type()->get_fieldinfos(TypeBinding::NonPublic), _js);
-                    js[info->get_name()] = _js;
-                }
+                    json obj_js = json::object();
 
+                    _Serialize(field_inst.get(), info->get_name(), obj_js);
+                    js[info->get_name()] = obj_js;
+                }
             }
         }
     }
+    
 
     string JsonSerializer::Serialize(Object* obj, bool isIndent)
     {
         using namespace nlohmann;
-        json js;
-        _Serialize(obj, obj->GetType()->get_fieldinfos(TypeBinding::NonPublic), js);
+        json js = json::object();
+        _SerializeClassObject(obj, js);
         return js.dump(isIndent ? 4 : -1);
     }
 
@@ -101,7 +137,7 @@ namespace JxCoreLib::Serialization
 
     static sptr<Object> _Deserialize(const json& js, Type* type)
     {
-        
+
         sptr<Object> obj = type->CreateSharedInstance({});
 
         for (auto it = js.begin(); it != js.end(); it++)
@@ -116,7 +152,7 @@ namespace JxCoreLib::Serialization
             if ((*it).is_object())
             {
                 //if (field_info->get_field_type()->IsSubclassOf(cltypeof<ManagedMapTemplateBase>()))
-                if(false)
+                if (false)
                 {
                     //map
                     //ManagedMap<Object*, Object*>* map = new ManagedMap<Object*, Object*>;

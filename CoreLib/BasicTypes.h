@@ -14,7 +14,35 @@ namespace JxCoreLib
     class PrimitiveObject : public ValueTypeObject
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::PrimitiveObject, ValueTypeObject);
-
+    private:
+        template<typename TValue, typename TType>
+        static inline bool _Assign(TValue* t, Object* value)
+        {
+            if (value->GetType() == cltypeof<TType>())
+            {
+                *t = static_cast<TType*>(value)->get_raw_value();
+                return true;
+            }
+            return false;
+        }
+    public:
+        template<typename T>
+        static bool Assign(T* t, Object* value)
+        {
+            return
+                _Assign<T, String>(t, value) ||
+                _Assign<T, Integer32>(t, value) ||
+                _Assign<T, UInteger32>(t, value) ||
+                _Assign<T, Single32>(t, value) ||
+                _Assign<T, Double64>(t, value) ||
+                _Assign<T, Boolean>(t, value) ||
+                _Assign<T, Integer8>(t, value) ||
+                _Assign<T, UInteger8>(t, value) ||
+                _Assign<T, Integer16>(t, value) ||
+                _Assign<T, UInteger16>(t, value) ||
+                _Assign<T, Integer64>(t, value) ||
+                _Assign<T, UInteger64>(t, value);
+        }
     };
 
 #define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
