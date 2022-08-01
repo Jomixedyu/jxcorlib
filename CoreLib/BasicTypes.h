@@ -178,6 +178,7 @@ namespace JxCoreLib
         virtual int32_t IndexOf(const sptr<Object>& value) = 0;
         virtual bool Contains(const sptr<Object>& value) = 0;
         virtual int32_t GetCount() const = 0;
+        virtual Type* GetIListElementType() const = 0;
     };
     CORELIB_DECL_SHORTSPTR(IList);
 
@@ -269,6 +270,8 @@ namespace JxCoreLib
             return this->IndexOf(value) >= 0;
         }
         virtual int32_t GetCount() const override { return static_cast<int32_t>(this->size()); }
+
+        virtual Type* GetIListElementType() const override { return cltypeof<typename get_boxing_type<T>::type>(); }
     };
 
 }
