@@ -44,6 +44,7 @@ int main()
     {
         cout << item << endl;
     }
+    
 
     assert(intlist->GetType()->IsImplementedInterface(cltypeof<IList>()));
 

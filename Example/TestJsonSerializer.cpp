@@ -36,8 +36,8 @@ public:
     CORELIB_REFL_DECL_FIELD(person_info);
     sptr<PersonInfo> person_info;
 
-    //CORELIB_REFL_DECL_FIELD(score);
-    //sptr<List<int>> score;
+    CORELIB_REFL_DECL_FIELD(score);
+    sptr<List<int>> score;
 
     virtual string ToString() const override
     {
@@ -51,8 +51,9 @@ void TestJsonSerializer()
     StudentInfo* student = new StudentInfo;
     student->id = 33;
     student->level = true;
-    //student->score = mksptr(new List<int>());
-    //student->score->push_back(3);
+    student->score = mksptr(new List<int>());
+    student->score->push_back(3);
+    student->score->push_back(4);
 
     student->person_info = mksptr(new PersonInfo);
     student->person_info->name = "jx";
