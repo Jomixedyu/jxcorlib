@@ -14,35 +14,6 @@ namespace JxCoreLib
     class PrimitiveObject : public ValueTypeObject
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::PrimitiveObject, ValueTypeObject);
-    private:
-        template<typename TValue, typename TType>
-        static inline bool _Assign(TValue* t, Object* value)
-        {
-            if (value->GetType() == cltypeof<TType>())
-            {
-                *t = static_cast<TType*>(value)->get_raw_value();
-                return true;
-            }
-            return false;
-        }
-    public:
-        template<typename T>
-        static bool Assign(T* t, Object* value)
-        {
-            return
-                _Assign<T, String>(t, value) ||
-                _Assign<T, Integer32>(t, value) ||
-                _Assign<T, UInteger32>(t, value) ||
-                _Assign<T, Single32>(t, value) ||
-                _Assign<T, Double64>(t, value) ||
-                _Assign<T, Boolean>(t, value) ||
-                _Assign<T, Integer8>(t, value) ||
-                _Assign<T, UInteger8>(t, value) ||
-                _Assign<T, Integer16>(t, value) ||
-                _Assign<T, UInteger16>(t, value) ||
-                _Assign<T, Integer64>(t, value) ||
-                _Assign<T, UInteger64>(t, value);
-        }
     };
 
 #define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
@@ -57,9 +28,9 @@ namespace JxCoreLib
             return new Class{ params.Get<DataType>(0) }; \
         } \
     public: \
-        using type = DataType; \
+        using unboxing_type = DataType; \
         DataType value; \
-        DataType get_raw_value() { return this->value; } \
+        DataType get_unboxing_value() { return this->value; } \
         Class(DataType value) : value(value) { } \
         operator DataType() { return value; } \
         virtual string ToString() const override { return std::to_string(value); } \
@@ -69,7 +40,7 @@ namespace JxCoreLib
     static bool operator==(const DataType& l, const Class& r) { return l == r.value; } \
     static bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
     static bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
-    template<> struct get_cltype<DataType> { using type = Class; };
+    template<> struct get_boxing_type<DataType> { using type = Class; };
 
 
     __CORELIB_DEF_BASE_TYPE(CharObject, char);
@@ -101,14 +72,14 @@ namespace JxCoreLib
         String(const string& right) : string::basic_string(right) {  }
 
         virtual string ToString() const override { return *this; }
-        string get_raw_value() { return *this; }
+        string get_unboxing_value() { return *this; }
         static sptr<String> FromString(string_view str)
         {
             return mksptr(new String(str));
         }
     };
     CORELIB_DECL_SHORTSPTR(String);
-    template<> struct get_cltype<string> { using type = String; };
+    template<> struct get_boxing_type<string> { using type = String; };
 
     class StdAny : public Object, public std::any
     {
@@ -146,8 +117,42 @@ namespace JxCoreLib
             return _AnyCast<TValue, TCastable...>(any, t);
         }
     };
-    template<> struct get_cltype<std::any> { using type = StdAny; };
+    template<> struct get_boxing_type<std::any> { using type = StdAny; };
 
+
+    class PrimitiveObjectUtil
+    {
+    private:
+        template<typename TValue, typename TType>
+        static inline bool _Assign(TValue* t, Object* value)
+        {
+            if (value->GetType() == cltypeof<TType>())
+            {
+                *t = static_cast<TType*>(value)->get_unboxing_value();
+                return true;
+            }
+            return false;
+        }
+
+    public:
+        template<typename T>
+        static bool Assign(T* t, Object* value)
+        {
+            return
+                _Assign<T, String>(t, value) ||
+                _Assign<T, Integer32>(t, value) ||
+                _Assign<T, UInteger32>(t, value) ||
+                _Assign<T, Single32>(t, value) ||
+                _Assign<T, Double64>(t, value) ||
+                _Assign<T, Boolean>(t, value) ||
+                _Assign<T, Integer8>(t, value) ||
+                _Assign<T, UInteger8>(t, value) ||
+                _Assign<T, Integer16>(t, value) ||
+                _Assign<T, UInteger16>(t, value) ||
+                _Assign<T, Integer64>(t, value) ||
+                _Assign<T, UInteger64>(t, value);
+        }
+    };
 
 
     template<typename... T>
@@ -156,7 +161,7 @@ namespace JxCoreLib
         static std::vector<Type*>* GetTemplateTypes()
         {
             std::vector<Type*>* vec = new std::vector<Type*>;
-            (vec->push_back(cltypeof<typename get_cltype<T>::type>()), ...);
+            (vec->push_back(cltypeof<typename get_boxing_type<T>::type>()), ...);
             return vec;
         }
     };
@@ -179,7 +184,7 @@ namespace JxCoreLib
     template<typename T>
     struct BoxUtil
     {
-        static inline sptr<Object> Box(const T& value) { return mksptr((Object*)new get_cltype<T>::type(value)); }
+        static inline sptr<Object> Box(const T& value) { return mksptr((Object*)new get_boxing_type<T>::type(value)); }
     };
 
     template<typename T>
@@ -188,12 +193,12 @@ namespace JxCoreLib
         static inline T Unbox(Object* value)
         {
             //value->GetType()->is_valuetype(); //assert
-            return static_cast<get_cltype<T>::type*>(value)->get_raw_value();
+            return static_cast<get_boxing_type<T>::type*>(value)->get_unboxing_value();
         }
         static inline T Unbox(const sptr<Object>& value)
         {
             //value->GetType()->is_valuetype(); //assert
-            return static_cast<get_cltype<T>::type*>(value.get())->get_raw_value();
+            return static_cast<get_boxing_type<T>::type*>(value.get())->get_unboxing_value();
         }
     };
 

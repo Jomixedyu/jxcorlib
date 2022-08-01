@@ -24,7 +24,7 @@
             using FieldType = decltype(std::declval<__corelib_curclass&>().NAME); \
             using DecayType = fulldecay<FieldType>::type; \
             using CleanType = remove_shared_ptr<DecayType>::type; \
-            using ClType = get_cltype<remove_shared_ptr<std::remove_cv<FieldType>::type>::type>::type; \
+            using ClType = get_boxing_type<remove_shared_ptr<std::remove_cv<FieldType>::type>::type>::type; \
             ReflectionBuilder::CreateFieldInfo<__corelib_curclass, FieldType>( \
                 #NAME, false, JxCoreLib::is_detected<_Detected, __corelib_curclass>::value, \
                 [](Object* p) -> sptr<Object> { \
@@ -172,7 +172,7 @@ namespace JxCoreLib
             info.is_const = std::is_const<TField>::value;
             info.is_shared_pointer = is_shared_ptr<TField>::value;
             
-            using ClType = get_cltype<typename fulldecay<TField>::type>::type;
+            using ClType = get_boxing_type<typename fulldecay<TField>::type>::type;
             Type* field_type = cltypeof<ClType>();
 
             cltypeof<T>()->_AddMemberInfo(new FieldInfo{ name, is_static, is_public, info, field_type, getter, setter });

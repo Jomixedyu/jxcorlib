@@ -6,89 +6,80 @@ namespace JxCoreLib::Serialization
 {
     using namespace nlohmann;
 
-    //在子函数内处理对象
 
-    static void _SerializeArray(IList* list, json& js)
-    {
-        int32_t count = list->GetCount();
-        for (int32_t i = 0; i < count; i++)
-        {
-            Object_rsp element = list->At(i);
-            _Serialize(element.get(), )
-        }
-    }
-    static void _SerializeClassObject(Object* obj, json& obj_js)
-    {
-        for (FieldInfo* info : obj->GetType()->get_fieldinfos(TypeBinding::NonPublic))
-        {
-            Object_sp field_inst = info->GetValue(obj);
+    static json _SerializeArray(IList* list);
+    static json _SerializeClassObject(Object* obj);
 
-            json item_js;
 
-            _Serialize(field_inst.get(), info->get_name(), item_js);
-            obj_js[info->get_name()] = item_js;
-        }
-    }
-    static void _Serialize(Object* obj, const string& name, json& js)
+    static json _SerializeObject(Object* obj)
     {
         if (obj == nullptr)
         {
-            js[name] = json::object();
-            return;
+            return json::object();
         }
 
         if (obj->GetType()->is_primitive_type())
         {
-            PrimitiveObject::Assign(&js[name], obj);
+            json prim_js;
+            PrimitiveObjectUtil::Assign(&prim_js, obj);
+            return std::move(prim_js);
         }
-        else
+
+        //list
+        if (IList* list = cast_interface<IList>(obj))
         {
-            //object
-
-            if (IList* list = cast_interface<IList>(obj))
-            {
-                json arr = json::array();
-                _SerializeArray(list, arr);
-                js[name] = arr;
-            }
-            else
-            {
-                //other object
-
-                json _js;
-
-                for (FieldInfo* info : obj->GetType()->get_fieldinfos(TypeBinding::NonPublic))
-                {
-                    Object_sp field_inst = info->GetValue(obj);
-
-                    json obj_js = json::object();
-
-                    _Serialize(field_inst.get(), info->get_name(), obj_js);
-                    js[info->get_name()] = obj_js;
-                }
-            }
+            return _SerializeArray(list);
         }
+
+        //other
+        return _SerializeClassObject(obj);
+
     }
-    
+
+    static json _SerializeArray(IList* list)
+    {
+        int32_t count = list->GetCount();
+        json arr_json = json::array();
+
+        for (int32_t i = 0; i < count; i++)
+        {
+            Object_rsp element = list->At(i);
+            arr_json.push_back(_SerializeObject(element.get()));
+        }
+        return arr_json;
+    }
+
+    static json _SerializeClassObject(Object* obj)
+    {
+        json obj_js = json::object();
+
+        for (FieldInfo* info : obj->GetType()->get_fieldinfos(TypeBinding::NonPublic))
+        {
+            Object_sp field_inst = info->GetValue(obj);
+            obj_js[info->get_name()] = _SerializeObject(field_inst.get());
+        }
+
+        return obj_js;
+    }
+
 
     string JsonSerializer::Serialize(Object* obj, bool isIndent)
     {
         using namespace nlohmann;
-        json js = json::object();
-        _SerializeClassObject(obj, js);
+        json js = _SerializeObject(obj);
         return js.dump(isIndent ? 4 : -1);
     }
 
 
 
-    //template<typename T>
-    //static bool _GetPrimitiveValue(const json& js, Type* type, Object** out_obj)
-    //{
-    //    if (type == cltypeof<T>())
-    //    {
-    //        *out_obj = new T{ js.get<typename T::type>() };
-    //    }
-    //}
+    template<typename T>
+    static bool _GetPrimitiveValue(const json& js, Type* type, Object** out_obj)
+    {
+        if (type == cltypeof<T>())
+        {
+            *out_obj = new T{ js.get<typename T::type>() };
+        }
+    }
 
     //static Object* _GetPrimitiveValue(const json& js, Type* field_type)
     //{
@@ -123,17 +114,41 @@ namespace JxCoreLib::Serialization
     //    return nullptr;
     //}
 
+
+
     template<typename T>
     static bool _DeserializeSetValue(Object* obj, FieldInfo* info, const nlohmann::json& js, bool b)
     {
         if (b) {
-            sptr<Object> p = mksptr((Object*)new get_cltype<T>::type(js.get<T>()));
+            sptr<Object> p = mksptr((Object*)new get_boxing_type<T>::type(js.get<T>()));
             info->SetValue(obj, p);
             return true;
         }
         return false;
     }
 
+    
+
+
+    static Object_sp _DeserializeObject(const json& js, Type* type)
+    {
+        Object_sp obj = type->CreateSharedInstance({});
+
+        if (type->is_primitive_type())
+        {
+            //js.at()
+        }
+        else if (type->IsImplementedInterface(cltypeof<IList>()))
+        {
+
+        }
+        else
+        {
+
+        }
+
+        return obj;
+    }
 
     static sptr<Object> _Deserialize(const json& js, Type* type)
     {

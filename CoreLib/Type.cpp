@@ -152,6 +152,11 @@ namespace JxCoreLib
             }
             v.push_back(static_cast<FieldInfo*>(info));
         }
+        if (this->get_base())
+        {
+            auto infos = this->get_base()->get_fieldinfos(attr);
+            v.insert(v.end(), infos.begin(), infos.end());
+        }
         return v;
     }
 

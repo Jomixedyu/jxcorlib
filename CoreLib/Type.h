@@ -428,17 +428,17 @@ namespace JxCoreLib
     class StdAny;
 
     template<typename T, bool b = cltype_concept<T>>
-    struct get_cltype
+    struct get_boxing_type
     {};
 
     template<typename T>
-    struct get_cltype<T, true>
+    struct get_boxing_type<T, true>
     {
         using type = remove_shared_ptr<T>::type;
     };
 
     template<typename T>
-    struct get_cltype<T, false>
+    struct get_boxing_type<T, false>
     {
         static_assert(true, "not boxing type!");
         //using type = StdAny;
@@ -450,7 +450,7 @@ namespace JxCoreLib
     {
     };
     template<typename T>
-    struct has_boxtype<T, typename get_cltype<T>::type> : public std::bool_constant<true>
+    struct has_boxtype<T, typename get_boxing_type<T>::type> : public std::bool_constant<true>
     {
     };
     template<typename T>
@@ -464,20 +464,10 @@ namespace JxCoreLib
     {
         if (obj->GetType()->IsImplementedInterface(cltypeof<T>()))
         {
-            return static_cast<T*>(obj);
+            return (T*)(obj);
         }
         return nullptr;
     }
-
-    //template<> struct get_cltype<array_list> { using type = ArrayList; };
-
-    //using map = std::map<sptr<Object>, sptr<Object>>;
-    //class Map : public Object, public map
-    //{
-    //    CORELIB_DEF_TYPE(JxCoreLib::Map, Object);
-    //public:
-    //};
-    //template<> struct get_cltype<map> { using type = map; };
 
     template<typename T, bool iscl = cltype_concept<T>>
     struct get_object_pointer
@@ -496,7 +486,7 @@ namespace JxCoreLib
     template<typename T>
     struct get_object_pointer<T, false>
     {
-        using ClType = get_cltype<T>::type;
+        using ClType = get_boxing_type<T>::type;
         static sptr<Object> get(const T& t)
         {
             return mksptr(new ClType(t));
@@ -518,11 +508,11 @@ namespace JxCoreLib
     template<typename T>
     struct object_assign<T, false>
     {
-        using ClType = get_cltype<T>::type;
+        using ClType = get_boxing_type<T>::type;
         static void assign(T* target, sptr<Object>& value)
         {
             auto ptr = static_cast<ClType*>(value.get());
-            *target = ptr->get_raw_value();
+            *target = ptr->get_unboxing_value();
         }
     };
 

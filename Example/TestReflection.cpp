@@ -70,7 +70,7 @@ void TestReflection()
     id_field->SetValue(model, mksptr(new Integer32{ 3 }));
 
     Object_sp id_value = id_field->GetValue(model);
-    assert(id_value->GetType() == cltypeof<get_cltype<int>::type>());
+    assert(id_value->GetType() == cltypeof<get_boxing_type<int>::type>());
     assert(*(Integer32*)id_value.get() == 3);
 
     ////name : Object*

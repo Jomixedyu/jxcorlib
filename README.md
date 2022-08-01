@@ -286,10 +286,10 @@ inline Type* cltypeof()
 
 ### 类型封装
 内建类型和一些标准库中的类型会有对应的封装类型，如`string`的封装类型是`String`，
-我们可以使用`get_cltype`轻易的获取corelib类型。
+我们可以使用`get_boxing_type`轻易的获取corelib类型。
 
 ```c++
-using StrType = get_cltype<string>::type;
+using StrType = get_boxing_type<string>::type;
 ```
 
 则有：  
