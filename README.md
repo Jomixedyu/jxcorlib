@@ -5,7 +5,44 @@
 ![](https://img.shields.io/github/release-date/JomiXedYu/JxCode.CoreLib?style=for-the-badge)
 ![](https://img.shields.io/badge/StdVer-C++20-blueviolet.svg?style=for-the-badge&logo=c%2B%2B)
 
-C++对象系统、接口、反射、程序集、装拆箱、序列化，拥有统一的类型基类、常用异常类，以及事件模板等实用工具。 
+C++对象系统、接口、反射、程序集、装拆箱、序列化，拥有统一的类型基类、常用异常类，以及事件模板等实用工具。
+
+- [JxCode.CoreLib](#jxcodecorelib)
+  - [使用本基本库与工具的规范](#使用本基本库与工具的规范)
+  - [命名规范](#命名规范)
+  - [万物基于Object](#万物基于object)
+  - [装箱与拆箱](#装箱与拆箱)
+  - [基元类型](#基元类型)
+  - [String字符串](#string字符串)
+    - [String与Char](#string与char)
+    - [索引与访问](#索引与访问)
+    - [编码转换](#编码转换)
+    - [字符串工具类](#字符串工具类)
+  - [类型元数据](#类型元数据)
+  - [程序集](#程序集)
+  - [类型定义](#类型定义)
+    - [普通类型定义](#普通类型定义)
+    - [模板类型定义](#模板类型定义)
+    - [接口类型定义](#接口类型定义)
+  - [反射系统](#反射系统)
+    - [反射工厂动态创建对象](#反射工厂动态创建对象)
+    - [参数包与变长验证模板函数](#参数包与变长验证模板函数)
+    - [字段反射](#字段反射)
+    - [方法反射](#方法反射)
+  - [反射扩展](#反射扩展)
+    - [Json序列化](#json序列化)
+  - [强类型枚举位运算的支持](#强类型枚举位运算的支持)
+  - [属性模板](#属性模板)
+  - [事件发送器与委托](#事件发送器与委托)
+    - [事件类](#事件类)
+    - [添加与移除](#添加与移除)
+    - [静态函数](#静态函数)
+    - [Lambda](#lambda)
+    - [成员函数](#成员函数)
+    - [执行](#执行)
+  - [异常类](#异常类)
+  - [调试工具](#调试工具)
+
 ## 使用本基本库与工具的规范
 * 所有类型只能使用单继承，但是可以继承纯虚类（接口）
 * 类型继承与接口实现总是public继承
@@ -233,6 +270,19 @@ class List : public Object, public array_list<T>, public IList, public ICopy
 }
 ```
 
+当需要将实例转换为接口实例时，使用`interface_cast<T>(Object*)`或`interface_shared_cast<T>(Object_rsp)`来转换，如：
+
+```c++
+sptr<List<int>> list = mksptr(new List<int>);
+
+IList* ilist = interface_cast<IList>(list.get()); //ok
+
+sptr<IList> silist = interface_shared_cast<IList>(list); //ok
+```
+
+如转换为裸指针则需要注意尽量不要保存等操作，以免指针悬垂。
+
+
 ## 反射系统
 ### 反射工厂动态创建对象
 首先声明一个带构造函数的类型，并用`CORELIB_DEF_TYPE`和`CORELIB_DECL_DYNCINST`宏声明元数据和反射的工厂函数。
@@ -416,6 +466,10 @@ string json_str = JsonSerializer::Serialize(student)
 ```c++
 sptr<StudentInfo> newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
 ```
+
+## 强类型枚举位运算的支持
+通过导入`CoreLib/EnumUtil.h`即可访问，在枚举定义后使用`ENUM_CLASS_FLAGS(Enum)`宏进行运算符重载定义。
+
 ## 属性模板
 属性是一种以类访问字段的方式来执行方法，主要使用括号重载operator()和类型转换operator T来实现。  
 类型声明：  
