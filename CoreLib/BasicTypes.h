@@ -274,4 +274,7 @@ namespace JxCoreLib
         virtual Type* GetIListElementType() const override { return cltypeof<typename get_boxing_type<T>::type>(); }
     };
 
+
+
+    CORELIB_DECL_TEMP_SHORTSPTR(List);
 }

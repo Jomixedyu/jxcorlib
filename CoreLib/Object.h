@@ -19,6 +19,12 @@
 
 #define CORELIB_DECL_SHORTSPTR(CLASS) using CLASS##_sp = sptr<class CLASS>; using CLASS##_rsp = const sptr<class CLASS>&;
 
+#define CORELIB_DECL_TEMP_SHORTSPTR(NAME) \
+    template<typename T> \
+    using NAME##_sp = sptr<NAME<T>>; \
+    template<typename T> \
+    using NAME##_rsp = const NAME##_sp<T>&;
+
 namespace JxCoreLib
 {
     class Type;

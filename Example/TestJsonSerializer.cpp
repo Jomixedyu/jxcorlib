@@ -39,7 +39,7 @@ public:
     sptr<PersonInfo> person_info;
 
     CORELIB_REFL_DECL_FIELD(score);
-    sptr<List<int>> score;
+    List_sp<int> score;
 
     virtual string ToString() const override
     {
