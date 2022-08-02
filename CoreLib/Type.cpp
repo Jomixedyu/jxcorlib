@@ -14,7 +14,7 @@ namespace JxCoreLib
 
     bool Type::IsImplementedInterface(Type* type)
     {
-        for (auto item : this->interfaces_)
+        for (auto& [item, fun, sfun]: this->interfaces_)
         {
             if (type->IsSubclassOf(item))
             {
@@ -24,10 +24,10 @@ namespace JxCoreLib
         return false;
     }
 
-    array_list<Type*> Type::GetInterfaces() const
-    {
-        return this->interfaces_;
-    }
+    //array_list<Type*> Type::GetInterfaces() const
+    //{
+    //    return this->interfaces_;
+    //}
 
     string Type::ToString() const
     {

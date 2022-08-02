@@ -12,6 +12,7 @@
 #include <any>
 #include <type_traits>
 #include <memory>
+#include <functional>
 
 #include "UString.h"
 #include "Object.h"
@@ -137,7 +138,7 @@ private: \
 
 #define CORELIB_IMPL_INTERFACES(...) \
     static inline struct __corelib_interface_list { \
-        __corelib_interface_list() { StaticType()->RegisterInterfaces<__VA_ARGS__>(); } \
+        __corelib_interface_list() { StaticType()->RegisterInterfaces<__corelib_curclass, __VA_ARGS__>(); } \
     } __corelib_interface_list_init_;
 
 //反射工厂创建函数声明
@@ -179,6 +180,7 @@ namespace JxCoreLib
     public:
         static Type* StaticType();
     };
+    CORELIB_DECL_SHORTSPTR(IInterface);
 
     template<typename T>
     concept cltype_concept =
@@ -196,6 +198,9 @@ namespace JxCoreLib
     private:
         friend class Assembly;
         using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
+    public:
+        using SharedInterfaceGetter = std::function<IInterface_sp(Object_rsp)>;
+        using InterfaceGetter = std::function<IInterface*(Object*)>;
     private:
         string name_;
         int32_t structure_size_;
@@ -204,7 +209,7 @@ namespace JxCoreLib
         const std::type_info& typeinfo_;
         array_list<Type*>* template_types_;
         Assembly* assembly_;
-        array_list<Type*> interfaces_;
+        array_list<std::tuple<Type*, InterfaceGetter, SharedInterfaceGetter>> interfaces_;
         bool is_interface_;
     private:
         Type(const Type& r) = delete;
@@ -229,7 +234,7 @@ namespace JxCoreLib
         bool is_interface() const { return this->is_interface_; }
     public:
         bool IsImplementedInterface(Type* type);
-        array_list<Type*> GetInterfaces() const;
+        //array_list<Type*> GetInterfaces() const;
 
         bool IsInstanceOfType(const Object* object) const;
         bool IsSharedInstanceOfType(const sptr<Object>& ptr) const;
@@ -281,19 +286,60 @@ namespace JxCoreLib
         std::map<string, MemberInfo*> member_infos_;
     private:
         void _AddMemberInfo(MemberInfo* info);
-
-
     public:
-        void RegisterInterface(Type* type) { this->interfaces_.push_back(type); }
+        void RegisterInterface(Type* type, const InterfaceGetter& cast, const SharedInterfaceGetter& scast)
+        {
+            this->interfaces_.push_back({ type, cast, scast });
+        }
+        IInterface_sp GetSharedInterface(Object_rsp instance, Type* type)
+        {
+            for (auto& [type, func, sfunc] : this->interfaces_)
+            {
+                if (type == type)
+                {
+                    return sfunc(instance);
+                }
+            }
+            return nullptr;
+        }
+        IInterface* GetInterface(Object* instance, Type* type)
+        {
+            for (auto& [type, func, sfunc] : this->interfaces_)
+            {
+                if (type == type)
+                {
+                    return func(instance);
+                }
+            }
+            return nullptr;
+        }
+    private:
+        template<typename T>
+        void _RegisterInterfaces() { }
 
-        template<typename... TInterfaces>
+        template<typename T, typename TInterface, typename... TInterfaces>
+        void _RegisterInterfaces()
+        {
+            RegisterInterface(Typeof<TInterface>(),
+                [](Object* obj) -> IInterface* {
+                    return (IInterface*)(T*)obj;
+                },
+                [](Object_rsp obj) -> IInterface_sp {
+                    auto sobj = sptr_cast<T>(obj);
+                    return sptr_cast<IInterface>(sobj);
+                }
+            );
+            _RegisterInterfaces<T, TInterfaces...>();
+        }
+    public:
+        template<typename T, typename... TInterfaces>
         void RegisterInterfaces()
         {
-            RegisterInterface(Typeof<TInterfaces>()...);
+            _RegisterInterfaces<T, TInterfaces...>();
         }
 
     public:
-        
+
     };
 
 
@@ -460,13 +506,15 @@ namespace JxCoreLib
 
 
     template<typename T>
-    T* cast_interface(Object* obj) 
+    sptr<T> interface_sptr_cast(Object_rsp obj)
     {
-        if (obj->GetType()->IsImplementedInterface(cltypeof<T>()))
-        {
-            return (T*)(obj);
-        }
-        return nullptr;
+        return obj->GetType()->GetInterface(obj, cltypeof<T>());
+    }
+
+    template<typename T>
+    T* interface_cast(Object* obj)
+    {
+        return (T*)obj->GetType()->GetInterface(obj, cltypeof<T>());
     }
 
     template<typename T, bool iscl = cltype_concept<T>>

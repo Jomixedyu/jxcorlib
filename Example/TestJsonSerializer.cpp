@@ -3,6 +3,7 @@
 #include <iostream>
 #include <format>
 #include <map>
+#include <CoreLib/Converter.hpp>
 
 using namespace JxCoreLib;
 using namespace JxCoreLib::Serialization;
@@ -20,6 +21,7 @@ public:
     int age;
     virtual string ToString() const override
     {
+        
         return std::format("name: {}, age: {}", name, age);
     }
 };
@@ -41,7 +43,7 @@ public:
 
     virtual string ToString() const override
     {
-        return std::format("id: {}, level: {}, person_info: {{{}}}", id, level, person_info->ToString());
+        return std::format("id: {}, level: {}, person_info: {{{}}}, score: {}", id, level, person_info->ToString(), jxcvt::to_string(*score));
     }
 };
 

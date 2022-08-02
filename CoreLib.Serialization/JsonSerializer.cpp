@@ -26,7 +26,7 @@ namespace JxCoreLib::Serialization
         }
 
         //list
-        if (IList* list = cast_interface<IList>(obj))
+        if (IList* list = interface_cast<IList>(obj))
         {
             return _SerializeArray(list);
         }
@@ -122,7 +122,7 @@ namespace JxCoreLib::Serialization
     static Object_sp _DeserializeArray(const json& js, Type* type)
     {
         Object_sp list_sp = type->CreateSharedInstance({});
-        IList* list = cast_interface<IList>(list_sp.get());
+        IList* list = interface_cast<IList>(list_sp.get());
         Type* element_type = list->GetIListElementType();
 
         if (js.is_array())
