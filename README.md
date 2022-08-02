@@ -5,81 +5,82 @@
 ![](https://img.shields.io/github/release-date/JomiXedYu/JxCode.CoreLib?style=for-the-badge)
 ![](https://img.shields.io/badge/StdVer-C++20-blueviolet.svg?style=for-the-badge&logo=c%2B%2B)
 
-C++轻量对象系统，托管指针，反射，拥有统一的类型基类、常用异常类，以及事件模板等实用工具。 
-
-## Feature
-- 拥有统一的基类型Object。
-- 拥有可以在运行时判断继承关系以及元数据的Type。
-- 对象指针托管
-- concept模板约束
-- 类型全退化等模板工具
-- 反射获取字段与方法信息，修改字段内容与执行方法。
-- UTF8字符串工具类，查找，替换，编码转换等实用功能
-- 事件委托类，接受所有类型函数的监听器。
-- 属性模板，Get与Set访问器
-- 基础异常类
-- 调试信息工具
-
-## Contents
-- [JxCode.CoreLib](#jxcodecorelib)
-  - [Feature](#feature)
-  - [Contents](#contents)
-  - [使用本基本库与工具的需求](#使用本基本库与工具的需求)
-  - [命名规范](#命名规范)
-  - [String字符串](#string字符串)
-    - [String与Char](#string与char)
-    - [索引与访问](#索引与访问)
-    - [编码转换](#编码转换)
-    - [字符串工具类](#字符串工具类)
-  - [Object类型](#object类型)
-  - [声明类型](#声明类型)
-    - [普通类型声明](#普通类型声明)
-    - [模板类型声明](#模板类型声明)
-  - [托管指针](#托管指针)
-  - [Type类型](#type类型)
-    - [基本成员](#基本成员)
-    - [cltypeof<>()模板函数](#cltypeof模板函数)
-    - [内建类型的Type](#内建类型的type)
-    - [类型封装](#类型封装)
-    - [样例](#样例)
-  - [Concept概念](#concept概念)
-  - [类型工具](#类型工具)
-    - [类型全退化](#类型全退化)
-    - [std::any类型转换工具](#stdany类型转换工具)
-    - [判断是否为corelib类型](#判断是否为corelib类型)
-    - [获取对象指针](#获取对象指针)
-  - [反射系统](#反射系统)
-    - [反射工厂动态创建对象](#反射工厂动态创建对象)
-    - [参数包与变长验证模板函数](#参数包与变长验证模板函数)
-    - [基元类型](#基元类型)
-    - [字段反射](#字段反射)
-    - [方法反射](#方法反射)
-  - [反射扩展](#反射扩展)
-    - [Json序列化](#json序列化)
-  - [属性模板](#属性模板)
-  - [事件发送器与委托](#事件发送器与委托)
-    - [事件类](#事件类)
-    - [添加与移除](#添加与移除)
-    - [静态函数](#静态函数)
-    - [Lambda](#lambda)
-    - [成员函数](#成员函数)
-    - [执行](#执行)
-  - [异常类](#异常类)
-  - [调试工具](#调试工具)
-  - [待实现功能](#待实现功能)
-
-
-## 使用本基本库与工具的需求
+C++对象系统、接口、反射、程序集、装拆箱、序列化，拥有统一的类型基类、常用异常类，以及事件模板等实用工具。 
+## 使用本基本库与工具的规范
 * 所有类型只能使用单继承，但是可以继承纯虚类（接口）
-* 继承总应该是public继承
+* 类型继承与接口实现总是public继承
 * 项目应采用Unicode字符集，使用UTF8编码来编译字符串
+* struct实例应为值类型，class实例应在堆中分配。
+
+**本规范非常重要，需强制执行，如不遵守规范可能会导致编译错误或异常结果。**
 
 ## 命名规范
-类google命名规范：
-* 成员方法使用下划线命名法，并以下划线结尾，如 list_
-* 局部变量使用下划线命名法
-* 属性方法使用get_field()与set_field()命名
-* 类名与方法名使用Pascal规则
+* 成员方法使用下划线命名法，并以下划线结尾，如 `list_`
+* 局部变量使用下划线命名法，如`all_item`
+* 属性方法使用`get_field()`与`set_field()`命名
+* 类名与方法名使用Pascal规则，如`class Renderer`、`void ShutDown()`
+* 接口以大写I大写开头，如`ICompare`
+
+## 万物基于Object
+类型系统体系中，所有类型都应该单继承基于Object的类型，Object在绝大多数下应使用`sptr`来管理生命周期，`sptr`目前为`std::shared_ptr`的别名，可使用mksptr来新建一个对象，如：
+
+```c++
+sptr<Object> obj = mksptr(new Object());
+```
+如果在类型声明后使用`CORELIB_DECL_SHORTSPTR(Class)`宏，将会自动新增两个别名:
+
+```c++
+using Object_sp = sptr<Object>;
+using Object_rsp = const Object_sp&;
+```
+这两个别名可以很好的在一些地方省去手敲sptr模板的时间，另外，模板应使用`CORELIB_DECL_TEMP_SHORTSPTR(Class)`宏来新增别名。
+
+`Object`类型定义了四个虚函数
+- Equals
+- ToString
+- GetType
+- ~Object
+
+其中GetType函数，若在用户不清楚类型系统如何运作时，始终不应该由用户重写。
+
+## 装箱与拆箱
+在该库中，如果想将值类型放到类型系统中去，应该为该值类型定义一个class并继承Object体系中的类型，如：
+```c++
+struct Value {};
+class BoxingValue : public Object, public Value {
+    using unboxing_type = Value;
+};
+template<> get_boxing_type<Value> { using type = BoxingValue; }
+```
+`Value`是值类型，`BoxingValue`是`Value`在类型系统中的装箱版本。在反射与序列化等功能上，使用统一的Object基类对象进行操作。
+
+类库提供了显式装拆箱的工具：
+```c++
+Value v;
+sptr<BoxingValue> bvalue = BoxUtil<Value>::Box(v); //boxing
+Value ubvalue = UnboxUtil<Value>::Unbox(bvalue); //unboxing
+```
+
+如果想获取一个类型的值类型，可以使用`get_boxing_type<T>::type`来获得，每个值类型都应为装箱类型编写该模板的特化。
+
+## 基元类型
+在该类库中，将以下类型定义为基元类型，他们并没有继承Object，但是他们的装箱类型继承自Object：
+
+| 原类型   | 装箱类型   |
+| -------- | ---------- |
+| int8_t   | Integer8   |
+| uint8_t  | UInteger8  |
+| int16_t  | Integer16  |
+| uint16_t | UInteger16 |
+| int32_t  | Integer32  |
+| uint32_t | UInteger32 |
+| int64_t  | Integer64  |
+| uint64_t | UInteger64 |
+| float    | Single32   |
+| double   | Double64   |
+| bool     | Boolean    |
+| string   | String     |
+
 
 ## String字符串
 ### String与Char
@@ -103,15 +104,15 @@ struct u8char
 ```
 
 ### 索引与访问
-正常使用工具类去索引一个UTF8字符
+使用工具类去索引一个UTF8字符
 ```c++
-Char c = StringUtil::CharAt(s, 9);
+u8char c = StringUtil::CharAt(s, 9);
 ```
 但是当字符串特别大时，并对这个字符串的随机访问次数多时，直接使用这个方法会特别的慢，
 为解决UTF8的索引和随机访问慢的问题，采用字符串分块位置映射的空间换时间方式来提升速度。  
 ```c++
 StringIndexMapping mapping(s, 2); // use cache
-Char c2 = StringUtil::CharAt(s, 9, mapping);
+u8char c2 = StringUtil::CharAt(s, 9, mapping);
 ```
 构造函数原型
 ```
@@ -132,74 +133,66 @@ static String Utf16ToUtf8(const std::u16string& str);
 ### 字符串工具类
 StringUtil类中有常用的`Replace`，`Concat`等函数，具体查看`String.h`中的`StingUtil`类
 
-## Object类型
-Object类型有两个虚函数：
+## 类型元数据
+类型系统中的每个class类都有一个`Type`类型实例，Type类型也继承了Object，该类型实例可以保存class类型的字段、函数、类型具体信息如名字、父类型等内容。任意继承了Object的类型都可以使用GetType()函数来获取运行时的Type实例，可以通过该实例在运行时动态判断对象之间继承关系以及为后续反射提供相关功能。如：
 ```c++
-virtual Type* GetType() const;
-virtual String ToString() const;
-```
-其中get_type不应该被用户所重写，重写由提供的定义宏来重写。  
-而ToString是常用的格式化方法，类型选择性重写。  
-如果你想说：`嘿！不应该还有个Equals方法吗？`，那你可以直接选择对它的指针比较，或者解指针对它的值使用operator==进行比较。  
+String* str = new String;
+Object* obj = str;
 
-另外，增加了一个std::to_string的新重载，函数为
-```c++
-std::string std::to_string(JxCoreLib::Object* obj)
-{
-    return obj->ToString();
-}
-```
-该函数可以用标准库的字符串格式化函数对所有继承于Object的类型使用。
+obj->GetType() == cltypeof<String>("str"); //ok
 
-## 声明类型
-### 普通类型声明
+obj->GetType()->IsSubclassOf(cltypeof<Object>()); //ok
+
+obj->GetType()->get_base() == cltypeof<Object>(); //ok
+
+String* new_str = cltypeof<String>()->CreateInstance({"new str"}); //ok
+
+```
+
+在程序启动时为每一个class创建一个Type实例，并将它们注册到程序集中。可以使用cltypeof<T>()来获取类型T的Type实例，如果你对unreal熟悉的话可能更喜欢使用T::StaticType()来获取，但更建议前者。
+
+
+## 程序集
+应用程序以程序集`Assembly`构建，一个`Assembly`应代表着一个lib、dll或者exe，每一个Assembly实例内储存着该模块的所有Type实例，如果知道一个外部程序集中的某个类型，那么就可以动态的获取到Type并创建实例。
+
+程序集需要使用`CORELIB_DECL_ASSEMBLY(Name)`宏来定义。如：`CORELIB_DECL_ASSEMBLY(JxCoreLib)`，就声明了一个名为JxCoreLib的程序集，同时产生一个程序集实例给予类型定义使用，它的名字是`AssemblyObject_程序集名字`，所以`JxCoreLib`的类型定义用实例名为`AssemblyObject_JxCoreLib`。
+
+## 类型定义
+
+### 普通类型定义
 首先需要引入头文件`CoreLib/CoreLib.h`，然后进行类型声明：
 ```c++
 namespace space
 {
     class ExampleClass : public Object
     {
-        CORELIB_DEF_TYPE(space::ExampleClass, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, space::ExampleClass, Object);
     public:
 
     };
 }
 ```
-或者
-```c++
-namespace space
-{
-    class DynCreateClass : public Object
-    {
-        CORELIB_DEF_TYPE(space::DynCreateClass, Object);
-    public:
 
-    };
-}
-```
-`CORELIB_DEF_TYPE`可以为定义该类型的元数据，应该注意的是第一个类型参数应该为完整路径。  
+定义类型在类中使用`CORELIB_DEF_TYPE(AssemblyObject, Class, Base)`宏
+- 第一个参数使用了之前上一小节中定义的程序集实例，代表该类型将会注册进JxCoreLib程序集中。
+- 第二个类型参数必需为完整路径。  
+- 第三个参数是继承的基类，不必使用完整名。
 
+另外重申规范：继承Object体系类型总是public继承
 
-声明类型需要遵循以下几点：
-- 继承于Object需要显式继承，并且总是public继承
-- 使用宏定义本类与基类，本类需要使用完全限定名，即从根空间开始带有命名空间的完整路径。
-
-### 模板类型声明
+### 模板类型定义
 除了普通的类型定义外，模板类型使用的定义宏与一些细节是不一样的。  
 一个模板类的声明：
 ```c++
 template<typename T>
 class TemplateClass : public Object
 {
-    CORELIB_DEF_TEMPLATE_META(TemplateClass, Object, T);
-    CORELIB_DECL_DYNCINST() {
-        return new TemplateClass<T>;
-    }
+    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, TemplateClass, Object, T);
 public:
 
 };
 ```
-在普通的类型中使用`CORELIB_DEF_TYPE`去定义元数据，而模板类则使用`CORELIB_DEF_TEMPLATE_META`来定义。  
+在普通的类型中使用`CORELIB_DEF_TYPE`去定义元数据，而模板类则使用`CORELIB_DEF_TEMPLATE_TYPE`来定义。  
 类型定义的后面是一个变长列表，依次按照模板顺序添加。  
 
 关于模板类型获取Type名字：
@@ -208,148 +201,36 @@ public:
 模板类中的名字取决于类型的`std::type_info`中的`name()`。  
 综上所述，因为编译器实现的不同，模板类的反射工厂无法通用。
 
-## 托管指针
-为了更方便的使用对象，采取指针托管的方式。  
-通过调用`SetManagedParent`来设置托管的父对象，当父对象销毁时，该对象跟随销毁。
+### 接口类型定义
+使用`CORELIB_DEF_INTERFACE(AssemblyObject, Name, Base)`宏来定义接口，接口必须继承IInterface，并以I大写开头，
+
 ```c++
-void TestManagedPtr()
+class IList : public IInterface
 {
-    Base* b = new Base;
+    CORELIB_DEF_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IList, IInterface);
 
-    Other* o = new Other;
-    Other* o2 = new Other;
+    virtual void Add(const sptr<Object>& value) = 0;
+    virtual sptr<Object> At(int32_t index) = 0;
+    virtual void Clear() = 0;
+    virtual void RemoveAt(int32_t index) = 0;
+    virtual int32_t IndexOf(const sptr<Object>& value) = 0;
+    virtual bool Contains(const sptr<Object>& value) = 0;
+    virtual int32_t GetCount() const = 0;
+    virtual Type* GetIListElementType() const = 0;
+};
+```
+这里直接拿出了IList接口的代码，在该宏后面的代码默认都是为public权限的，所以可以不用再次声明。
 
-    o->SetManagedParent(b); //add managed
-    o2->SetManagedParent(b); //add managed
-    o2->SetManagedParent(nullptr); //remove managed
+在接口实现时需要另外使用`CORELIB_IMPL_INTERFACES(...)`宏来将所有实现的接口类型写进，使用逗号分割。
 
-    delete b;
-    delete o2;
-}
-```
-
-## Type类型
-### 基本成员
-三个属性：运行时获取类型的大小，获取类名，获取类型的基类Type
-```c++
-virtual int get_structure_size() const;
-const string& get_name() const;
-Type* get_base() const;
-```
-三个方法：判断实例是否为该类型，指定Type是否为本类的子类，按字符串获取指定类的Type。
-```c++
-bool IsInstanceOfType(Object* object);
-bool IsSubclassOf(Type* type);
-static Type* GetType(const string& str);
-```
-全局函数istype：指定Object是否为指定Type的实例（包含派生关系）
-```c++
-inline bool istype(Object* obj, Type* type);
-```
-### cltypeof<>()模板函数
-typeof是对Type::Typeof的调用，可以获取一个唯一的Type实例
 ```c++
 template<typename T>
-inline Type* cltypeof()
+class List : public Object, public array_list<T>, public IList, public ICopy
 {
-    return Type::Typeof<T>();
+    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
+    CORELIB_IMPL_INTERFACES(IList, ICopy);
+    //implemented...
 }
-```
-### 内建类型的Type
-一些内建类型拥有一个对应继承于Object的类型，同时也对应拥有一个Type。
-
-| 原类型   | 对应类型   |
-| -------- | ---------- |
-| int8_t   | Integer8   |
-| uint8_t  | UInteger8  |
-| int16_t  | Integer16  |
-| uint16_t | UInteger16 |
-| int32_t  | Integer32  |
-| uint32_t | UInteger32 |
-| int64_t  | Integer64  |
-| uint64_t | UInteger64 |
-| float    | Single32   |
-| double   | Double64   |
-| bool     | Boolean    |
-
-除了这些基础类型之外，还有一些其他的类型与之对应。
-| 原类型   | 对应类型 |
-| -------- | -------- |
-| string   | String   |
-| std::any | StdAny      |
-
-以上类型都会有一个typeof的偏特化版本。  
-
-另外，类型拥有性质：  
-`cltypeof<int32_t>() == cltypeof<Integer32>()`  
-`typeid(int32_t) != typeid(Integer32)`
-
-### 类型封装
-内建类型和一些标准库中的类型会有对应的封装类型，如`string`的封装类型是`String`，
-我们可以使用`get_boxing_type`轻易的获取corelib类型。
-
-```c++
-using StrType = get_boxing_type<string>::type;
-```
-
-则有：  
-```c++
-typeid(StrType) == typeid(String);
-```
-另外还可以获取被封装的类型。
-```c++
-typeid(String::type) == typeid(string);
-```
-StrType就是String类型
-
-### 样例
-样例：（类型声明在了[声明类型](#声明类型)中）
-```c++
-ExampleClass* exm = new ExampleClass;
-
-cout << exm->GetType()->get_name() << endl;
-
-Type* dyn_type = Type::GetType("space::DynCreateClass");
-Object* dyn = dyn_type->CreateInstance();
-
-cout << (dyn->GetType() == cltypeof<space::DynCreateClass>()) << endl;
-```
-## Concept概念  
-在`Object`中提供了及个concept用于模板约束，分别是：  
-- baseof_object_concept : 模板类型必须继承于Object
-- newable_concept : 模板类型必须有零个参数的公共构造函数
-
-
-## 类型工具
-### 类型全退化
-在类型系统中很多时候都需要用到原始类型，使用`JxCoreLib::fulldecay<>`来做全退化。  
-如`fulldecay<const int* const>::type`，`type`的类型为`int`。
-### std::any类型转换工具
-在JxCoreLib中提供了一个StdAny类，它是std::any类的一个包装，其中提供一个静态模板函数：
-```c++
-template<typename TValue, typename... TCastable>
-static bool AnyCast(const std::any& any, TValue* t)
-```
-传入any和赋值的指针，这个被赋值的指针类型需要可以接受TCastable类型的对象。
-```c++
-std::any a = 3;
-int uuu;
-bool success = StdAny::AnyCast<int, long, short, int>(a, &uuu);
-```
-
-### 判断是否为corelib类型
-使用`get_object_pointer<T>::value`来判断，样例：
-```c++
-get_object_pointer<String>::value
-```
-
-### 获取对象指针
-如果使用了内建类型，则会将内建类型转换为框架类型，如`int`将会转换为`Integer32`。  
-如果是继承`Object`的类型，`Object`指针会返回自己，`Object`对象则会取地址返回。  
-如果除以上的类型，则会使用`std::any`的封装类`StdAny`
-样例：
-```c++
-Integer32* i = (Integer32*)get_object_pointer<int>(3);
 ```
 
 ## 反射系统
@@ -360,7 +241,7 @@ namespace space
 {
     class DynCreateClass : public Object
     {
-        CORELIB_DEF_TYPE(space::DynCreateClass, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, space::DynCreateClass, Object);
         CORELIB_DECL_DYNCINST() {
             return new DynCreateClass(0);
         }
@@ -384,22 +265,14 @@ static Object* DynCreateInstance(const ParameterPackage& params)
 
 可以使用类名来获取Type对象，使用`CreateInstance`创建
 ```c++
-Type* dyn_type = Type::GetType("space::DynCreateClass");
-Object* dyn = dyn_type->CreateInstance();
+Type* dyn_type = Assembly::StaticFindAssembly(AssemblyObject_JxCoreLib)->FindType("space::DynCreateClass");
+Object* dyn = dyn_type->CreateInstance({});
 ```
 
 ### 参数包与变长验证模板函数
-`ParameterPackage`是用一个any数组的封装类，公共的成员函数为：
+`ParameterPackage`是用一个any数组的封装类，可以从外部向ParameterPackage对象添加参数，在传入工厂函数内。
 ```c++
-template<typename T> void Add(const T& v)；
-template<typename T> T Get(const int& index) const；
-size_t Count() const；
-bool IsEmpty() const;
-template<typename... TArgs> bool Check() const;
-```
-可以从外部向ParameterPackage对象添加参数，在传入工厂函数内。
-```c++
-Type* dyn_type = Type::GetType("space::DynCreateClass");
+Type* dyn_type = Assembly::StaticFindAssembly(AssemblyObject_JxCoreLib)->FindType("space::DynCreateClass");
 Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 ```
 之后`CreateInstance`将会调用对应类型的工厂函数。  
@@ -423,20 +296,19 @@ int p1 = params.Get<int>(0);
 ```
 如果索引值不在正确的范围内，std::vector将会抛出错误，所以总应该在函数最开始的地方对传入的数据进行验证。
 
-### 基元类型
-基元类型包含了[内建类型的Type](#内建类型的Type)中的基础类型和`string`类型，可以通过`Type`实例的`is_primitive_type()`函数获得。
+
+
 ### 字段反射
-字段反射定义宏：实例字段和静态字段的两种声明。
+字段反射定义宏：实例对象成员字段的声明，现已不在支持静态字段的反射。
 ```c++
 #define CORELIB_REFL_DECL_FIELD(NAME)
-#define COERLIB_REFL_DECL_FIELD_STATIC(NAME)
 ```
 
 样例类：
 ```c++
 class DataModel : public Object
 {
-    CORELIB_DEF_TYPE(DataModel, Object);
+    CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, DataModel, Object);
 public:
 
     CORELIB_REFL_DECL_FIELD(id);
@@ -445,43 +317,29 @@ public:
     CORELIB_REFL_DECL_FIELD(is_human);
     bool is_human = true;
 
-    COERLIB_REFL_DECL_FIELD_STATIC(name);
-    static inline Object* name;
+    COERLIB_REFL_DECL_FIELD(name);
+    sptr<Object> name;
 };
 ```
 
 
-字段的反射信息存在类型`Type`中，使用`get_fieldinfo(sting&)`来获取一个`FieldInfo*`。  
+字段的反射信息存在类型`Type`中，使用`get_fieldinfo(string&)`来获取一个`FieldInfo*`。  
 ```c++
     //field reflection
     DataModel* model = new DataModel;
 
     Type* model_type = cltypeof<DataModel>();
 
-    //id : const int
     FieldInfo* id_field = model_type->get_fieldinfo("id");
     assert(id_field->is_public() == true);
-    assert(id_field->is_static() == false);
-    assert(id_field->is_const() == true);
     assert(id_field->is_pointer() == false);
-    assert(id_field->is_reference() == false);
-    assert(id_field->is_volatile() == false);
     assert(id_field->get_name() == "id");
 
-    id_field->SetValue(model, 3);
+    id_field->SetValue(model, BoxUtil<int>::Box(3)); //boxing
 
-    Object* id_value = id_field->GetValue(model);
+    Object_sp id_value = id_field->GetValue(model);
     assert(id_value->GetType() == cltypeof<int>());
-    assert(*(Integer32*)id_value == 3);
-
-    //name : Object*
-    FieldInfo* name_field = model_type->get_fieldinfo("name");
-
-    auto obj = new Object();
-    name_field->SetValue(nullptr, obj);
-
-    auto value = name_field->GetValue(nullptr);
-    assert(value == obj);
+    assert(UnboxUtil<int>::Unbox(id_value) == 3); //unboxing
 ```
 使用GetValue和SetValue获取和设置值。如果字段为静态，实例指针传入nullptr即可。
 
@@ -494,12 +352,12 @@ json库来自于`nlohmann`，序列化使用`CoreLib.Extension`中的`JsonSerial
 首先引入头文件`CoreLib.Extension`，在`JsonSerializer`中主要有两个静态方法：
 ```c++
 static string Serialize(Object* obj);
-static Object* Deserialize(const string& jstr, Type* type);
+static sptr<Object> Deserialize(const string& jstr, Type* type);
 ```
 另外Deserialize还有一个模板版本
 ```c++
 template<typename T>
-static T* Deserialize(const string& str);
+static sptr<T> Deserialize(const string& str);
 ```
 先声明两个可反射的类型
 ```c++
@@ -527,11 +385,13 @@ public:
     CORELIB_REFL_DECL_FIELD(president);
     bool president;
     CORELIB_REFL_DECL_FIELD(person_info);
-    PersonInfo* person_info;
+    sptr<PersonInfo> person_info;
+    CORELIB_REFL_DECL_FIELD(score);
+    List_sp<int> score;
 
     virtual string ToString() const override
     {
-        return std::format("id: {}, president: {}, person_info: {{{}}}", id, president, person_info->ToString());
+        return std::format("id: {}, level: {}, person_info: {{{}}}, score: {}", id, level, person_info->ToString(), jxcvt::to_string(*score));
     }
 };
 ```
@@ -539,9 +399,12 @@ public:
 ```c++
 StudentInfo* student = new StudentInfo;
 student->id = 33;
-student->president = true;
+student->level = true;
+student->score = mksptr(new List<int>());
+student->score->push_back(3);
+student->score->push_back(4);
 
-student->person_info = new PersonInfo;
+student->person_info = mksptr(new PersonInfo);
 student->person_info->name = "jx";
 student->person_info->age = 12;
 ```
@@ -551,7 +414,7 @@ string json_str = JsonSerializer::Serialize(student)
 ```
 或者反序列化
 ```c++
-StudentInfo* newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
+sptr<StudentInfo> newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
 ```
 ## 属性模板
 属性是一种以类访问字段的方式来执行方法，主要使用括号重载operator()和类型转换operator T来实现。  
@@ -663,7 +526,3 @@ class ExceptionBase : public std::exception, public Object
 ```c++
 #define DEBUG_INFO(info) std::format("info: {}; line: {}, file: {};", info, __LINE__, __FILE__);
 ```
-
-## 待实现功能
-- 反射的数组类型
-- 函数的反射
