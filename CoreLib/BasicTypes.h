@@ -250,7 +250,7 @@ namespace JxCoreLib
                     {
                         return i;
                     }
-                    else if (item != nullptr && item->Equals(value))
+                    else if (item != nullptr && item->Equals(value.get()))
                     {
                         return i;
                     }

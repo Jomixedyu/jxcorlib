@@ -34,11 +34,11 @@ int main()
     TestFormater();
     //TestFile();
 
-    sptr<List<int>> intlist = mksptr(new List<int>);
+    sptr<List<String_sp>> intlist = mksptr(new List<String_sp>);
     //interface
     auto list = sptr_cast<IList>(intlist);
 
-    list->Add(BoxUtil<int>::Box(3));
+    list->Add(BoxUtil<string>::Box("aaa"));
 
     for (auto item : *intlist)
     {
