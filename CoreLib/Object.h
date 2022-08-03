@@ -46,9 +46,9 @@ namespace JxCoreLib
         return std::static_pointer_cast<Tout, Tin>(other);
     }
     template<typename Tout, typename Tin>
-    void sptr_cast(sptr<Tin>&& other)
+    sptr<Tout> sptr_cast(sptr<Tin>&& other)
     {
-        return std::static_pointer_cast<Tout, Tin>(std::forward(other));
+        return std::static_pointer_cast<Tout, Tin>(other);
     }
 
     template<typename T>
