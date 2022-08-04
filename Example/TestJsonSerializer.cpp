@@ -21,7 +21,6 @@ public:
     int age;
     virtual string ToString() const override
     {
-        
         return std::format("name: {}, age: {}", name, age);
     }
 };
@@ -37,7 +36,6 @@ public:
     bool level;
     CORELIB_REFL_DECL_FIELD(person_info);
     sptr<PersonInfo> person_info;
-
     CORELIB_REFL_DECL_FIELD(score);
     List_sp<int> score;
 
