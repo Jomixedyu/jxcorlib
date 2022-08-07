@@ -45,6 +45,7 @@ int main()
         cout << item << endl;
     }
     
+    cout << PathUtil::Combine("asd/", "/vasf") << endl;
 
     assert(intlist->GetType()->IsImplementedInterface(cltypeof<IList>()));
 

@@ -82,6 +82,38 @@ namespace JxCoreLib
             }
             return string{};
         }
+        std::string Combine(const std::string& p1, const std::string& p2)
+        {
+            if (p1.length() == 0)
+            {
+                return p2;
+            }
+            if (p2.length() == 0)
+            {
+                return p1;
+            }
+
+            std::string ret;
+            ret.reserve(p1.length() + p2.length() + 1);
+            ret.append(p1);
+
+            char p1_lastc = p1[p1.length() - 1];
+            if (p1_lastc != '/' && p1_lastc != '\\')
+            {
+                ret.append("/");
+            }
+            char p2_firstc = p2[0];
+            if (p2_firstc == '/' || p2_firstc == '\\')
+            {
+                ret.append(p2, 1);
+            }
+            else
+            {
+                ret.append(p2);
+            }
+
+            return ret;
+        }
     }
 }
 

@@ -25,6 +25,7 @@ namespace JxCoreLib
         std::string GetFilename(std::string_view path);
         std::string GetFilenameExt(std::string_view path);
         std::string GetDirectory(std::string_view path);
+        std::string Combine(const std::string& p1, const std::string& p2);
     };
 }
 
