@@ -33,4 +33,7 @@ void TestString()
 
     string substr = StringUtil::Substring("a啊cd", 1, 2);
     assert(substr == "啊c");
+
+    string trimstr = StringUtil::Trim(" a b c  \r\n ");
+    assert(trimstr == "a b c");
 }
