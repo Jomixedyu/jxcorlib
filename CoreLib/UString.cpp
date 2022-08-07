@@ -461,15 +461,17 @@ namespace JxCoreLib
             + _StringUtil_U8Length_Internal(src, mapping.mapping[mapping.get_block_count() - 1]);
     }
 
-    void StringUtil::ForEach(string_view str, const std::function<void(u8char)>& it)
+    void StringUtil::ForEach(string_view str, const std::function<bool(u8char ch, size_t char_pos, size_t byte_pos)>& it)
     {
         size_t size = str.length();
+        size_t num = 0;
         for (size_t offset = 0; offset < size; )
         {
             u8char ch;
             auto char_len = StringUtil::PosAt(str, offset, &ch);
-            it.operator()(ch);
+            if (!it.operator()(ch, num, offset)) { break; }
             offset += char_len;
+            ++num;
         }
     }
 
@@ -535,10 +537,40 @@ namespace JxCoreLib
         return vec;
     }
 
-    string StringUtil::Substring(string_view str, size_t offset, size_t count)
+    string StringUtil::Substring(string_view str, size_t offset_char_pos, size_t char_count)
     {
-        
-        return string();
+
+        int32_t start_bpos = 0, end_bpos = 0;
+
+        ForEach(str, [offset_char_pos, char_count, &start_bpos](u8char ch, size_t cpos, size_t bpos) -> bool
+            {
+                if (cpos == offset_char_pos)
+                {
+                    start_bpos = bpos;
+                    return false;
+                }
+                return true;
+            });
+
+        int32_t ch_count = 0;
+        end_bpos = str.length();
+
+        for (size_t offset = start_bpos; offset < str.length(); )
+        {
+            size_t u8len = U8Length(str, offset);
+            offset += u8len;
+            ++ch_count;
+
+            if (ch_count == char_count)
+            {
+                end_bpos = offset;
+                break;
+            }
+        }
+
+        return string(str.substr(start_bpos, end_bpos - start_bpos));
+
     }
+
 
 }

@@ -110,13 +110,13 @@ namespace JxCoreLib
         u8char CharAt(const string_view& src, const size_t& charpos, const StringIndexMapping& mapping);
         size_t Length(const string_view& src);
         size_t Length(const string_view& src, const StringIndexMapping& mapping);
-        void ForEach(string_view str, const std::function<void(u8char)>& it);
+        void ForEach(string_view str, const std::function<bool(u8char ch, size_t char_pos, size_t byte_pos)>& it);
         std::vector<uint8_t> GetBytes(const string_view& str);
         std::u16string Utf8ToUtf16(const string& str);
         string Utf16ToUtf8(const std::u16string& str);
         string StringCast(const std::u8string& str);
         std::vector<string> Split(string_view str, u8char c);
-        string Substring(string_view str, size_t offset, size_t count);
+        string Substring(string_view str, size_t offset_char_pos, size_t char_count);
 
         inline size_t Size(const char* str) { return ::strlen(str); }
         inline size_t Size(const string& str) { return str.length(); }

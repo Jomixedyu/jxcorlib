@@ -29,4 +29,8 @@ void TestString()
     std::vector<string> splits = StringUtil::Split("a,b,cc,d", ",");
     std::vector<string> splits_r = {"a", "b", "cc", "d"};
     assert(splits == splits_r);
+
+
+    string substr = StringUtil::Substring("a啊cd", 1, 2);
+    assert(substr == "啊c");
 }
