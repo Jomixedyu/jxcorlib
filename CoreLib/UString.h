@@ -13,6 +13,7 @@
 #include <string>
 #include <cstring>
 #include <cstdint>
+#include <functional>
 
 //Encoding: UTF-8
 
@@ -35,9 +36,9 @@ namespace JxCoreLib
             }
             return 8;
         }
-        inline static void Charcpy(char* dest, const char* src)
+        inline static void Charcpy(char* dest, const char* src, int count = 8)
         {
-            for (int i = 0; i < 8; i++) dest[i] = src[i];
+            for (int i = 0; i < count; i++) dest[i] = src[i];
         }
         inline static bool Charcmp(const char* l, const char* r)
         {
@@ -54,22 +55,25 @@ namespace JxCoreLib
             return true;
         }
         u8char() {}
-        u8char(const char* c)
+        u8char(const char* str, int max_count = 6)
         {
-            Charcpy(this->value, c);
+            for (size_t i = 0; i < max_count; i++)
+            {
+                if (str[i] != 0)
+                {
+                    this->value[i] = str[i];
+                }
+                else
+                {
+                    this->value[i] = 0;
+                    return;
+                }
+            }
+            this->value[6] = 0;
         }
-        bool operator==(const u8char& r)
-        {
-            return Charcmp(this->value, r.value);
-        }
-        bool operator!=(const u8char& r)
-        {
-            return !Charcmp(this->value, r.value);
-        }
-        string ToString()
-        {
-            return string(value);
-        }
+        bool operator==(const u8char& r) { return Charcmp(this->value, r.value); }
+        bool operator!=(const u8char& r) { return !Charcmp(this->value, r.value); }
+        string ToString() { return string(value); }
 
     };
 
@@ -98,17 +102,21 @@ namespace JxCoreLib
     namespace StringUtil
     {
         bool IsLittleEndian() noexcept;
-        size_t U8Length(string_view str, size_t pos) noexcept(false);
+        size_t U8Length(string_view str, size_t byte_pos = 0) noexcept(false);
         string Replace(string_view src, string_view oldstr, string_view newstr);
-        u8char PosAt(const string_view& src, const size_t& bytepos);
+        /* @return u8char size*/
+        size_t PosAt(const string_view& src, const size_t& bytepos, u8char* out_char);
         u8char CharAt(const string_view& src, const size_t& charpos);
         u8char CharAt(const string_view& src, const size_t& charpos, const StringIndexMapping& mapping);
         size_t Length(const string_view& src);
         size_t Length(const string_view& src, const StringIndexMapping& mapping);
+        void ForEach(string_view str, const std::function<void(u8char)>& it);
         std::vector<uint8_t> GetBytes(const string_view& str);
         std::u16string Utf8ToUtf16(const string& str);
         string Utf16ToUtf8(const std::u16string& str);
         string StringCast(const std::u8string& str);
+        std::vector<string> Split(string_view str, u8char c);
+        string Substring(string_view str, size_t offset, size_t count);
 
         inline size_t Size(const char* str) { return ::strlen(str); }
         inline size_t Size(const string& str) { return str.length(); }

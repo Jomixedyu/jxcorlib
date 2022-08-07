@@ -292,10 +292,8 @@ namespace JxCoreLib
 
     StringIndexMapping::StringIndexMapping(string_view str, size_t block_size) : block_size_(block_size)
     {
-        if (block_size <= 0) {
-            throw std::invalid_argument("block_size");
-        }
-        size_t len = str.size();
+
+        size_t len = str.length();
         if (len <= block_size) {
             this->mapping.push_back(0);
             return;
@@ -331,7 +329,7 @@ namespace JxCoreLib
     }
     size_t StringIndexMapping::GetBlockPos(const size_t& pos) const
     {
-        if (pos <= 0) {
+        if (pos < 0) {
             throw std::invalid_argument("the arg must be greater than zero.");
         }
         return pos / this->block_size_;
@@ -344,9 +342,9 @@ namespace JxCoreLib
         return b;
     }
 
-    size_t StringUtil::U8Length(string_view str, size_t pos)
+    size_t StringUtil::U8Length(string_view str, size_t byte_pos)
     {
-        unsigned char c = static_cast<unsigned char>(str[pos]);
+        unsigned char c = static_cast<unsigned char>(str[byte_pos]);
         if ((c & 0b10000000) == 0b00000000)  return 1;
         else if ((c & 0b11100000) == 0b11000000) return 2;
         else if ((c & 0b11110000) == 0b11100000) return 3;
@@ -413,15 +411,14 @@ namespace JxCoreLib
         }
         return ch;
     }
-    u8char StringUtil::PosAt(const string_view& src, const size_t& bytepos)
+    size_t StringUtil::PosAt(const string_view& src, const size_t& bytepos, u8char* out_char)
     {
-        u8char ch;
         size_t len = StringUtil::U8Length(src, bytepos);
         for (size_t i = 0; i < len; i++)
         {
-            ch.value[i] = src[bytepos + i];
+            out_char->value[i] = src[bytepos + i];
         }
-        return ch;
+        return len;
     }
     u8char StringUtil::CharAt(const string_view& src, const size_t& charpos)
     {
@@ -464,6 +461,18 @@ namespace JxCoreLib
             + _StringUtil_U8Length_Internal(src, mapping.mapping[mapping.get_block_count() - 1]);
     }
 
+    void StringUtil::ForEach(string_view str, const std::function<void(u8char)>& it)
+    {
+        size_t size = str.length();
+        for (size_t offset = 0; offset < size; )
+        {
+            u8char ch;
+            auto char_len = StringUtil::PosAt(str, offset, &ch);
+            it.operator()(ch);
+            offset += char_len;
+        }
+    }
+
     std::vector<uint8_t> StringUtil::GetBytes(const string_view& str)
     {
         std::vector<uint8_t> c;
@@ -498,6 +507,38 @@ namespace JxCoreLib
             }
         }
         return ostr;
+    }
+
+    std::vector<string> StringUtil::Split(string_view str, u8char c)
+    {
+        std::vector<string> vec;
+
+        auto u8len = Length(str);
+        
+        string add;
+        StringIndexMapping mapping{ str, 9 };
+
+        for (size_t i = 0; i < u8len; i++)
+        {
+            if (CharAt(str, i, mapping) != c)
+            {
+                add.append(CharAt(str, i).value);
+            }
+            else
+            {
+                vec.push_back(add);
+                add.clear();
+            }
+        }
+        vec.push_back(add);
+        add.clear();
+        return vec;
+    }
+
+    string StringUtil::Substring(string_view str, size_t offset, size_t count)
+    {
+        
+        return string();
     }
 
 }

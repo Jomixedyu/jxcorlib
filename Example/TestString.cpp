@@ -1,5 +1,6 @@
 ﻿#include <CoreLib/UString.h>
 #include <cassert>
+#include <iostream>
 
 using namespace JxCoreLib;
 
@@ -22,6 +23,10 @@ void TestString()
     string str_concat = StringUtil::Concat("123", "ab", string("ba"));
     assert(str_concat == "123abba");
 
-    string newstr = StringUtil::Replace(str_concat, "ab", "a");
-    assert(newstr == "123aba");
+    string newstr = StringUtil::Replace("123a啊ba", "a啊", "h");
+    assert(newstr == "123hba");
+
+    std::vector<string> splits = StringUtil::Split("a,b,cc,d", ",");
+    std::vector<string> splits_r = {"a", "b", "cc", "d"};
+    assert(splits == splits_r);
 }
