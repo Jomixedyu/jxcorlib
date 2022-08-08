@@ -53,6 +53,38 @@ private: \
         __corelib_type() { NAME::StaticType(); } \
     } __corelib_type_init_;
 
+#define CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAME, BASE) \
+public: static inline Type* StaticType() \
+    { \
+        static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
+        static Type* type = nullptr; \
+        if (type == nullptr) \
+        { \
+            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+            if (dynptr == nullptr) \
+            { \
+                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
+            } \
+            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+            type = new Type(dynptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
+            assm->RegisterType(type); \
+            TypeBuilder::RegisterEnum(type, &__corelib_curclass::StaticGetDefinitions); \
+        } \
+        return type; \
+    } \
+private: \
+    using base = BASE; \
+    using __corelib_curclass = NAME; \
+    friend class Type; \
+    friend class TypeTraits; \
+public: \
+    inline virtual Type* GetType() const { \
+        return StaticType(); \
+    } \
+private: \
+    static inline struct __corelib_type { \
+        __corelib_type() { NAME::StaticType(); } \
+    } __corelib_type_init_;
 
 
 #define CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
@@ -204,6 +236,7 @@ namespace JxCoreLib
     public:
         using SharedInterfaceGetter = std::function<IInterface_sp(Object_rsp)>;
         using InterfaceGetter = std::function<IInterface*(Object*)>;
+        using EnumGetter = const std::map<string, uint32_t>*(*)();
     private:
         string name_;
         int32_t structure_size_;
@@ -213,7 +246,8 @@ namespace JxCoreLib
         array_list<Type*>* template_types_;
         Assembly* assembly_;
         array_list<std::tuple<Type*, InterfaceGetter, SharedInterfaceGetter>> interfaces_;
-        std::map<string, uint32_t>*(*enum_getter_)();
+        
+        EnumGetter enum_getter_;
         bool is_interface_;
     private:
         Type(const Type& r) = delete;
@@ -316,7 +350,10 @@ namespace JxCoreLib
             return nullptr;
         }
 
-
+        auto GetEnumDefinitions() const
+        {
+            return this->enum_getter_();
+        }
     public:
 
     };
@@ -588,7 +625,7 @@ namespace JxCoreLib
             _RegisterInterfaces<T, TInterfaces...>(self);
         }
     public:
-        static void RegisterEnum(Type* type, decltype(Type::enum_getter_) enum_getter)
+        static void RegisterEnum(Type* type, Type::EnumGetter enum_getter)
         {
             type->enum_getter_ = enum_getter;
         }
