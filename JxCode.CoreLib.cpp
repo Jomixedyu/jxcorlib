@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <cassert>
+#include <CoreLib/UString.h>
 
 using namespace std;
 using namespace JxCoreLib;
@@ -20,39 +21,7 @@ extern void TestDynCreateInst();
 extern void TestFormater();
 extern void TestFile();
 
-namespace JxCoreLib
-{
 
-    class Enum : public Object
-    {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Enum, Object);
-    protected:
-        using DataMap = std::map<string, uint32_t>;
-        static void InitDefinitions(const char* datas, DataMap* defs)
-        {
-            if (defs) return;
-            defs = new DataMap;
-            auto enums = StringUtil::Split(datas, ",");
-            for (string& item : enums) {
-                auto kv = StringUtil::Split(item, "=");
-                string& name_ = kv[0];
-                string& enum_ = kv[1];
-                StringUtil::TrimSelf(name_);
-                StringUtil::TrimSelf(enum_);
-                defs->insert({ name_ , (uint32_t)std::stoul(enum_) });
-            }
-        }
-    public:
-
-        uint32_t GetValue() { return this->value_; }
-        virtual string GetName() const = 0;
-
-        static uint32_t Parse(Type* type, string_view name);
-
-    protected:
-        uint32_t value_;
-    };
-}
 
 #define CORELIB_DEF_ENUM(Assembly, FullName, Name, ...) \
 enum class Name : uint32_t \
@@ -66,23 +35,36 @@ template<> struct get_boxing_type<Mode> { using type = ::JxCoreLib::Enum; };
 
 
 
-enum class Mode { A };
+enum class Mode { A = 1, B = 2 };
 
 class BoxingMode final : public Enum
 {
-    CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, Mode, Enum);
+    CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, BoxingMode, Enum);
 
     static inline DataMap* definitions = nullptr;
-    static inline const char* string_definitions ;
-    static void init_defs() { InitDefinitions(string_definitions, definitions); }
+    static inline const char* string_definitions = "A = 1, B = 2";
+    static void init_defs() { InitDefinitions(string_definitions, &definitions); }
 public:
-    static string GetName(Mode value) {
+    using unboxing_type = Mode;
+    static const DataMap* StaticGetDefinitions() {
+        init_defs();
+        return definitions;
+    }
+    static string StaticFindName(Mode value) {
         init_defs();
         for (auto& [name, enum_value] : *definitions) {
             if (enum_value == static_cast<uint32_t>(value)) return name;
         }
+        return {};
     }
-
+    string GetName() const override {
+        return StaticFindName(static_cast<Mode>(this->value_));
+    }
+    BoxingMode& operator=(Mode value) {
+        this->value_ = static_cast<uint32_t>(value);
+    }
+    BoxingMode(Mode value) : base(static_cast<uint32_t>(value)) { }
+    BoxingMode() : base() {  }
 };
 
 int main()
@@ -98,6 +80,9 @@ int main()
     TestDynCreateInst();
     TestFormater();
     //TestFile();
+
+    BoxingMode m = Mode::B;
+    cout << m.GetName() << endl;;
 
     sptr<List<String_sp>> intlist = mksptr(new List<String_sp>);
     //interface

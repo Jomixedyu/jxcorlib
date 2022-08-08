@@ -63,7 +63,7 @@ public: static inline Type* StaticType() \
         if (type == nullptr) \
         { \
             Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-            type = new Type(nullptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME), true); \
+            type = new Type(nullptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
             assm->RegisterType(type); \
         } \
         return type; \
@@ -87,7 +87,7 @@ public: static inline Type* StaticType() \
         if (type == nullptr) \
         { \
             Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-            type = new Type(nullptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>), true); \
+            type = new Type(nullptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
             assm->RegisterType(type); \
         } \
         return type; \
@@ -138,8 +138,9 @@ private: \
 
 #define CORELIB_IMPL_INTERFACES(...) \
     static inline struct __corelib_interface_list { \
-        __corelib_interface_list() { StaticType()->RegisterInterfaces<__corelib_curclass, __VA_ARGS__>(); } \
+        __corelib_interface_list() { TypeBuilder::RegisterInterfaces<__corelib_curclass, __VA_ARGS__>(StaticType()); } \
     } __corelib_interface_list_init_;
+
 
 //反射工厂创建函数声明
 #define CORELIB_DECL_DYNCINST() \
@@ -197,6 +198,8 @@ namespace JxCoreLib
     {
     private:
         friend class Assembly;
+        friend class TypeBuilder;
+        friend class IInterface;
         using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
     public:
         using SharedInterfaceGetter = std::function<IInterface_sp(Object_rsp)>;
@@ -210,6 +213,7 @@ namespace JxCoreLib
         array_list<Type*>* template_types_;
         Assembly* assembly_;
         array_list<std::tuple<Type*, InterfaceGetter, SharedInterfaceGetter>> interfaces_;
+        std::map<string, uint32_t>*(*enum_getter_)();
         bool is_interface_;
     private:
         Type(const Type& r) = delete;
@@ -232,6 +236,7 @@ namespace JxCoreLib
         bool is_primitive_type() const;
         bool is_valuetype() const;
         bool is_interface() const { return this->is_interface_; }
+        bool is_enum() const { return this->enum_getter_; }
     public:
         bool IsImplementedInterface(Type* type);
         //array_list<Type*> GetInterfaces() const;
@@ -251,8 +256,7 @@ namespace JxCoreLib
             Type* base,
             const string& name,
             const std::type_info& info,
-            int32_t structure_size,
-            bool is_interface = false)
+            int32_t structure_size)
             :
             c_inst_ptr_(dyncreate),
             base_(base),
@@ -260,7 +264,8 @@ namespace JxCoreLib
             typeinfo_(info),
             structure_size_(structure_size),
             assembly_(assembly),
-            is_interface_(is_interface)
+            is_interface_(false),
+            enum_getter_(nullptr)
         {
         }
 
@@ -287,10 +292,7 @@ namespace JxCoreLib
     private:
         void _AddMemberInfo(MemberInfo* info);
     public:
-        void RegisterInterface(Type* type, const InterfaceGetter& cast, const SharedInterfaceGetter& scast)
-        {
-            this->interfaces_.push_back({ type, cast, scast });
-        }
+
         IInterface_sp GetSharedInterface(Object_rsp instance, Type* type)
         {
             for (auto& [type, func, sfunc] : this->interfaces_)
@@ -313,30 +315,7 @@ namespace JxCoreLib
             }
             return nullptr;
         }
-    private:
-        template<typename T>
-        void _RegisterInterfaces() { }
 
-        template<typename T, typename TInterface, typename... TInterfaces>
-        void _RegisterInterfaces()
-        {
-            RegisterInterface(Typeof<TInterface>(),
-                [](Object* obj) -> IInterface* {
-                    return (IInterface*)(T*)obj;
-                },
-                [](Object_rsp obj) -> IInterface_sp {
-                    auto sobj = sptr_cast<T>(obj);
-                    return sptr_cast<IInterface>(sobj);
-                }
-            );
-            _RegisterInterfaces<T, TInterfaces...>();
-        }
-    public:
-        template<typename T, typename... TInterfaces>
-        void RegisterInterfaces()
-        {
-            _RegisterInterfaces<T, TInterfaces...>();
-        }
 
     public:
 
@@ -573,5 +552,47 @@ namespace JxCoreLib
     template <template <typename...> class Op, typename... T>
     using is_detected = is_detected_impl<void, Op, T...>;
 
+
+
+    class TypeBuilder
+    {
+    public:
+        static void RegisterInterface(Type* self, Type* interface_type, const Type::InterfaceGetter& cast, const Type::SharedInterfaceGetter& scast)
+        {
+            self->interfaces_.push_back({ interface_type, cast, scast });
+            self->is_interface_ = true;
+        }
+    private:
+        template<typename T>
+        static void _RegisterInterfaces(Type* self) { }
+
+        template<typename T, typename TInterface, typename... TInterfaces>
+        static void _RegisterInterfaces(Type* self)
+        {
+            RegisterInterface(self, cltypeof<TInterface>(),
+                [](Object* obj) -> IInterface* {
+                    return (IInterface*)(T*)obj;
+                },
+                [](Object_rsp obj) -> IInterface_sp {
+                    auto sobj = sptr_cast<T>(obj);
+                    return sptr_cast<IInterface>(sobj);
+                }
+                );
+            _RegisterInterfaces<T, TInterfaces...>(self);
+        }
+    public:
+
+        template<typename T, typename... TInterfaces>
+        static void RegisterInterfaces(Type* self)
+        {
+            _RegisterInterfaces<T, TInterfaces...>(self);
+        }
+    public:
+        static void RegisterEnum(Type* type, decltype(Type::enum_getter_) enum_getter)
+        {
+            type->enum_getter_ = enum_getter;
+        }
+        
+    };
 }
 

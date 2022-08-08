@@ -223,7 +223,8 @@ namespace JxCoreLib
         if (type == nullptr)
         {
             Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib);
-            type = new Type(nullptr, assm, cltypeof<Object>(), "IInterface", typeid(IInterface), sizeof(IInterface), true);
+            type = new Type(nullptr, assm, cltypeof<Object>(), "JxCoreLib::IInterface", typeid(IInterface), sizeof(IInterface));
+            type->is_interface_ = true;
             assm->RegisterType(type);
         }
         return type;
