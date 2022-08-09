@@ -232,11 +232,13 @@ namespace JxCoreLib
         friend class Assembly;
         friend class TypeBuilder;
         friend class IInterface;
+        friend class Enum;
         using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
+        using EnumDatas = std::vector<std::pair<string, uint32_t>>;
     public:
         using SharedInterfaceGetter = std::function<IInterface_sp(Object_rsp)>;
         using InterfaceGetter = std::function<IInterface*(Object*)>;
-        using EnumGetter = const std::map<string, uint32_t>*(*)();
+        using EnumGetter = const EnumDatas*(*)();
     private:
         string name_;
         int32_t structure_size_;

@@ -9,7 +9,7 @@ enum class NAME : uint32_t \
 { \
  __VA_ARGS__ \
 }; \
-class Boxing##NAME final : public Enum \
+class Boxing##NAME final : public ::JxCoreLib::Enum \
 { \
     CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAMESPACE##Boxing##NAME, ::JxCoreLib::Enum); \
     static inline DataMap* definitions = nullptr; \
@@ -41,7 +41,7 @@ namespace JxCoreLib
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Enum, Object);
     public:
-        using DataMap = std::map<string, uint32_t>;
+        using DataMap = Type::EnumDatas;
     protected:
         static void InitDefinitions(const char* datas, DataMap** defs);
     public:
