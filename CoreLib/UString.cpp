@@ -576,7 +576,7 @@ namespace JxCoreLib
         return c == ' ' || c == '\r' || c == '\n';
     }
 
-    void StringUtil::TrimSelf(string& str)
+    string& StringUtil::TrimSelf(string& str)
     {
         if (str.empty()) return;
         for (int32_t i = 0; i < str.length(); i++)
@@ -597,6 +597,7 @@ namespace JxCoreLib
 
         str.erase(0, str.find_first_not_of(" "));
         str.erase(str.find_last_not_of(" ") + 1);
+        return str;
     }
 
     string StringUtil::Trim(string_view str)

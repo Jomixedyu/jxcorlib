@@ -117,7 +117,7 @@ namespace JxCoreLib
         string StringCast(const std::u8string& str);
         std::vector<string> Split(string_view str, u8char c);
         string Substring(string_view str, size_t offset_char_pos, size_t char_count);
-        void TrimSelf(string& str);
+        string& TrimSelf(string& str);
         string Trim(string_view str);
 
         inline size_t Size(const char* str) { return ::strlen(str); }
