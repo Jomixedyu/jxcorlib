@@ -578,7 +578,7 @@ namespace JxCoreLib
 
     string& StringUtil::TrimSelf(string& str)
     {
-        if (str.empty()) return;
+        if (str.empty()) return str;
         for (int32_t i = 0; i < str.length(); i++)
         {
             if (is_trimable(str[i]))
