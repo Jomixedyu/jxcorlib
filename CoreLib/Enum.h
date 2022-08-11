@@ -21,20 +21,20 @@ public: \
         init_defs(); \
         return definitions; \
     } \
-    static string StaticFindName(NAME value) { \
+    static ::JxCoreLib::string StaticFindName(NAME value) { \
         init_defs(); \
         for (auto& [name, enum_value] : *definitions) { \
             if (enum_value == static_cast<uint32_t>(value)) return name; \
         } \
         return {}; \
     } \
-    string GetName() const override { return StaticFindName(static_cast<NAME>(this->value_)); } \
+    ::JxCoreLib::string GetName() const override { return StaticFindName(static_cast<NAME>(this->value_)); } \
     Boxing##NAME& operator=(NAME value) { this->value_ = static_cast<uint32_t>(value); } \
     Boxing##NAME(NAME value) : base(static_cast<uint32_t>(value)) { } \
     Boxing##NAME() : base() {  } \
-    virtual string ToString() const override { return this->GetName(); } \
+    virtual ::JxCoreLib::string ToString() const override { return this->GetName(); } \
 }; \
-template<> struct get_boxing_type<NAME> { using type = Boxing##NAME; }; \
+template<> struct ::JxCoreLib::get_boxing_type<NAME> { using type = Boxing##NAME; }; \
 CORELIB_DECL_SHORTSPTR(Boxing##NAME);
 
 namespace JxCoreLib

@@ -17,11 +17,11 @@
     inline struct __corelib_AssemblyClass_##NAME : public ::JxCoreLib::AssemblyTypeObject \
     {  __corelib_AssemblyClass_##NAME##() { name = #NAME; } } AssemblyObject_##NAME;
 
-#define CORELIB_DECL_SHORTSPTR(CLASS) using CLASS##_sp = sptr<class CLASS>; using CLASS##_rsp = const sptr<class CLASS>&;
+#define CORELIB_DECL_SHORTSPTR(CLASS) using CLASS##_sp = ::JxCoreLib::sptr<class CLASS>; using CLASS##_rsp = const ::JxCoreLib::sptr<class CLASS>&;
 
 #define CORELIB_DECL_TEMP_SHORTSPTR(NAME) \
     template<typename T> \
-    using NAME##_sp = sptr<NAME<T>>; \
+    using NAME##_sp = ::JxCoreLib::sptr<NAME<T>>; \
     template<typename T> \
     using NAME##_rsp = const NAME##_sp<T>&;
 

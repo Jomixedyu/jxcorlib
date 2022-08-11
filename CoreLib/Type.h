@@ -22,19 +22,19 @@
 
 //声明CoreLib元数据
 #define CORELIB_DEF_TYPE(ASSEMBLY, NAME, BASE) \
-public: static inline Type* StaticType() \
+public: static inline ::JxCoreLib::Type* StaticType() \
     { \
         static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
-        static Type* type = nullptr; \
+        static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
         { \
-            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+            auto dynptr = ::JxCoreLib::TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
             if (dynptr == nullptr) \
             { \
-                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
+                dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
             } \
-            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-            type = new Type(dynptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
+            ::JxCoreLib::Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+            type = new ::JxCoreLib::Type(dynptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
             assm->RegisterType(type); \
         } \
         return type; \
@@ -42,10 +42,10 @@ public: static inline Type* StaticType() \
 private: \
     using base = BASE; \
     using __corelib_curclass = NAME; \
-    friend class Type; \
-    friend class TypeTraits; \
+    friend class ::JxCoreLib::Type; \
+    friend class ::JxCoreLib::TypeTraits; \
 public: \
-    inline virtual Type* GetType() const { \
+    inline virtual ::JxCoreLib::Type* GetType() const { \
         return StaticType(); \
     } \
 private: \
@@ -54,31 +54,31 @@ private: \
     } __corelib_type_init_;
 
 #define CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAME, BASE) \
-public: static inline Type* StaticType() \
+public: static inline ::JxCoreLib::Type* StaticType() \
     { \
         static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
-        static Type* type = nullptr; \
+        static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
         { \
-            auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+            auto dynptr = ::JxCoreLib::TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
             if (dynptr == nullptr) \
             { \
-                dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
+                dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
             } \
-            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-            type = new Type(dynptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
+            ::JxCoreLib::Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+            type = new ::JxCoreLib::Type(dynptr, assm, ::JxCoreLib::cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
             assm->RegisterType(type); \
-            TypeBuilder::RegisterEnum(type, &__corelib_curclass::StaticGetDefinitions); \
+            ::JxCoreLib::TypeBuilder::RegisterEnum(type, &__corelib_curclass::StaticGetDefinitions); \
         } \
         return type; \
     } \
 private: \
     using base = BASE; \
     using __corelib_curclass = NAME; \
-    friend class Type; \
-    friend class TypeTraits; \
+    friend class ::JxCoreLib::Type; \
+    friend class ::JxCoreLib::TypeTraits; \
 public: \
-    inline virtual Type* GetType() const { \
+    inline virtual ::JxCoreLib::Type* GetType() const { \
         return StaticType(); \
     } \
 private: \
@@ -88,22 +88,22 @@ private: \
 
 
 #define CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
-public: static inline Type* StaticType() \
+public: static inline ::JxCoreLib::Type* StaticType() \
     { \
         static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
-        static Type* type = nullptr; \
+        static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
         { \
-            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-            type = new Type(nullptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
+            ::JxCoreLib::Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+            type = new ::JxCoreLib::Type(nullptr, assm, ::JxCoreLib::cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
             assm->RegisterType(type); \
         } \
         return type; \
     } \
 private: \
     using __corelib_curclass = NAME; \
-    friend class Type; \
-    friend class TypeTraits; \
+    friend class ::JxCoreLib::Type; \
+    friend class ::JxCoreLib::TypeTraits; \
 private: \
     static inline struct __corelib_type { \
         __corelib_type() { NAME::StaticType(); } \
@@ -112,14 +112,14 @@ public:
 
 
 #define CORELIB_DEF_TINTERFACE(ASSEMBLY, NAME, BASE, ...) \
-public: static inline Type* StaticType() \
+public: static inline ::JxCoreLib::Type* StaticType() \
     { \
         static_assert(std::is_base_of<BASE, NAME<__VA_ARGS__>>::value, "The base class does not match"); \
-        static Type* type = nullptr; \
+        static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
         { \
-            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-            type = new Type(nullptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
+            ::JxCoreLib::Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+            type = new ::JxCoreLib::Type(nullptr, assm, ::JxCoreLib::cltypeof<BASE>(), #NAME, typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
             assm->RegisterType(type); \
         } \
         return type; \
@@ -127,8 +127,8 @@ public: static inline Type* StaticType() \
 private: \
     using base = BASE; \
     using __corelib_curclass = NAME__VA_ARGS__<>; \
-    friend class Type; \
-    friend class TypeTraits; \
+    friend class ::JxCoreLib::Type; \
+    friend class ::JxCoreLib::TypeTraits; \
 private: \
     static inline struct __corelib_type { \
         __corelib_type() { NAME<__VA_ARGS__>::StaticType(); } \
@@ -137,19 +137,19 @@ public:
 
 //声明CoreLib模板元数据
 #define CORELIB_DEF_TEMPLATE_TYPE(ASSEMBLY, NAME, BASE, ...) \
-public: static inline Type* StaticType() \
+public: static inline ::JxCoreLib::Type* StaticType() \
 { \
-    static Type* type = nullptr; \
+    static ::JxCoreLib::Type* type = nullptr; \
     if (type == nullptr) \
     { \
-        auto dynptr = TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+        auto dynptr = ::JxCoreLib::TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
         if (dynptr == nullptr) \
         { \
-            dynptr = TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
+            dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
         } \
-        using TemplateType = JxCoreLib::TemplateTypePair<__VA_ARGS__>; \
-        Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-        type = new Type(dynptr, assm, cltypeof<BASE>(), StringUtil::Concat(#NAME, "<", typeid(TemplateType).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
+        using TemplateType = ::JxCoreLib::TemplateTypePair<__VA_ARGS__>; \
+        ::JxCoreLib::Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
+        type = new ::JxCoreLib::Type(dynptr, assm, ::JxCoreLib::cltypeof<BASE>(), ::JxCoreLib::StringUtil::Concat(#NAME, "<", typeid(TemplateType).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
         assm->RegisterType(type); \
     } \
     return type; \
@@ -157,10 +157,10 @@ public: static inline Type* StaticType() \
 private: \
     using base = BASE; \
     using __corelib_curclass = NAME<__VA_ARGS__>; \
-    friend class Type; \
-    friend class TypeTraits; \
+    friend class ::JxCoreLib::Type; \
+    friend class ::JxCoreLib::TypeTraits; \
     public: \
-        inline virtual Type* GetType() const override { \
+        inline virtual ::JxCoreLib::Type* GetType() const override { \
             return StaticType(); \
         } \
     private: \
@@ -170,7 +170,7 @@ private: \
 
 #define CORELIB_IMPL_INTERFACES(...) \
     static inline struct __corelib_interface_list { \
-        __corelib_interface_list() { TypeBuilder::RegisterInterfaces<__corelib_curclass, __VA_ARGS__>(StaticType()); } \
+        __corelib_interface_list() { ::JxCoreLib::TypeBuilder::RegisterInterfaces<__corelib_curclass, __VA_ARGS__>(StaticType()); } \
     } __corelib_interface_list_init_;
 
 

@@ -3,7 +3,8 @@
 #include <cassert>
 using namespace JxCoreLib;
 
-CORELIB_DEF_ENUM(AssemblyObject_JxCoreLib,
+
+CORELIB_DEF_ENUM(JxCoreLib::AssemblyObject_JxCoreLib,
     , Mode,
     A,
     B = 3,
