@@ -32,8 +32,16 @@ namespace JxCoreLib
             (*defs)->push_back({ name_, value_ });
         }
     }
-    uint32_t Enum::StaticParse(Type* type, string_view name)
+    bool Enum::StaticTryParse(Type* type, string_view name, uint32_t* out_value)
     {
-        return uint32_t();
+        for (const auto& [_name, _value] : *type->GetEnumDefinitions())
+        {
+            if (_name == name)
+            {
+                *out_value = _value;
+                return true;
+            }
+        }
+        return false;
     }
 }

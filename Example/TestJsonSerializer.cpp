@@ -4,6 +4,7 @@
 #include <format>
 #include <map>
 #include <CoreLib/Converter.hpp>
+#include <CoreLib/Enum.h>
 
 using namespace JxCoreLib;
 using namespace JxCoreLib::Serialization;
@@ -25,6 +26,12 @@ public:
     }
 };
 
+CORELIB_DEF_ENUM(AssemblyObject_Test, 
+    , StudentLevel,
+    A, B, C
+    );
+
+
 class StudentInfo : public Object
 {
     CORELIB_DEF_TYPE(AssemblyObject_Test, StudentInfo, Object);
@@ -32,16 +39,22 @@ public:
 
     CORELIB_REFL_DECL_FIELD(id);
     int id;
+
+    CORELIB_REFL_DECL_FIELD(is_exist);
+    bool is_exist;
+
     CORELIB_REFL_DECL_FIELD(level);
-    bool level;
+    StudentLevel level;
+
     CORELIB_REFL_DECL_FIELD(person_info);
     sptr<PersonInfo> person_info;
+
     CORELIB_REFL_DECL_FIELD(score);
     List_sp<int> score;
 
     virtual string ToString() const override
     {
-        return std::format("id: {}, level: {}, person_info: {{{}}}, score: {}", id, level, person_info->ToString(), jxcvt::to_string(*score));
+        return std::format("id: {}, exist: {}, level: {}, person_info: {{{}}}, score: {}", id, is_exist, BoxingStudentLevel::StaticFindName(level), person_info->ToString(), jxcvt::to_string(*score));
     }
 };
 
@@ -50,7 +63,8 @@ void TestJsonSerializer()
 
     StudentInfo* student = new StudentInfo;
     student->id = 33;
-    student->level = true;
+    student->is_exist = true;
+    student->level = StudentLevel::B;
     student->score = mksptr(new List<int>());
     student->score->push_back(3);
     student->score->push_back(4);
@@ -59,7 +73,7 @@ void TestJsonSerializer()
     student->person_info->name = "jx";
     student->person_info->age = 12;
 
-    string json_str = JsonSerializer::Serialize(student, true);
+    string json_str = JsonSerializer::Serialize(student, {4, false});
     cout << json_str << endl;
 
     sptr<StudentInfo> newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);

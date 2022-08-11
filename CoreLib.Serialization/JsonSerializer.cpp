@@ -1,17 +1,18 @@
 #include "JsonSerializer.h"
 #include "json.hpp"
 #include <CoreLib/Reflection.h>
+#include <cassert>
 
 namespace JxCoreLib::Serialization
 {
     using namespace nlohmann;
 
 
-    static json _SerializeArray(IList* list);
-    static json _SerializeClassObject(Object* obj);
+    static json _SerializeArray(IList* list, const JsonSerializerSettings& settings);
+    static json _SerializeClassObject(Object* obj, const JsonSerializerSettings& settings);
 
 
-    static json _SerializeObject(Object* obj)
+    static json _SerializeObject(Object* obj, const JsonSerializerSettings& settings)
     {
         if (obj == nullptr)
         {
@@ -25,18 +26,32 @@ namespace JxCoreLib::Serialization
             return std::move(prim_js);
         }
 
+        if (obj->GetType()->is_enum())
+        {
+            json enum_js;
+            if (settings.string_enum)
+            {
+                enum_js = static_cast<Enum*>(obj)->GetName();
+            }
+            else
+            {
+                enum_js = static_cast<Enum*>(obj)->GetValue();
+            }
+            return enum_js;
+        }
+
         //list
         if (IList* list = interface_cast<IList>(obj))
         {
-            return _SerializeArray(list);
+            return _SerializeArray(list, settings);
         }
 
         //other
-        return _SerializeClassObject(obj);
+        return _SerializeClassObject(obj, settings);
 
     }
 
-    static json _SerializeArray(IList* list)
+    static json _SerializeArray(IList* list, const JsonSerializerSettings& settings)
     {
         int32_t count = list->GetCount();
         json arr_json = json::array();
@@ -44,30 +59,30 @@ namespace JxCoreLib::Serialization
         for (int32_t i = 0; i < count; i++)
         {
             Object_rsp element = list->At(i);
-            arr_json.push_back(_SerializeObject(element.get()));
+            arr_json.push_back(_SerializeObject(element.get(), settings));
         }
         return arr_json;
     }
 
-    static json _SerializeClassObject(Object* obj)
+    static json _SerializeClassObject(Object* obj, const JsonSerializerSettings& settings)
     {
         json obj_js = json::object();
 
         for (FieldInfo* info : obj->GetType()->get_fieldinfos(TypeBinding::NonPublic))
         {
             Object_sp field_inst = info->GetValue(obj);
-            obj_js[info->get_name()] = _SerializeObject(field_inst.get());
+            obj_js[info->get_name()] = _SerializeObject(field_inst.get(), settings);
         }
 
         return obj_js;
     }
 
 
-    string JsonSerializer::Serialize(Object* obj, bool isIndent)
+    string JsonSerializer::Serialize(Object* obj, const JsonSerializerSettings& settings)
     {
         using namespace nlohmann;
-        json js = _SerializeObject(obj);
-        return js.dump(isIndent ? 4 : -1);
+        json js = _SerializeObject(obj, settings);
+        return js.dump(settings.indent_space);
     }
 
 
@@ -152,12 +167,34 @@ namespace JxCoreLib::Serialization
         return obj;
     }
 
+    static Object_sp _DeserializeEnum(const json& js, Type* type)
+    {
+        Enum_sp ptr = sptr_cast<Enum>(type->CreateSharedInstance({}));
+        uint32_t value = 0;
+        if (js.is_string())
+        {
+            const string& name = js.get<string>();
+            Enum::StaticTryParse(type, name, &value);
+        }
+        else if (js.is_number())
+        {
+            value = js.get<uint32_t>();
+        }
+
+        ptr->SetValue(value);
+        return ptr;
+    }
 
     static Object_sp _DeserializeObject(const json& js, Type* type)
     {
         if (type->is_primitive_type())
         {
             return _GetPrimitiveValue(js, type);
+        }
+
+        if (type->is_enum())
+        {
+            return _DeserializeEnum(js, type);
         }
 
         if (type->IsImplementedInterface(cltypeof<IList>()))

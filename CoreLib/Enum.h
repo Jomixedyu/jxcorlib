@@ -28,6 +28,7 @@ public: \
         } \
         return {}; \
     } \
+    NAME get_unboxing_value() const { return static_cast<NAME>(this->value_); } \
     ::JxCoreLib::string GetName() const override { return StaticFindName(static_cast<NAME>(this->value_)); } \
     Boxing##NAME& operator=(NAME value) { this->value_ = static_cast<uint32_t>(value); } \
     Boxing##NAME(NAME value) : base(static_cast<uint32_t>(value)) { } \
@@ -41,7 +42,7 @@ namespace JxCoreLib
 {
     class Enum : public ValueTypeObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Enum, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Enum, ValueTypeObject);
     public:
         using DataMap = Type::EnumDatas;
     protected:
@@ -55,9 +56,12 @@ namespace JxCoreLib
 
         virtual string GetName() const = 0;
 
-        static uint32_t StaticParse(Type* type, string_view name);
+        uint32_t get_unboxing_value() const { return this->value_; }
+
+        static bool StaticTryParse(Type* type, string_view name, uint32_t* out_value);
 
     protected:
         uint32_t value_;
     };
+    CORELIB_DECL_SHORTSPTR(Enum);
 }
