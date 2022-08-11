@@ -85,7 +85,7 @@ namespace JxCoreLib::Serialization
 
     static Object_sp _GetPrimitiveValue(const json& js, Type* field_type)
     {
-        if (js.is_boolean()) return BoxUtil<bool>::Box(js.get<bool>());
+        if (js.is_boolean()) return BoxUtil::Box(js.get<bool>());
         if (js.is_number_integer())
         {
             Object_sp obj = nullptr;
@@ -111,7 +111,7 @@ namespace JxCoreLib::Serialization
         }
         if (js.is_string())
         {
-            return BoxUtil<string>::Box(js.get<string>());
+            return BoxUtil::Box(js.get<string>());
         }
         return nullptr;
     }

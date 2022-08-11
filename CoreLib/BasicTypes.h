@@ -171,31 +171,33 @@ namespace JxCoreLib
     {
         CORELIB_DEF_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IList, IInterface);
 
-        virtual void Add(const sptr<Object>& value) = 0;
-        virtual sptr<Object> At(int32_t index) = 0;
+        virtual void Add(Object_rsp value) = 0;
+        virtual Object_sp At(int32_t index) = 0;
         virtual void Clear() = 0;
         virtual void RemoveAt(int32_t index) = 0;
-        virtual int32_t IndexOf(const sptr<Object>& value) = 0;
-        virtual bool Contains(const sptr<Object>& value) = 0;
+        virtual int32_t IndexOf(Object_rsp value) = 0;
+        virtual bool Contains(Object_rsp value) = 0;
         virtual int32_t GetCount() const = 0;
         virtual Type* GetIListElementType() const = 0;
     };
     CORELIB_DECL_SHORTSPTR(IList);
 
-    template<typename T>
     struct BoxUtil
     {
+        template<typename T>
         static inline sptr<Object> Box(const T& value) { return mksptr((Object*)new get_boxing_type<T>::type(value)); }
     };
 
-    template<typename T>
+    
     struct UnboxUtil
     {
+        template<typename T>
         static inline T Unbox(Object* value)
         {
             //value->GetType()->is_valuetype(); //assert
             return static_cast<get_boxing_type<T>::type*>(value)->get_unboxing_value();
         }
+        template<typename T>
         static inline T Unbox(const sptr<Object>& value)
         {
             //value->GetType()->is_valuetype(); //assert
@@ -203,16 +205,21 @@ namespace JxCoreLib
         }
     };
 
+    template<typename T>
+    sptr<typename get_boxing_type<T>::type> mkbox(T value)
+    {
+        return mksptr(new get_boxing_type<T>::type(value));
+    }
 
     template<typename T>
     class List : public Object, public array_list<T>, public IList
     {
         CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
         CORELIB_IMPL_INTERFACES(IList);
-        static_assert( (cltype_concept<T> && is_shared_ptr<T>::value) || !cltype_concept<T>, "");
+        static_assert((cltype_concept<T>&& is_shared_ptr<T>::value) || !cltype_concept<T>, "");
         constexpr static bool is_shared_cltype = cltype_concept<T> && is_shared_ptr<T>::value;
     public:
-        virtual void Add(const sptr<Object>& value) override
+        virtual void Add(Object_rsp value) override
         {
             if constexpr (is_shared_cltype)
             {
@@ -220,10 +227,10 @@ namespace JxCoreLib
             }
             else
             {
-                this->push_back(UnboxUtil<T>::Unbox(value.get()));
+                this->push_back(UnboxUtil::Unbox<T>(value.get()));
             }
         }
-        virtual sptr<Object> At(int32_t index) override
+        virtual Object_sp At(int32_t index) override
         {
             if constexpr (is_shared_cltype)
             {
@@ -231,7 +238,7 @@ namespace JxCoreLib
             }
             else
             {
-                return BoxUtil<T>::Box(this->at(index));
+                return BoxUtil::Box<T>(this->at(index));
             }
         }
         virtual void Clear() override { this->clear(); }
@@ -239,7 +246,7 @@ namespace JxCoreLib
         {
             this->erase(this->begin() + index);
         }
-        virtual int32_t IndexOf(const sptr<Object>& value) override
+        virtual int32_t IndexOf(Object_rsp value) override
         {
             for (int32_t i = 0; i < this->size(); i++)
             {
@@ -257,7 +264,7 @@ namespace JxCoreLib
                 }
                 else
                 {
-                    if (item == UnboxUtil<T>::Unbox(value.get()))
+                    if (item == UnboxUtil::Unbox<T>(value.get()))
                     {
                         return i;
                     }
@@ -265,7 +272,7 @@ namespace JxCoreLib
             }
             return -1;
         }
-        virtual bool Contains(const sptr<Object>& value) override
+        virtual bool Contains(Object_rsp value) override
         {
             return this->IndexOf(value) >= 0;
         }

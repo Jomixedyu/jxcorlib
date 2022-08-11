@@ -73,7 +73,7 @@ void TestReflection()
     assert(id_value->GetType() == cltypeof<get_boxing_type<int>::type>());
     assert(*(Integer32*)id_value.get() == 3);
 
-    ////name : Object*
+    //name : Object*
     FieldInfo* name_field = model_type->get_fieldinfo("name");
 
     Object_sp obj = mksptr(new Object());

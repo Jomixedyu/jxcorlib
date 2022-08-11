@@ -11,11 +11,12 @@ CORELIB_DEF_ENUM(AssemblyObject_JxCoreLib,
 );
 
 
-
 void TestEnum()
 {
-    BoxingMode m = Mode::B;
-    assert(m.GetName() == "B");
+    Mode mode = Mode::B;
+    BoxingMode_sp m = mkbox(mode);
+
+    assert(m->GetName() == "B");
     auto defs = cltypeof<BoxingMode>()->GetEnumDefinitions();
     assert((*defs)[0].second == 0);
     assert((*defs)[1].second == 3);

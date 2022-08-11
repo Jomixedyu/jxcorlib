@@ -33,7 +33,9 @@ public: \
     Boxing##NAME(NAME value) : base(static_cast<uint32_t>(value)) { } \
     Boxing##NAME() : base() {  } \
     virtual string ToString() const override { return this->GetName(); } \
-};
+}; \
+template<> struct get_boxing_type<NAME> { using type = Boxing##NAME; }; \
+CORELIB_DECL_SHORTSPTR(Boxing##NAME);
 
 namespace JxCoreLib
 {

@@ -94,8 +94,11 @@ template<> get_boxing_type<Value> { using type = BoxingValue; }
 类库提供了显式装拆箱的工具：
 ```c++
 Value v;
-sptr<BoxingValue> bvalue = BoxUtil<Value>::Box(v); //boxing
-Value ubvalue = UnboxUtil<Value>::Unbox(bvalue); //unboxing
+sptr<BoxingValue> bvalue = static_pointer_cast<BoxingValue>( BoxUtil::Box(v) ); //boxing
+//or
+/* sptr<BoxingValue> bvalue = mkbox(v) ); */ //boxing
+
+Value ubvalue = UnboxUtil::Unbox<Value>(bvalue); //unboxing
 ```
 
 如果想获取一个类型的值类型，可以使用`get_boxing_type<T>::type`来获得，每个值类型都应为装箱类型编写该模板的特化。
@@ -385,11 +388,11 @@ public:
     assert(id_field->is_pointer() == false);
     assert(id_field->get_name() == "id");
 
-    id_field->SetValue(model, BoxUtil<int>::Box(3)); //boxing
+    id_field->SetValue(model, BoxUtil::Box(3)); //boxing
 
     Object_sp id_value = id_field->GetValue(model);
     assert(id_value->GetType() == cltypeof<int>());
-    assert(UnboxUtil<int>::Unbox(id_value) == 3); //unboxing
+    assert(UnboxUtil::Unbox<int>(id_value) == 3); //unboxing
 ```
 使用GetValue和SetValue获取和设置值。如果字段为静态，实例指针传入nullptr即可。
 
