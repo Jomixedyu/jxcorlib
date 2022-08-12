@@ -40,6 +40,33 @@ public:
 
     CORELIB_REFL_DECL_FIELD(name);
     sptr<Object> name;
+
+    //static inline struct __corelib_refl_ff \
+    //{ \
+    //    template<typename T> using _Detected = decltype(T::FF); \
+    //    __corelib_refl_ff() \
+    //{ \
+    //    using MethodType = decltype(__corelib_curclass::FF);
+    //    using RetType = decltype(std::declval<__corelib_curclass&>().FF());
+    //    constexpr bool ispublic = JxCoreLib::is_detected<_Detected, __corelib_curclass>::value;
+
+    //    ReflectionBuilder::CreateMethodInfo(nullptr, "FF", ispublic, )
+    //    ReflectionBuilder::CreateFieldInfo<__corelib_curclass, FieldType>(\
+    //        #NAME, false, JxCoreLib::is_detected<_Detected, __corelib_curclass>::value, \
+    //        [](Object* p) -> sptr<Object> { \
+    //        auto rawptr = (__corelib_curclass*)p; \
+    //        return get_object_pointer<CleanType>::get(rawptr->NAME); \
+    //        }, \
+    //        [](Object* p, sptr<Object> value) { \
+    //        auto rawptr = (__corelib_curclass*)p; \
+    //        object_assign<CleanType>::assign(&rawptr->NAME, value); \
+    //        }); \
+    //} \
+    //} __corelib_refl_ff_;
+
+    //void FF(int);
+
+
 };
 
 

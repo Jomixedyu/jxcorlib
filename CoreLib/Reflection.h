@@ -177,6 +177,12 @@ namespace JxCoreLib
 
             cltypeof<T>()->_AddMemberInfo(new FieldInfo{ name, is_static, is_public, info, field_type, getter, setter });
         }
+
+        //static void CreateMethodInfo(Type* type, const string& name, bool is_public, Type* )
+        //{
+        //    auto method = new MethodInfo(name, false, is_public, )
+        //    type->_AddMemberInfo()
+        //}
     };
 }
 

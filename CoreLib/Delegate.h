@@ -18,6 +18,7 @@ namespace JxCoreLib
 
 
     };
+    
 
     template<typename TReturn, typename... TArgs>
     class MulticastDelegate : public Delegate
