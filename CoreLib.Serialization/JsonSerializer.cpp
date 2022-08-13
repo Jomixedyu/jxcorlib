@@ -202,6 +202,14 @@ namespace JxCoreLib::Serialization
             return _DeserializeEnum(js, type);
         }
 
+        if (type->is_valuetype())
+        {
+            if (!js.is_string()) return nullptr;
+            auto obj = type->CreateSharedInstance({});
+            sptr_cast<ValueTypeObject>(obj)->Parse(js.get<string>());
+            return obj;
+        }
+
         if (type->IsImplementedInterface(cltypeof<IList>()))
         {
             return _DeserializeArray(js, type);

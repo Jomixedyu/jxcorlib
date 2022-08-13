@@ -58,7 +58,7 @@ public:
 
     virtual string ToString() const override
     {
-        return std::format("id: {}, exist: {}, level: {}, person_info: {{{}}}, score: {}", id, is_exist, BoxingStudentLevel::StaticFindName(level), person_info->ToString(), jxcvt::to_string(*score));
+        return std::format("id: {}, exist: {}, level: {}, guid: {}, person_info: {{{}}}, score: {}", id, is_exist, BoxingStudentLevel::StaticFindName(level), guid.to_string(), person_info->ToString(), jxcvt::to_string(*score));
     }
 };
 
