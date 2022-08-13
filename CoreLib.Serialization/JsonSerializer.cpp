@@ -40,6 +40,11 @@ namespace JxCoreLib::Serialization
             return enum_js;
         }
 
+        if (obj->GetType()->is_valuetype())
+        {
+            return json(obj->ToString());
+        }
+
         //list
         if (IList* list = interface_cast<IList>(obj))
         {

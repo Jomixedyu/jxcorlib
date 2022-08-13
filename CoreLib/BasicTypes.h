@@ -8,12 +8,14 @@ namespace JxCoreLib
     class ValueTypeObject : public Object
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::ValueTypeObject, Object);
-
+    public:
+        virtual void Parse(const string& value) {};
     };
 
     class PrimitiveObject : public ValueTypeObject
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::PrimitiveObject, ValueTypeObject);
+    public:
     };
 
 #define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
@@ -36,10 +38,10 @@ namespace JxCoreLib
         virtual string ToString() const override { return std::to_string(value); } \
     }; \
     CORELIB_DECL_SHORTSPTR(Class); \
-    static bool operator==(const Class& l, const DataType& r) { return l.value == r; } \
-    static bool operator==(const DataType& l, const Class& r) { return l == r.value; } \
-    static bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
-    static bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
+    inline bool operator==(const Class& l, const DataType& r) { return l.value == r; } \
+    inline bool operator==(const DataType& l, const Class& r) { return l == r.value; } \
+    inline bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
+    inline bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
     template<> struct get_boxing_type<DataType> { using type = Class; };
 
 

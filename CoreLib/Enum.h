@@ -55,7 +55,7 @@ namespace JxCoreLib
         void SetValue(uint32_t value) { this->value_ = value; }
 
         virtual string GetName() const = 0;
-
+        
         uint32_t get_unboxing_value() const { return this->value_; }
 
         static bool StaticTryParse(Type* type, string_view name, uint32_t* out_value);

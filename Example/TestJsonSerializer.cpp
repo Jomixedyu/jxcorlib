@@ -5,6 +5,7 @@
 #include <map>
 #include <CoreLib/Converter.hpp>
 #include <CoreLib/Enum.h>
+#include <CoreLib/Guid.h>
 
 using namespace JxCoreLib;
 using namespace JxCoreLib::Serialization;
@@ -52,6 +53,9 @@ public:
     CORELIB_REFL_DECL_FIELD(score);
     List_sp<int> score;
 
+    CORELIB_REFL_DECL_FIELD(guid)
+    guid_t guid;
+
     virtual string ToString() const override
     {
         return std::format("id: {}, exist: {}, level: {}, person_info: {{{}}}, score: {}", id, is_exist, BoxingStudentLevel::StaticFindName(level), person_info->ToString(), jxcvt::to_string(*score));
@@ -65,6 +69,7 @@ void TestJsonSerializer()
     student->id = 33;
     student->is_exist = true;
     student->level = StudentLevel::B;
+    student->guid = guid_t::create_new();
     student->score = mksptr(new List<int>());
     student->score->push_back(3);
     student->score->push_back(4);
