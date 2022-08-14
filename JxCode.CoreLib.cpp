@@ -21,6 +21,7 @@ extern void TestDynCreateInst();
 extern void TestFormater();
 extern void TestFile();
 extern void TestEnum();
+extern void TestGuid();
 
 
 
@@ -37,6 +38,7 @@ int main()
     TestJsonSerializer();
     TestDynCreateInst();
     TestFormater();
+    TestGuid();
     //TestFile();
 
 

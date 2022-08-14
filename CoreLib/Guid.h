@@ -22,6 +22,7 @@ namespace JxCoreLib
         bool is_empty() const;
         bool operator==(guid_t right) const;
         operator bool() const;
+        static guid_t empty() { return guid_t(); }
     };
 
     class Guid : public ValueTypeObject
