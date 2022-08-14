@@ -17,7 +17,7 @@ namespace JxCoreLib
         return nguid;
     }
 
-    static const char* hexlist = "0123456789ABCDEF";
+    static const char* hexlist = "0123456789abcdef";
     static void bytetohex(uint8_t value, char* out_str)
     {
         out_str[0] = hexlist[value / 16];
