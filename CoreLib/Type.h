@@ -201,6 +201,9 @@ namespace JxCoreLib
     template<typename T>
     using array_list = std::vector<T>;
 
+    template<typename K, typename V>
+    using map = std::map<K, V>;
+
     class IInterface
     {
     private:
