@@ -1,3 +1,3 @@
-project("JxCode.CoreLib.Math")
+project("JxMath")
 
-add_library("JxCode.CoreLib.Math" "Jmath.h")
+add_library(${PROJECT_NAME} STATIC "Jmath.h" "Assembly.h" "Math.h" "Math.cpp")

@@ -1,7 +1,19 @@
 #pragma once
+#include <cmath>
+#include <string>
 
-namespace jxmath
+namespace jmath
 {
+    const inline constexpr float pi = 3.1415926f;
+    const inline constexpr float deg2rad = 0.017453292519943f;
+    const inline constexpr float rad2deg = 57.295779513082320876798154814105f;
+
+    template<typename T> constexpr T Radians(T degree) { return deg2rad * degree; }
+    template<typename T> constexpr T Degrees(T rad) { return rad2deg * rad; }
+    template<typename T> constexpr T Clamp(T x, T min, T max)
+    {
+        return std::min(std::max(x, min), max);
+    }
 
     template<typename T>
     struct Vector4
@@ -45,7 +57,7 @@ namespace jxmath
         static Vector3 StaticRight() { return Vector3{ T(1), T(0), T(0) }; }
         //right handle?
         static Vector3 StaticForward() { return Vector3{ T(0), T(0), T(1) }; }
-        static Vector3 StaticZero() { return Vector3{ T(0, T(0, T(0) }; }
+        static Vector3 StaticZero() { return Vector3{ T(0), T(0), T(0) }; }
         static Vector3 StaticOne() { return Vector3{ T(1), T(1), T(1) }; }
 
         Vector3& operator +=(Vector3 v) { x += v.x; y += v.y; z += v.z; return *this; }
@@ -69,6 +81,17 @@ namespace jxmath
     template<typename T> inline Vector3<T> operator*(Vector3<T> v3, T f) { return Vector3<T>(v3.x * f, v3.y * f, v3.z * f); }
     template<typename T> inline Vector3<T> operator*(T f, Vector3<T> v3) { return Vector3<T>(v3.x * f, v3.y * f, v3.z * f); }
     template<typename T> inline Vector3<T> operator*(Vector3<T> l, Vector3<T> r) { return Vector3<T>(l.x * r.x, l.y * r.y, l.z * r.z); }
+    template<typename T> inline bool operator==(Vector3<T> l, Vector3<T> r) { return l.x == r.x && l.y && r.y && l.z && r.z; }
+
+    template<typename T> std::string to_string(const Vector3<T>& v)
+    {
+        std::string s;
+        s.reserve(64);
+        s.append("{x: "); s.append(std::to_string(v.x)); s.append(", ");
+        s.append("y: "); s.append(std::to_string(v.y)); s.append(", ");
+        s.append("z: "); s.append(std::to_string(v.z)); s.append("}");
+        return s;
+    }
 
     using Vector3f = Vector3<float>;
     using Vector3d = Vector3<double>;
@@ -118,6 +141,16 @@ namespace jxmath
     template<typename T> inline Vector2<T> operator-(Vector2<T> a, T b) { return Vector2<T>(a.x - b, a.y - b); }
     template<typename T> inline Vector2<T> operator-(T a, Vector2<T> b) { return Vector2<T>(a - b.x, a - b.y); }
     template<typename T> inline Vector2<T> operator-(Vector2<T> a, Vector2<T> b) { return Vector2<T>(a.x - b.x, a.y - b.y); }
+    template<typename T> inline bool operator==(Vector2<T> a, Vector2<T> b) { return a.x == b.x && a.y == b.y; }
+
+    template<typename T> std::string to_string(Vector2<T> v)
+    {
+        std::string s;
+        s.reserve(64);
+        s.append("{x: "); s.append(std::to_string(v.x)); s.append(", ");
+        s.append("y: "); s.append(std::to_string(v.y)); s.append("}");
+        return s;
+    }
 
     using Vector2f = Vector2<float>;
     using Vector2d = Vector2<double>;
@@ -219,7 +252,7 @@ namespace jxmath
                 T(k), T(0), T(0), T(0),
                 T(0), T(k), T(0), T(0),
                 T(0), T(0), T(k), T(0),
-                T(0), T(0), T(0), T(k),
+                T(0), T(0), T(0), T(k)
             );
         }
     };
@@ -236,8 +269,35 @@ namespace jxmath
         Quaternion() : x(0), y(0), z(0), w(0) {}
         Quaternion(T _x, T _y, T _z, T _w) : x(_x), y(_y), z(_w), w(0) {}
 
-        Quaternion(Vector3<T> euler) {}
-        Vector3<T> Euler() const {}
+        Quaternion(const Vector3<T>& euler) { SetEuler(euler); }
+
+        void SetEuler(const Vector3<T>& euler) {
+            Vector3<T> in = Radians(euler) * T(0.5);
+            Vector3<T> c = Vector3<T>{ std::cos(in.x), std::cos(in.y), std::cos(in.z) };
+            Vector3<T> s = Vector3<T>{ std::sin(in.x), std::sin(in.y), std::sin(in.z) };
+
+            this->w = c.x * c.y * c.z + s.x * s.y * s.z;
+            this->x = s.x * c.y * c.z - c.x * s.y * s.z;
+            this->y = c.x * s.y * c.z + s.x * c.y * s.z;
+            this->z = c.x * c.y * s.z - s.x * s.y * c.z;
+        }
+        Vector3<T> GetEuler() const
+        {
+            return Vector3<T>{ pitch(*this), yaw(*this), roll(*this) };
+        }
+    private:
+        inline static T roll(const Quaternion& q)
+        {
+            return (T)std::atan2(T(2) * (q.x * q.y + q.w * q.z), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z);
+        }
+        inline static T pitch(const Quaternion& q)
+        {
+            return (T)std::atan2(T(2) * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
+        }
+        inline static T yaw(const Quaternion& q)
+        {
+            return (T)std::asin(Clamp(T(-2) * (q.x * q.z - q.w * q.y), T(-1), T(1)));
+        }
     };
     using Quat4f = Quaternion<float>;
     using Quat4d = Quaternion<double>;

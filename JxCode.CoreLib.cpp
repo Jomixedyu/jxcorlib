@@ -22,7 +22,7 @@ extern void TestFormater();
 extern void TestFile();
 extern void TestEnum();
 extern void TestGuid();
-
+extern void TestMath();
 
 
 
@@ -40,7 +40,7 @@ int main()
     TestFormater();
     TestGuid();
     //TestFile();
-
+    TestMath();
 
     return 0;
 }

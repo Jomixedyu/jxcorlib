@@ -12,6 +12,7 @@ include_directories(".")
 
 add_subdirectory("./CoreLib")
 add_subdirectory("./CoreLib.Serialization")
+add_subdirectory("./CoreLib.Math")
 add_subdirectory("./Example")
 
 aux_source_directory(./ DIR_SRCS)
@@ -20,4 +21,5 @@ add_executable (${PROJECT_NAME} ${DIR_SRCS})
 
 target_link_libraries(${PROJECT_NAME} "JxCode.CoreLib")
 target_link_libraries(${PROJECT_NAME} "JxCode.CoreLib.Serialization")
+target_link_libraries(${PROJECT_NAME} "JxMath")
 target_link_libraries(${PROJECT_NAME} "Example")
