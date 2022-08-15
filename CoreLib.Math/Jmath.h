@@ -14,6 +14,11 @@ namespace jmath
     {
         return std::min(std::max(x, min), max);
     }
+    template<typename T>
+    constexpr bool FloatEqual(T const& x, T const& y)
+    {
+        return std::abs(x - y) <= std::numeric_limits<T>::epsilon();
+    }
 
     template<typename T>
     struct Vector4
@@ -264,14 +269,14 @@ namespace jmath
     template<typename T>
     struct Quaternion
     {
-        T x, y, z, w;
+        T w, x, y, z;
 
-        Quaternion() : x(0), y(0), z(0), w(0) {}
-        Quaternion(T _x, T _y, T _z, T _w) : x(_x), y(_y), z(_w), w(0) {}
+        Quaternion() : w(1), x(0), y(0), z(0) {}
+        Quaternion(T _w, T _x, T _y, T _z) : w(_w), x(_x), y(_y), z(_z) {}
 
         Quaternion(const Vector3<T>& euler) { SetEuler(euler); }
 
-        void SetEuler(const Vector3<T>& euler) {
+        void SetEuler(Vector3<T> euler) {
             Vector3<T> in = Radians(euler) * T(0.5);
             Vector3<T> c = Vector3<T>{ std::cos(in.x), std::cos(in.y), std::cos(in.z) };
             Vector3<T> s = Vector3<T>{ std::sin(in.x), std::sin(in.y), std::sin(in.z) };
@@ -283,22 +288,53 @@ namespace jmath
         }
         Vector3<T> GetEuler() const
         {
-            return Vector3<T>{ pitch(*this), yaw(*this), roll(*this) };
+            return Degrees(Vector3<T>{ pitch(*this), yaw(*this), roll(*this) });
+            //return Internal_MakePositive(Vector3<T>{ Degrees( pitch(*this)), Degrees(yaw(*this)), Degrees(roll(*this)) });
         }
     private:
+        inline static Vector3<T> Internal_MakePositive(Vector3<T> euler)
+        {
+            float num = -0.005729578f;
+            float num2 = 360.f + num;
+            if (euler.x < num) { euler.x += 360.f; }
+            else if (euler.x > num2) { euler.x -= 360.f; }
+            if (euler.y < num) { euler.y += 360.f; }
+            else if (euler.y > num2) { euler.y -= 360.f; }
+            if (euler.z < num) { euler.z += 360.f; }
+            else if (euler.z > num2) { euler.z -= 360.f; }
+            return euler;
+        }
         inline static T roll(const Quaternion& q)
         {
-            return (T)std::atan2(T(2) * (q.x * q.y + q.w * q.z), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z);
+            return static_cast<T>(std::atan2(static_cast<T>(2) * (q.x * q.y + q.w * q.z), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z));
         }
         inline static T pitch(const Quaternion& q)
         {
-            return (T)std::atan2(T(2) * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
+            T const y = static_cast<T>(2) * (q.y * q.z + q.w * q.x);
+            T const x = q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z;
+            if (FloatEqual(x, T(0)) && FloatEqual(y, T(0))) //avoid atan2(0,0) - handle singularity - Matiis
+                return static_cast<T>(static_cast<T>(2) * std::atan2(q.x, q.w));
+
+            return static_cast<T>(std::atan2(y, x));
+
+            //return (T)std::atan2(T(2) * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
         }
         inline static T yaw(const Quaternion& q)
         {
-            return (T)std::asin(Clamp(T(-2) * (q.x * q.z - q.w * q.y), T(-1), T(1)));
+            return std::asin(Clamp(static_cast<T>(-2) * (q.x * q.z - q.w * q.y), static_cast<T>(-1), static_cast<T>(1)));
         }
     };
+    template<typename T>
+    inline std::string to_string(const Quaternion<T>& v)
+    {
+        std::string s;
+        s.reserve(64);
+        s.append("{w: "); s.append(std::to_string(v.w)); s.append(", ");
+        s.append("x: "); s.append(std::to_string(v.x)); s.append(", ");
+        s.append("y: "); s.append(std::to_string(v.y)); s.append(", ");
+        s.append("z: "); s.append(std::to_string(v.z)); s.append("}");
+        return s;
+    }
     using Quat4f = Quaternion<float>;
     using Quat4d = Quaternion<double>;
 
