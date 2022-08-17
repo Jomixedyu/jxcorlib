@@ -27,7 +27,7 @@ namespace JxCoreLib
 
     class Guid : public CustomPrimitiveObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Guid, ValueTypeObject);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Guid, CustomPrimitiveObject);
     public:
         using unboxing_type = guid_t;
         guid_t get_unboxing_value() const { return this->value_; }
