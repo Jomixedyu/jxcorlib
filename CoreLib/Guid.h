@@ -25,7 +25,7 @@ namespace JxCoreLib
         static guid_t empty() { return guid_t(); }
     };
 
-    class Guid : public ValueTypeObject
+    class Guid : public CustomPrimitiveObject
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Guid, ValueTypeObject);
     public:

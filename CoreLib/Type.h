@@ -24,6 +24,7 @@
 #define CORELIB_DEF_TYPE(ASSEMBLY, NAME, BASE) \
 public: static inline ::JxCoreLib::Type* StaticType() \
     { \
+        static_assert(!std::is_same_v<NAME, BASE>, "base class error"); \
         static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
         static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
@@ -56,6 +57,7 @@ private: \
 #define CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAME, BASE) \
 public: static inline ::JxCoreLib::Type* StaticType() \
     { \
+        static_assert(!std::is_same_v<NAME, BASE>, "base class error"); \
         static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
         static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
@@ -90,6 +92,7 @@ private: \
 #define CORELIB_DEF_INTERFACE(ASSEMBLY, NAME, BASE) \
 public: static inline ::JxCoreLib::Type* StaticType() \
     { \
+        static_assert(!std::is_same_v<NAME, BASE>, "base class error"); \
         static_assert(std::is_base_of<BASE, NAME>::value, "The base class does not match"); \
         static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
@@ -114,6 +117,7 @@ public:
 #define CORELIB_DEF_TINTERFACE(ASSEMBLY, NAME, BASE, ...) \
 public: static inline ::JxCoreLib::Type* StaticType() \
     { \
+        static_assert(!std::is_same_v<NAME, BASE>, "base class error"); \
         static_assert(std::is_base_of<BASE, NAME<__VA_ARGS__>>::value, "The base class does not match"); \
         static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
@@ -179,6 +183,21 @@ private: \
     static Object* DynCreateInstance(const ParameterPackage& params)
 
 
+template<typename T, bool b = ::JxCoreLib::cltype_concept<T>>
+struct get_boxing_type
+{};
+
+template<typename T>
+struct get_boxing_type<T, true>
+{
+    using type = typename ::JxCoreLib::remove_shared_ptr<T>::type;
+};
+
+template<typename T>
+struct get_boxing_type<T, false>
+{
+    static_assert(true, "no boxing type!");
+};
 
 namespace JxCoreLib
 {
@@ -274,6 +293,7 @@ namespace JxCoreLib
         const std::type_info& get_typeinfo() const { return this->typeinfo_; }
         bool is_primitive_type() const;
         bool is_valuetype() const;
+        bool is_custom_primitive_type() const;
         bool is_interface() const { return this->is_interface_; }
         bool is_enum() const { return this->enum_getter_; }
     public:
@@ -494,22 +514,7 @@ namespace JxCoreLib
 
     class StdAny;
 
-    template<typename T, bool b = cltype_concept<T>>
-    struct get_boxing_type
-    {};
 
-    template<typename T>
-    struct get_boxing_type<T, true>
-    {
-        using type = remove_shared_ptr<T>::type;
-    };
-
-    template<typename T>
-    struct get_boxing_type<T, false>
-    {
-        static_assert(true, "not boxing type!");
-        //using type = StdAny;
-    };
 
     //TODO: testing
     template<typename T, typename Ty>

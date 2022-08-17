@@ -35,7 +35,7 @@ public: \
     Boxing##NAME() : base() {  } \
     virtual ::JxCoreLib::string ToString() const override { return this->GetName(); } \
 }; \
-template<> struct ::JxCoreLib::get_boxing_type<NAME> { using type = Boxing##NAME; }; \
+template<> struct get_boxing_type<NAME> { using type = Boxing##NAME; }; \
 CORELIB_DECL_SHORTSPTR(Boxing##NAME);
 
 namespace JxCoreLib
