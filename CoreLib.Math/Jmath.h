@@ -37,6 +37,16 @@ namespace jmath
         const T& operator[](int index) const { return *(&x + index); }
 
     };
+    template<typename T> std::string to_string(const Vector4<T>& v)
+    {
+        std::string s;
+        s.reserve(64);
+        s.append("{x: "); s.append(std::to_string(v.x)); s.append(", ");
+        s.append("y: "); s.append(std::to_string(v.y)); s.append(", ");
+        s.append("z: "); s.append(std::to_string(v.z)); s.append(", ");
+        s.append("w: "); s.append(std::to_string(v.w)); s.append("}");
+        return s;
+    }
 
     using Vector4f = Vector4<float>;
     using Vector4d = Vector4<double>;

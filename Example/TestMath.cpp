@@ -3,16 +3,22 @@
 #include <iostream>
 
 using namespace JxCoreLib::Math;
+using namespace JxCoreLib;
 using namespace std;
 
 void TestMath()
 {
     Vector3f v{ 3,3,3 };
+
+    auto vec3_box = mkbox(v);
+
+    Vector3f v4 = vec3_box->get_unboxing_value();
+
     Quat4f(Vector3f{});
     cout << to_string(Quat4f(1, 0, 0, 0)) << endl;
     cout << to_string(Quat4f(1, 0, 0, 0).GetEuler()) << endl;
 
-    auto q = Quat4f(0.224, 0.827, -0.514, -0.038);
+    auto q = Quat4f(0.224f, 0.827f, -0.514f, -0.038f);
     auto qe = q.GetEuler();
     auto q2 = Quat4f(qe);
     cout << to_string(q ) << endl;

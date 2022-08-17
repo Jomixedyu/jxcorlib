@@ -6,9 +6,11 @@
 #include <CoreLib/Converter.hpp>
 #include <CoreLib/Enum.h>
 #include <CoreLib/Guid.h>
+#include <CoreLib.Math/Math.h>
 
 using namespace JxCoreLib;
 using namespace JxCoreLib::Serialization;
+using namespace JxCoreLib::Math;
 using namespace std;
 
 
@@ -56,9 +58,12 @@ public:
     CORELIB_REFL_DECL_FIELD(guid)
     guid_t guid;
 
+    CORELIB_REFL_DECL_FIELD(vec3);
+    Vector3f vec3;
+
     virtual string ToString() const override
     {
-        return std::format("id: {}, exist: {}, level: {}, guid: {}, person_info: {{{}}}, score: {}", id, is_exist, BoxingStudentLevel::StaticFindName(level), guid.to_string(), person_info->ToString(), jxcvt::to_string(*score));
+        return std::format("id: {}, exist: {}, level: {}, guid: {}, person_info: {{{}}}, score: {}, vec3: {}", id, is_exist, BoxingStudentLevel::StaticFindName(level), guid.to_string(), person_info->ToString(), jxcvt::to_string(*score), to_string(vec3));
     }
 };
 
@@ -73,6 +78,7 @@ void TestJsonSerializer()
     student->score = mksptr(new List<int>());
     student->score->push_back(3);
     student->score->push_back(4);
+    student->vec3 = { 2,3,8 };
 
     student->person_info = mksptr(new PersonInfo);
     student->person_info->name = "jx";

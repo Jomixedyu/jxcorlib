@@ -183,21 +183,7 @@ private: \
     static Object* DynCreateInstance(const ParameterPackage& params)
 
 
-template<typename T, bool b = ::JxCoreLib::cltype_concept<T>>
-struct get_boxing_type
-{};
 
-template<typename T>
-struct get_boxing_type<T, true>
-{
-    using type = typename ::JxCoreLib::remove_shared_ptr<T>::type;
-};
-
-template<typename T>
-struct get_boxing_type<T, false>
-{
-    static_assert(true, "no boxing type!");
-};
 
 namespace JxCoreLib
 {
@@ -259,8 +245,8 @@ namespace JxCoreLib
         using EnumDatas = std::vector<std::pair<string, uint32_t>>;
     public:
         using SharedInterfaceGetter = std::function<IInterface_sp(Object_rsp)>;
-        using InterfaceGetter = std::function<IInterface*(Object*)>;
-        using EnumGetter = const EnumDatas*(*)();
+        using InterfaceGetter = std::function<IInterface* (Object*)>;
+        using EnumGetter = const EnumDatas* (*)();
     private:
         string name_;
         int32_t structure_size_;
@@ -270,7 +256,7 @@ namespace JxCoreLib
         array_list<Type*>* template_types_;
         Assembly* assembly_;
         array_list<std::tuple<Type*, InterfaceGetter, SharedInterfaceGetter>> interfaces_;
-        
+
         EnumGetter enum_getter_;
         bool is_interface_;
     private:
@@ -515,21 +501,26 @@ namespace JxCoreLib
     class StdAny;
 
 
+}
 
-    //TODO: testing
-    template<typename T, typename Ty>
-    struct has_boxtype
-    {
-    };
-    template<typename T>
-    struct has_boxtype<T, typename get_boxing_type<T>::type> : public std::bool_constant<true>
-    {
-    };
-    template<typename T>
-    struct has_boxtype<T, void> : public std::bool_constant<false>
-    {
-    };
+template<typename T, bool b = ::JxCoreLib::cltype_concept<T>>
+struct get_boxing_type
+{};
 
+template<typename T>
+struct get_boxing_type<T, true>
+{
+    using type = typename ::JxCoreLib::remove_shared_ptr<T>::type;
+};
+
+template<typename T>
+struct get_boxing_type<T, false>
+{
+    static_assert(true, "no boxing type!");
+};
+
+namespace JxCoreLib
+{
 
     template<typename T>
     sptr<T> interface_sptr_cast(Object_rsp obj)
@@ -642,6 +633,4 @@ namespace JxCoreLib
         
     };
 
-
 }
-

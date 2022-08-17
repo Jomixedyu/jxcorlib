@@ -40,7 +40,7 @@ namespace JxCoreLib::Serialization
             return enum_js;
         }
 
-        if (obj->GetType()->is_valuetype())
+        if (obj->GetType()->is_custom_primitive_type())
         {
             return json(obj->ToString());
         }
@@ -202,22 +202,27 @@ namespace JxCoreLib::Serialization
             return _DeserializeEnum(js, type);
         }
 
-        if (type->is_valuetype())
+        if (type->is_custom_primitive_type())
         {
             if (!js.is_string()) return nullptr;
             auto obj = type->CreateSharedInstance({});
-            sptr_cast<ValueTypeObject>(obj)->Parse(js.get<string>());
+            sptr_cast<CustomPrimitiveObject>(obj)->Parse(js.get<string>());
             return obj;
         }
+
 
         if (type->IsImplementedInterface(cltypeof<IList>()))
         {
             return _DeserializeArray(js, type);
         }
 
+        if (type->is_valuetype())
+        {
+            
+        }
+
         //other
         return _DeserializeClassObject(js, type);
-
     }
 
 

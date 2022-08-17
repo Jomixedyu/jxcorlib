@@ -8,8 +8,15 @@ namespace JxCoreLib
     class ValueTypeObject : public Object
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::ValueTypeObject, Object);
+    
+    };
+
+    class CustomPrimitiveObject : public ValueTypeObject
+    {
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::CustomPrimitiveObject, ValueTypeObject);
+
     public:
-        virtual void Parse(const string& value) {};
+        virtual void Parse(const string& value) = 0;
     };
 
     class PrimitiveObject : public ValueTypeObject
@@ -43,7 +50,6 @@ namespace JxCoreLib
     inline bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
     inline bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
     template<> struct get_boxing_type<DataType> { using type = Class; };
-
 
     __CORELIB_DEF_BASE_TYPE(CharObject, char);
     __CORELIB_DEF_BASE_TYPE(Integer8, int8_t);
