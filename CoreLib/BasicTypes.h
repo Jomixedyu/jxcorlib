@@ -17,6 +17,7 @@ namespace JxCoreLib
 
     public:
         virtual void Parse(const string& value) = 0;
+        //override Parse and ToString
     };
 
     class PrimitiveObject : public BoxingObject

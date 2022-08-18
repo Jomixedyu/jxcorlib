@@ -24,7 +24,7 @@ namespace JxCoreLib::Math
         using unboxing_type = Vector2f;
         Vector2f get_unboxing_value() { return Vector2f(x, y); }
 
-        BoxingVector2f() {}
+        BoxingVector2f() : x(0), y(0) {}
         BoxingVector2f(Vector2f value) : x(value.x), y(value.y) {}
 
         virtual string ToString() const override { return to_string(unboxing_type(x, y)); }
@@ -47,7 +47,7 @@ namespace JxCoreLib::Math
         using unboxing_type = Vector3f;
         Vector3f get_unboxing_value() { return Vector3f(x, y, z); }
 
-        BoxingVector3f() {}
+        BoxingVector3f() : x(0), y(0), z(0) {}
         BoxingVector3f(Vector3f value) : x(value.x), y(value.y), z(value.z) {}
 
         virtual string ToString() const override { return to_string(unboxing_type(x, y, z)); }
@@ -71,8 +71,8 @@ namespace JxCoreLib::Math
         using unboxing_type = Vector4f;
         Vector4f get_unboxing_value() { return Vector4f(x, y, z, w); }
 
-        BoxingVector4f() {}
-        BoxingVector4f(Vector4f value) : x(value.x), y(value.y), z(value.z) {}
+        BoxingVector4f() : x(0), y(0), z(0), w(0) {}
+        BoxingVector4f(Vector4f value) : x(value.x), y(value.y), z(value.z), w(value.w) {}
 
         virtual string ToString() const override { return to_string(unboxing_type(x, y, z, w)); }
     };
@@ -95,10 +95,11 @@ namespace JxCoreLib::Math
         using unboxing_type = Quat4f;
         Quat4f get_unboxing_value() { return Quat4f(x, y, z, w); }
 
-        BoxingQuat4f() {}
+        BoxingQuat4f() : w(0), x(0), y(0), z(0) {}
         BoxingQuat4f(Quat4f value) : w(value.w), x(value.x), y(value.y), z(value.z) {}
 
         virtual string ToString() const override { return to_string(unboxing_type(w, x, y, z)); }
     };
     template<> struct get_boxing_type<Quat4f> { using type = BoxingQuat4f; };
+
 }
