@@ -216,11 +216,6 @@ namespace JxCoreLib::Serialization
             return _DeserializeArray(js, type);
         }
 
-        if (type->is_valuetype())
-        {
-            
-        }
-
         //other
         return _DeserializeClassObject(js, type);
     }

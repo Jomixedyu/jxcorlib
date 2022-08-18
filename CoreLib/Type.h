@@ -278,7 +278,7 @@ namespace JxCoreLib
         Type* get_base() const { return this->base_; }
         const std::type_info& get_typeinfo() const { return this->typeinfo_; }
         bool is_primitive_type() const;
-        bool is_valuetype() const;
+        bool is_boxing_type() const;
         bool is_custom_primitive_type() const;
         bool is_interface() const { return this->is_interface_; }
         bool is_enum() const { return this->enum_getter_; }

@@ -339,10 +339,10 @@ namespace jmath
     {
         std::string s;
         s.reserve(64);
-        s.append("{w: "); s.append(std::to_string(v.w)); s.append(", ");
-        s.append("x: "); s.append(std::to_string(v.x)); s.append(", ");
-        s.append("y: "); s.append(std::to_string(v.y)); s.append(", ");
-        s.append("z: "); s.append(std::to_string(v.z)); s.append("}");
+        s.append("{w: "); s.append(std::to_string(v.x)); s.append(", ");
+        s.append("x: "); s.append(std::to_string(v.y)); s.append(", ");
+        s.append("y: "); s.append(std::to_string(v.z)); s.append(", ");
+        s.append("z: "); s.append(std::to_string(v.w)); s.append("}");
         return s;
     }
     using Quat4f = Quaternion<float>;

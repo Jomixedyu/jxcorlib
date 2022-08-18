@@ -5,23 +5,23 @@
 
 namespace JxCoreLib
 {
-    class ValueTypeObject : public Object
+    class BoxingObject : public Object
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::ValueTypeObject, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::BoxingObject, Object);
     
     };
 
-    class CustomPrimitiveObject : public ValueTypeObject
+    class CustomPrimitiveObject : public BoxingObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::CustomPrimitiveObject, ValueTypeObject);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::CustomPrimitiveObject, BoxingObject);
 
     public:
         virtual void Parse(const string& value) = 0;
     };
 
-    class PrimitiveObject : public ValueTypeObject
+    class PrimitiveObject : public BoxingObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::PrimitiveObject, ValueTypeObject);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::PrimitiveObject, BoxingObject);
     public:
     };
 

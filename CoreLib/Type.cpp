@@ -93,9 +93,9 @@ namespace JxCoreLib
         return this->IsSubclassOf(cltypeof<PrimitiveObject>());
     }
 
-    bool Type::is_valuetype() const
+    bool Type::is_boxing_type() const
     {
-        return this->IsSubclassOf(cltypeof<ValueTypeObject>());
+        return this->IsSubclassOf(cltypeof<BoxingObject>());
     }
 
     bool Type::is_custom_primitive_type() const

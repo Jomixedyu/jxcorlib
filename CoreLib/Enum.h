@@ -40,9 +40,9 @@ CORELIB_DECL_SHORTSPTR(Boxing##NAME);
 
 namespace JxCoreLib
 {
-    class Enum : public ValueTypeObject
+    class Enum : public BoxingObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Enum, ValueTypeObject);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Enum, BoxingObject);
     public:
         using DataMap = Type::EnumDatas;
     protected:
