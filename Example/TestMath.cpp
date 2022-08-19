@@ -16,10 +16,10 @@ void TestMath()
 
     Quat4f(Vector3f{});
     cout << to_string(Quat4f(1, 0, 0, 0)) << endl;
-    cout << to_string(Quat4f(1, 0, 0, 0).GetEuler()) << endl;
+    cout << to_string(Quat4f(1, 0, 0, 0).GetEulerZYX()) << endl;
 
     auto q = Quat4f(0.224f, 0.827f, -0.514f, -0.038f);
-    auto qe = q.GetEuler();
+    auto qe = q.GetEulerZYX();
     auto q2 = Quat4f(qe);
     cout << to_string(q ) << endl;
     cout << to_string(qe ) << endl;

@@ -299,7 +299,7 @@ namespace jmath
         Quaternion() : w(1), x(0), y(0), z(0) {}
         Quaternion(T _w, T _x, T _y, T _z) : w(_w), x(_x), y(_y), z(_z) {}
 
-        Quaternion(const Vector3<T>& euler) { SetEuler(euler); }
+        Quaternion(const Vector3<T>& euler) { SetEulerZYX(euler); }
 
         void SetEulerZYX(Vector3<T> euler) {
             Vector3<T> in = Radians(euler) * T(0.5);
@@ -311,7 +311,7 @@ namespace jmath
             this->y = c.x * s.y * c.z + s.x * c.y * s.z;
             this->z = c.x * c.y * s.z - s.x * s.y * c.z;
         }
-        Vector3<T> GetEuler() const
+        Vector3<T> GetEulerZYX() const
         {
             return Degrees(Vector3<T>{ pitch(*this), yaw(*this), roll(*this) });
             //return Internal_MakePositive(Vector3<T>{ Degrees( pitch(*this)), Degrees(yaw(*this)), Degrees(roll(*this)) });
@@ -348,7 +348,22 @@ namespace jmath
         {
             return std::asin(Clamp(static_cast<T>(-2) * (q.x * q.z - q.w * q.y), static_cast<T>(-1), static_cast<T>(1)));
         }
+    public:
+        Quaternion operator*(const Quaternion& b)
+        {
+            Quaternion& a = *this;
+            return new Quaternion(a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y, a.w * b.y + a.y * b.w + a.z * b.x - a.x * b.z, a.w * b.z + a.z * b.w + a.x * b.y - a.y * b.x, a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z);
+        }
+        Quaternion& operator*=(const Quaternion& b) { *this = this->operator*(*this, b); return *this; }
+    public:
+        void RotateEuler(const Vector3<T>& euler)
+        {
+            Quaternion q;
+            q.SetEulerZYX(euler);
+            *this *= q;
+        }
     };
+
     template<typename T>
     inline std::string to_string(const Quaternion<T>& v)
     {
