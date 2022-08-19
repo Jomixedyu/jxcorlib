@@ -299,7 +299,9 @@ namespace jmath
         Quaternion() : w(1), x(0), y(0), z(0) {}
         Quaternion(T _w, T _x, T _y, T _z) : w(_w), x(_x), y(_y), z(_z) {}
 
-        Quaternion(const Vector3<T>& euler) { SetEulerZYX(euler); }
+        Quaternion(const Vector3<T>& euler) { SetEuler(euler); }
+
+        void SetEuler(Vector3<T> euler) { SetEulerZYX(euler); }
 
         void SetEulerZYX(Vector3<T> euler) {
             Vector3<T> in = Radians(euler) * T(0.5);
@@ -311,6 +313,8 @@ namespace jmath
             this->y = c.x * s.y * c.z + s.x * c.y * s.z;
             this->z = c.x * c.y * s.z - s.x * s.y * c.z;
         }
+
+        Vector3<T> GetEuler() const { return GetEulerZYX(); }
         Vector3<T> GetEulerZYX() const
         {
             return Degrees(Vector3<T>{ pitch(*this), yaw(*this), roll(*this) });
