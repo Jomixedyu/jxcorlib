@@ -4,12 +4,13 @@
 
 namespace jmath
 {
-    const inline constexpr float pi = 3.1415926f;
-    const inline constexpr float deg2rad = 0.017453292519943f;
-    const inline constexpr float rad2deg = 57.295779513082320876798154814105f;
+    template<typename T = float> inline constexpr T pi() { return static_cast<T>(3.14159265358979323846264338327950288); }
 
-    template<typename T> constexpr T Radians(T degree) { return deg2rad * degree; }
-    template<typename T> constexpr T Degrees(T rad) { return rad2deg * rad; }
+    template<typename T = float> inline constexpr T deg2rad() { return static_cast<T>(0.017453292519943f); }
+    template<typename T = float> inline constexpr T rad2deg() { return static_cast<T>(57.295779513082320876798154814105f); }
+
+    template<typename T> constexpr T Radians(T degree) { return deg2rad<typename T::value_type>() * degree; }
+    template<typename T> constexpr T Degrees(T rad) { return rad2deg<typename T::value_type>() * rad; }
     template<typename T> constexpr T Clamp(T x, T min, T max)
     {
         return std::min(std::max(x, min), max);
@@ -23,6 +24,8 @@ namespace jmath
     template<typename T>
     struct Vector4
     {
+        using value_type = T;
+
         T x, y, z, w;
 
         Vector4() : x(0), y(0), z(0), w(0) {}
@@ -55,6 +58,8 @@ namespace jmath
     template<typename T>
     struct Vector3
     {
+        using value_type = T;
+
         T x, y, z;
 
         Vector3() : x(0), y(0), z(0) {}
@@ -115,6 +120,8 @@ namespace jmath
     template<typename T>
     struct Vector2
     {
+        using value_type = T;
+
         T x, y;
 
         Vector2() : x(0), y(0) {}
@@ -174,13 +181,15 @@ namespace jmath
     template<typename T>
     struct Matrix2
     {
+        using value_type = T;
+
         Vector2<T> M[2];
 
         Matrix2(
-            T x1, T y1,
-            T x2, T y2) {
-            M[0] = Vector2<T>(x1, x2);
-            M[1] = Vector2<T>(y1, y2);
+            T ax, T bx,
+            T ay, T by) {
+            M[0] = Vector2<T>(ax, ay);
+            M[1] = Vector2<T>(bx, by);
         }
         Matrix2(Vector2<T> x, Vector2<T> y) { M[0] = x; M[1] = y; }
 
@@ -204,18 +213,20 @@ namespace jmath
     template<typename T>
     struct Matrix3
     {
+        using value_type = T;
+
         Vector3<T> M[3];
 
         const T* get_value_ptr() const { return &M[0].x; }
 
         Matrix3(
-            T x1, T y1, T z1,
-            T x2, T y2, T z2,
-            T x3, T y3, T z3
+            T ax, T bx, T cx,
+            T ay, T by, T cy,
+            T az, T bz, T cz
         ) {
-            M[0] = Vector3<T>(x1, x2, x3);
-            M[1] = Vector3<T>(y1, y2, y3);
-            M[2] = Vector3<T>(z1, z2, z3);
+            M[0] = Vector3<T>(ax, ay, az);
+            M[1] = Vector3<T>(bx, by, bz);
+            M[2] = Vector3<T>(cx, cy, cz);
         }
         Matrix3(Vector3<T> x, Vector3<T> y, Vector3<T> z) { M[0] = x; M[1] = y; M[2] = z; }
 
@@ -238,20 +249,22 @@ namespace jmath
     template<typename T>
     struct Matrix4
     {
+        using value_type = T;
+
         Vector4<T> M[4];
 
         const T* get_value_ptr() const { return &M[0].x; }
 
         Matrix4(
-            T x1, T y1, T z1, T w1,
-            T x2, T y2, T z2, T w2,
-            T x3, T y3, T z3, T w3,
-            T x4, T y4, T z4, T w4
+            T ax, T bx, T cx, T dx,
+            T ay, T by, T cy, T dy,
+            T az, T bz, T cz, T dz,
+            T aw, T bw, T cw, T dw
         ) {
-            M[0] = Vector4<T>(x1, x2, x3, x4);
-            M[1] = Vector4<T>(y1, y2, y3, y4);
-            M[2] = Vector4<T>(z1, z2, z3, z4);
-            M[3] = Vector4<T>(w1, w2, w3, w4);
+            M[0] = Vector4<T>(ax, ay, az, aw);
+            M[1] = Vector4<T>(bx, by, bz, bw);
+            M[2] = Vector4<T>(cx, cy, cz, cw);
+            M[3] = Vector4<T>(dx, dy, dz, dw);
         }
         Matrix4(const Vector4<T>& x, const Vector4<T>& y, const Vector4<T>& z, const Vector4<T>& w) { M[0] = x; M[1] = y; M[2] = z; M[3] = w; }
 
@@ -279,6 +292,8 @@ namespace jmath
     template<typename T>
     struct Quaternion
     {
+        using value_type = T;
+
         T w, x, y, z;
 
         Quaternion() : w(1), x(0), y(0), z(0) {}
@@ -286,7 +301,7 @@ namespace jmath
 
         Quaternion(const Vector3<T>& euler) { SetEuler(euler); }
 
-        void SetEuler(Vector3<T> euler) {
+        void SetEulerZYX(Vector3<T> euler) {
             Vector3<T> in = Radians(euler) * T(0.5);
             Vector3<T> c = Vector3<T>{ std::cos(in.x), std::cos(in.y), std::cos(in.z) };
             Vector3<T> s = Vector3<T>{ std::sin(in.x), std::sin(in.y), std::sin(in.z) };
@@ -347,5 +362,27 @@ namespace jmath
     }
     using Quat4f = Quaternion<float>;
     using Quat4d = Quaternion<double>;
+
+    template<typename T>
+    struct Transform2D
+    {
+        Vector2<T> Position;
+        T Rotation;
+        Vector2<T> Scale;
+    };
+
+    using Transform2Df = Transform2D<float>;
+    using Transform2Dd = Transform2D<double>;
+
+    template<typename T>
+    struct Transform3D
+    {
+        Vector3<T> Position;
+        Quaternion<T> Rotation;
+        Vector3<T> Scale;
+    };
+
+    using Transform3Df = Transform3D<float>;
+    using Transform3Dd = Transform3D<double>;
 
 }
