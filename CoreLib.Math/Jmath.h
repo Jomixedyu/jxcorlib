@@ -258,6 +258,9 @@ namespace jmath
             );
         }
     };
+    using Matrix2f = Matrix2<float>;
+    using Matrix2d = Matrix2<double>;
+    using Matrix2i = Matrix2<int>;
 
     template<typename T>
     struct Matrix3
@@ -294,6 +297,9 @@ namespace jmath
             );
         }
     };
+    using Matrix3f = Matrix3<float>;
+    using Matrix3d = Matrix3<double>;
+    using Matrix3i = Matrix3<int>;
 
     template<typename T>
     struct Matrix4
