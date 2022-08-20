@@ -511,7 +511,7 @@ namespace jmath
     }
 
     using Color8b4 = Color4<uint8_t>;
-    using LColorf = Color4<float>;
+    using LinearColorf = Color4<float>;
 
 
     template<typename B, typename L>
