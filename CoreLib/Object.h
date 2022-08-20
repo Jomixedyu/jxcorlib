@@ -27,6 +27,8 @@
     template<typename T> \
     using NAME##_wp = ::JxCoreLib::wptr<NAME<T>>;
 
+#define DLL_EXPORT __declspec(dllexport);
+
 namespace JxCoreLib
 {
     class Type;
