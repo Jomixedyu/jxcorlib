@@ -88,6 +88,18 @@ namespace JxCoreLib::Serialization
 
         return stream;
     }
+    template<typename T, int N>
+    Stream& ReadWriteStream(Stream& stream, bool is_write, T (&arr)[N])
+    {
+        int len = N;
+        ReadWriteStream(stream, is_write, len);
+        for (int i = 0; i < N; i++)
+        {
+            ReadWriteStream(stream, is_write, arr[i]);
+        }
+
+        return stream;
+    }
 
     template<typename T, int N>
     Stream& ReadWriteStream(Stream& stream, bool is_write, std::array<T, N>& arr)

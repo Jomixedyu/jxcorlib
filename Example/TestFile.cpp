@@ -22,35 +22,45 @@ void TestFile()
         FileStream fs{ "D:/a.txt", FileOpenMode::OpenOrCreate };
 
         bool is_ser = true;
-
+        //write
         int32_t i32 = 257;
         ReadWriteStream(fs, is_ser, i32);
 
         string str = "jomi";
         ReadWriteStream(fs, is_ser, str);
 
-        std::vector<int> arr = { 2,3,4,8 };
+        std::vector<int> vec = { 2,3,4,8 };
+        ReadWriteStream(fs, is_ser, vec);
+
+        std::array<int, 3> stdarr = { 1 };
+        ReadWriteStream(fs, is_ser, stdarr);
+
+        int arr[3] = {1,0,5};
         ReadWriteStream(fs, is_ser, arr);
 
-        std::array<int, 3> ar = { 1 };
-        ReadWriteStream(fs, is_ser, ar);
-
-        int32_t oi32;
-        string ostr;
         fs.set_position(0);
+        //read
+        int32_t oi32;
         ReadWriteStream(fs, !is_ser, oi32);
+
+        string ostr;
         ReadWriteStream(fs, !is_ser, ostr);
 
-        std::vector<int> oarr;
+        std::vector<int> ovec;
+        ReadWriteStream(fs, !is_ser, ovec);
+
+        std::array<int, 3> ostdaar;
+        ReadWriteStream(fs, !is_ser, ostdaar);
+
+        int oarr[3];
         ReadWriteStream(fs, !is_ser, oarr);
 
-        std::array<int, 3> oar;
-        ReadWriteStream(fs, !is_ser, oar);
-
+        //check
         assert(oi32 == i32);
         assert(str == ostr);
-        assert(arr == oarr);
-        assert(!memcmp(ar.data(), oar.data(), ar.size()));
+        assert(vec == ovec);
+        assert(!memcmp(stdarr.data(), ostdaar.data(), stdarr.size()));
+        assert(!memcmp(arr, oarr, 3));
     }
     {
         FileStream fs{ "D:/a.txt", FileOpenMode::Read };
