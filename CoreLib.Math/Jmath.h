@@ -440,6 +440,8 @@ namespace jmath
     template<typename T>
     struct Transform2D
     {
+        using value_type = T;
+
         Vector2<T> Position;
         T Rotation;
         Vector2<T> Scale;
@@ -451,6 +453,8 @@ namespace jmath
     template<typename T>
     struct Transform3D
     {
+        using value_type = T;
+
         Vector3<T> Position;
         Quaternion<T> Rotation;
         Vector3<T> Scale;
@@ -459,4 +463,74 @@ namespace jmath
     using Transform3Df = Transform3D<float>;
     using Transform3Dd = Transform3D<double>;
 
+    template<typename T>
+    struct Color4
+    {
+        using value_type = T;
+        T r, g, b, a;
+
+        const T* get_value_ptr() const { return &r; }
+
+        Color4() : r(0), g(0), b(0), a(0) {}
+        Color4(T _r, T _g, T _b) : r(_r), g(_g), b(_b), a(1) {}
+        Color4(T _r, T _g, T _b, T _a) : r(_r), g(_g), b(_b), a(_a) {}
+
+        Color4& operator+=(const Color4& c) { r += c.r; g += c.g; b += c.b; a += c.a;  return *this; }
+        Color4& operator-=(const Color4& c) { r -= c.r; g -= c.g; b -= c.b; a -= c.a; return *this; }
+        Color4& operator*=(const Color4& c) { r *= c.r; g *= c.g; b *= c.b; a *= c.a; return *this; }
+        Color4& operator/=(const Color4& c) { r /= c.r; g /= c.g; b /= c.b; a /= c.a; return *this; }
+        Color4& operator+=(T s) { r += s; g += s; b += s; a += s;  return *this; }
+        Color4& operator-=(T s) { r -= s; g -= s; b -= s; a -= s; return *this; }
+        Color4& operator*=(T s) { r *= s; g *= s; b *= s; a *= s; return *this; }
+        Color4& operator/=(T s) { r /= s; g /= s; b /= s; a /= s; return *this; }
+        bool operator==(const Color4& c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
+    };
+    template<typename T> inline Color4<T> operator+(const Color4<T>& a, const Color4<T>& b) { return { a.r + b.r, a.g + b.g, a.b + b.b, a.a + b.a }; }
+    template<typename T> inline Color4<T> operator-(const Color4<T>& a, const Color4<T>& b) { return { a.r - b.r, a.g - b.g, a.b - b.b, a.a - b.a }; }
+    template<typename T> inline Color4<T> operator*(const Color4<T>& a, const Color4<T>& b) { return { a.r * b.r, a.g * b.g, a.b * b.b, a.a * b.a }; }
+    template<typename T> inline Color4<T> operator/(const Color4<T>& a, const Color4<T>& b) { return { a.r / b.r, a.g / b.g, a.b / b.b, a.a / b.a }; }
+    template<typename T> inline Color4<T> operator+(const Color4<T>& a, T b) { return { a.r + b, a.g + b, a.b + b, a.a + b }; }
+    template<typename T> inline Color4<T> operator-(const Color4<T>& a, T b) { return { a.r - b, a.g - b, a.b - b, a.a - b }; }
+    template<typename T> inline Color4<T> operator*(const Color4<T>& a, T b) { return { a.r * b, a.g * b, a.b * b, a.a * b }; }
+    template<typename T> inline Color4<T> operator/(const Color4<T>& a, T b) { return { a.r / b, a.g / b, a.b / b, a.a / b }; }
+    template<typename T> inline Color4<T> operator+(T a, const Color4<T>& b) { return { a + b.r, a + b.g, a + b.b, a + b.a }; }
+    template<typename T> inline Color4<T> operator-(T a, const Color4<T>& b) { return { a - b.r, a - b.g, a - b.b, a - b.a }; }
+    template<typename T> inline Color4<T> operator*(T a, const Color4<T>& b) { return { a * b.r, a * b.g, a * b.b, a * b.a }; }
+    template<typename T> inline Color4<T> operator/(T a, const Color4<T>& b) { return { a / b.r, a / b.g, a / b.b, a / b.a }; }
+
+    template<typename T>
+    inline std::string to_string(const Color4<T>& c)
+    {
+        std::string s;
+        s.reserve(64);
+        s.append("{r: "); s.append(std::to_string(c.r)); s.append(", ");
+        s.append("g: "); s.append(std::to_string(c.g)); s.append(", ");
+        s.append("b: "); s.append(std::to_string(c.b)); s.append(", ");
+        s.append("a: "); s.append(std::to_string(c.a)); s.append("}");
+        return s;
+    }
+
+    using Color8b4 = Color4<uint8_t>;
+    using LColorf = Color4<float>;
+
+
+    template<typename B, typename L>
+    Color4<B> LinearColorToBitColor(const Color4<L>& l)
+    {
+        static_assert(std::is_floating_point_v<L>, "L not integral type");
+        static_assert(std::is_integral_v<B>, "B not integral type");
+
+        constexpr int scalar = std::numeric_limits<typename Color4<L>::value_type>::max();
+        return { B(l.r * scalar), B(l.g * scalar), B(l.b * scalar), B(l.a * scalar) };
+    }
+
+    template<typename L, typename B>
+    Color4<L> BitColorToLinearColor(const Color4<B>& b)
+    {
+        static_assert(std::is_floating_point_v<L>, "L not integral type");
+        static_assert(std::is_integral_v<B>, "B not integral type");
+
+        constexpr int scalar = std::numeric_limits<typename Color4<B>::value_type>::max();
+        return { L(b.r) / scalar, L(b.g) / scalar, L(b.b) / scalar, L(b.a) / scalar };
+    }
 }
