@@ -8,34 +8,42 @@ namespace JxCoreLib::Serialization
 {
     class Stream
     {
-    protected:
-        int32_t position_;
     public:
-        int32_t get_position() { return position_; }
+        virtual int64_t get_position() const = 0;
+        virtual void set_position(int64_t value) = 0;
     public:
         virtual bool IsEOF() = 0;
         virtual int32_t WriteByte(uint8_t value) = 0;
         virtual int32_t WriteBytes(uint8_t* arr, int32_t offset, int32_t count) = 0;
         virtual int32_t ReadByte(uint8_t* out_byte) = 0;
         virtual int32_t ReadBytes(uint8_t* arr, int32_t offset, int32_t count) = 0;
-        int32_t WriteReadBytes(uint8_t* arr, int32_t offset, int32_t count, bool isread)
+        int32_t ReadWriteBytes(uint8_t* arr, int32_t offset, int32_t count, bool is_write)
         {
-            if (isread)
-                return ReadBytes(arr, offset, count);
-            else
+            if (is_write)
                 return WriteBytes(arr, offset, count);
+            else
+                return ReadBytes(arr, offset, count);
         }
         virtual void Flush() = 0;
         virtual ~Stream() { }
     };
 
-    class FileStream : Stream
+    enum class FileOpenMode
+    {
+        Read, Write, ReadWrite, OpenOrCreate, Append
+    };
+    class FileStream : public Stream
     {
     protected:
         void* file_;
+        FileOpenMode mode_;
     public:
-        FileStream(std::string_view filename);
-        virtual bool IsEOF() = 0;
+        FileOpenMode get_mode() const { return this->mode_; }
+        virtual int64_t get_position() const;
+        virtual void set_position(int64_t value);
+    public:
+        FileStream(std::string_view filename, FileOpenMode mode);
+        virtual bool IsEOF();
         virtual int32_t WriteByte(uint8_t value) override;
         virtual int32_t WriteBytes(uint8_t* arr, int32_t offset, int32_t count)  override;
         virtual int32_t ReadByte(uint8_t* out_byte) override;
@@ -46,12 +54,38 @@ namespace JxCoreLib::Serialization
         FileStream(FileStream&& r);
     };
 
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, uint8_t& out);
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, int16_t& out);
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, int32_t& out);
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, int64_t& out);
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, float& out);
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, double& out);
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, std::string& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, uint8_t& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, int16_t& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, int32_t& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, int64_t& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, float& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, double& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, std::string& out);
 
+    template<typename T>
+    Stream& ReadWriteStream(Stream& stream, bool is_write, std::vector<T>& arr)
+    {
+        int32_t len = arr.size();
+        ReadWriteStream(stream, is_write, len);
+
+        if (is_write)
+        {
+            for(auto& item : arr)
+            {
+                ReadWriteStream(stream, is_write, item);
+            }
+        }
+        else
+        {
+            arr.reserve(len);
+            for (int i = 0; i < len; i++)
+            {
+                T item;
+                ReadWriteStream(stream, is_write, item);
+                arr.push_back(item);
+            }
+        }
+
+        return stream;
+    }
 }

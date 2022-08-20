@@ -39,7 +39,7 @@ int main()
     TestDynCreateInst();
     TestFormater();
     TestGuid();
-    //TestFile();
+    TestFile();
     TestMath();
 
     return 0;

@@ -1,5 +1,5 @@
 #include "DataSerializer.h"
-
+#include <cstdio>
 
 namespace JxCoreLib::Serialization
 {
@@ -7,9 +7,39 @@ namespace JxCoreLib::Serialization
     {
         return (bool)feof((FILE*)this->file_);
     }
-    FileStream::FileStream(std::string_view filename)
+    int64_t FileStream::get_position() const
     {
-        this->file_ = (void*)fopen(filename.data(), "rw+");
+        return _ftelli64((FILE*)this->file_);
+    }
+    void FileStream::set_position(int64_t value)
+    {
+        _fseeki64((FILE*)this->file_, value, SEEK_SET);
+    }
+    FileStream::FileStream(std::string_view filename, FileOpenMode mode)
+    {
+        char cmode[4]{ 0 };
+        switch (mode)
+        {
+        case JxCoreLib::Serialization::FileOpenMode::Read:
+            strcpy(cmode, "r");
+            break;
+        case JxCoreLib::Serialization::FileOpenMode::Write:
+            strcpy(cmode, "w");
+            break;
+        case JxCoreLib::Serialization::FileOpenMode::ReadWrite:
+            strcpy(cmode, "r+");
+            break;
+        case JxCoreLib::Serialization::FileOpenMode::OpenOrCreate:
+            strcpy(cmode, "w+");
+            break;
+        case JxCoreLib::Serialization::FileOpenMode::Append:
+            strcpy(cmode, "a+");
+            break;
+        default:
+            break;
+        }
+        this->file_ = (void*)fopen(filename.data(), cmode);
+        this->mode_ = mode;
     }
     int32_t FileStream::WriteByte(uint8_t value)
     {
@@ -47,48 +77,49 @@ namespace JxCoreLib::Serialization
     }
 
 
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, uint8_t& out)
+    Stream& ReadWriteStream(Stream& stream, bool is_write, uint8_t& out)
     {
-        stream.WriteReadBytes((uint8_t*)(&out), 0, sizeof(out), !is_ser);
+        stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
         return stream;
     }
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, int16_t& out)
+    Stream& ReadWriteStream(Stream& stream, bool is_write, int16_t& out)
     {
-        stream.WriteReadBytes((uint8_t*)(&out), 0, sizeof(out), !is_ser);
+        stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
         return stream;
     }
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, int32_t& out)
+    Stream& ReadWriteStream(Stream& stream, bool is_write, int32_t& out)
     {
-        stream.WriteReadBytes((uint8_t*)(&out), 0, sizeof(out), !is_ser);
+        stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
         return stream;
     }
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, int64_t& out)
+    Stream& ReadWriteStream(Stream& stream, bool is_write, int64_t& out)
     {
-        stream.WriteReadBytes((uint8_t*)(&out), 0, sizeof(out), !is_ser);
+        stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
         return stream;
     }
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, float& out)
+    Stream& ReadWriteStream(Stream& stream, bool is_write, float& out)
     {
-        stream.WriteReadBytes((uint8_t*)(&out), 0, sizeof(out), !is_ser);
+        stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
         return stream;
     }
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, double& out)
+    Stream& ReadWriteStream(Stream& stream, bool is_write, double& out)
     {
-        stream.WriteReadBytes((uint8_t*)(&out), 0, sizeof(out), !is_ser);
+        stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
         return stream;
     }
-    Stream& ReadWriteStream(Stream& stream, bool is_ser, std::string& out)
+    Stream& ReadWriteStream(Stream& stream, bool is_write, std::string& out)
     {
         int32_t len = out.length();
-        ReadWriteStream(stream, is_ser, len);
-        if (is_ser)
-        {
-            stream.WriteBytes((uint8_t*)out.c_str(), 0, out.size());
-        }
-        else
+        ReadWriteStream(stream, is_write, len);
+        if (!is_write)
         {
             out.reserve(len);
-            stream.ReadBytes((uint8_t*)out.c_str(), 0, len);
+        }
+        stream.ReadWriteBytes((uint8_t*)out.c_str(), 0, len, is_write);
+        if (!is_write)
+        {
+            //no size
+            std::string(out.c_str()).swap(out);
         }
         return stream;
     }
