@@ -89,6 +89,32 @@ namespace jmath
         Vector3 operator-() { return Vector3(-x, -y, -z); }
 
         operator Vector4<T>() const { return Vector4<T>{ T(x), T(y), T(z), T(0) }; }
+
+        static inline T Distance(const Vector3& l, const Vector3& r)
+        {
+            T x = l.x - r.x;
+            T z = l.z - r.z;
+            T y = l.y - r.y;
+            return sqrt(x * x + y * y * z * z);
+        }
+        static inline T Dot(const Vector3<T>& l, const Vector3<T>& r)
+        {
+            return l.x * r.x + l.y * r.y + l.z * r.z;
+        }
+        static Vector3<T> Normalize(const Vector3<T>& target);
+        void Normalized() { *this = Normalize(*this); }
+        static inline Vector3<T> Cross(const Vector3<T>& target1, const Vector3<T>& target2)
+        {
+            return Vector3<T>(
+                target1.y * target2.z - target1.z * target2.y,
+                target1.z * target2.x - target1.x * target2.z,
+                target1.x * target2.y - target1.y * target2.x
+                );
+        }
+        T Magnitude() const
+        {
+            return sqrtf(Dot(*this, *this));
+        }
     };
     template<typename T> inline Vector3<T> operator+(Vector3<T> l, T r) { return Vector3<T>(l.x + r, l.y + r, l.z + r); }
     template<typename T> inline Vector3<T> operator+(T l, Vector3<T> r) { return Vector3<T>(l + r.x, l + r.y, l + r.z); }
@@ -102,6 +128,12 @@ namespace jmath
     template<typename T> inline Vector3<T> operator*(T f, Vector3<T> v3) { return Vector3<T>(v3.x * f, v3.y * f, v3.z * f); }
     template<typename T> inline Vector3<T> operator*(Vector3<T> l, Vector3<T> r) { return Vector3<T>(l.x * r.x, l.y * r.y, l.z * r.z); }
     template<typename T> inline bool operator==(Vector3<T> l, Vector3<T> r) { return l.x == r.x && l.y && r.y && l.z && r.z; }
+
+    template<typename T>
+    inline Vector3<T> Vector3<T>::Normalize(const Vector3<T>& target)
+    {
+        return target / sqrtf(Dot(target, target));
+    }
 
     template<typename T> std::string to_string(const Vector3<T>& v)
     {
@@ -149,6 +181,17 @@ namespace jmath
         Vector2 operator/=(T r) { x /= r; y /= r; return *this; }
 
         operator Vector3<T>() const { return Vector3<T>{ x, y, T(0) }; }
+
+        static inline T Dot(const Vector2<T>& a, const Vector2<T>& b)
+        {
+            return a.x * b.x + a.y * b.y;
+        }
+        static Vector2<T> Normalize(const Vector2<T>& input);
+        static void Normalized() { *this = Normalize(*this); }
+        inline Vector2 Reflect(const Vector2& input, const Vector2& normal)
+        {
+            return -input + 2.0f * Dot(Normalize(input), normal) * normal;
+        }
     };
 
 
@@ -164,6 +207,12 @@ namespace jmath
     template<typename T> inline Vector2<T> operator-(T a, Vector2<T> b) { return Vector2<T>(a - b.x, a - b.y); }
     template<typename T> inline Vector2<T> operator-(Vector2<T> a, Vector2<T> b) { return Vector2<T>(a.x - b.x, a.y - b.y); }
     template<typename T> inline bool operator==(Vector2<T> a, Vector2<T> b) { return a.x == b.x && a.y == b.y; }
+
+    template<typename T>
+    inline Vector2<T> Vector2<T>::Normalize(const Vector2<T>& input)
+    {
+        return input / sqrt(Dot(input, input));
+    }
 
     template<typename T> std::string to_string(Vector2<T> v)
     {
