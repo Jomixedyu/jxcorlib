@@ -9,7 +9,7 @@ list(APPEND LIST_SRC "Window.h")
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     list(APPEND LIST_SRC "Impl/Windows/Window.cpp")
-endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
+endif ()
 
 
 add_library(${PROJECT_NAME} STATIC ${LIST_SRC})

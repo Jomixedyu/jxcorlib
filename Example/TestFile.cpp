@@ -1,4 +1,4 @@
-#include <CoreLib/File.h>
+﻿#include <CoreLib/File.h>
 #include <cassert>
 #include <string>
 #include <array>
@@ -19,7 +19,7 @@ void TestFile()
     assert(PathUtil::GetFilenameExt(filename) == ".ext");
 
     {
-        FileStream fs{ "D:/a.txt", FileOpenMode::OpenOrCreate };
+        FileStream fs{ "D:/a啊.txt", FileOpenMode::OpenOrCreate };
 
         bool is_ser = true;
         //write
@@ -63,7 +63,7 @@ void TestFile()
         assert(!memcmp(arr, oarr, 3));
     }
     {
-        FileStream fs{ "D:/a.txt", FileOpenMode::Read };
+        FileStream fs{ "D:/a啊.txt", FileOpenMode::Read };
 
         int32_t i32 = 257;
         ReadWriteStream(fs, false, i32);
