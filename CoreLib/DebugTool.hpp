@@ -10,6 +10,7 @@
 #define _CORELIB_DEBUGTOOL
 
 #include <string>
+#include <cassert>
 
 #define DEBUG_INFO(info) std::format("info: {}; line: {}, file: {};", info, __LINE__, __FILE__)
 
