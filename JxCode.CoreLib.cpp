@@ -23,7 +23,7 @@ extern void TestFile();
 extern void TestEnum();
 extern void TestGuid();
 extern void TestMath();
-
+extern void TestPlatform();
 
 
 int main()
@@ -41,6 +41,7 @@ int main()
     TestGuid();
     TestFile();
     TestMath();
+    TestPlatform();
 
     return 0;
 }
