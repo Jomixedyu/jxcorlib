@@ -1,5 +1,4 @@
-#ifndef CORELIB_JSONSERIALIZER_H
-#define CORELIB_JSONSERIALIZER_H
+#pragma once
 
 #include "Assembly.h"
 
@@ -16,14 +15,13 @@ namespace JxCoreLib::Serialization
     public:
         static string Serialize(Object* obj, const JsonSerializerSettings& settings);
     public:
-        static sptr<Object> Deserialize(const string& jstr, Type* type);
-        template<typename T>
-        static sptr<T> Deserialize(const string& str)
+        static sptr<Object> Deserialize(const string& jstr, Type* type, sptr<Object> default_v = nullptr);
+        template<typename T, typename O = Object>
+        static sptr<T> Deserialize(const string& str, sptr<O> default_v = nullptr)
         {
-            return std::static_pointer_cast<T>(Deserialize(str, cltypeof<T>()));
+            return JxCoreLib::sptr_cast<T>(
+                Deserialize(str, cltypeof<T>(), JxCoreLib::sptr_cast<Object>(default_v) ) );
         }
     };
 
 }
-
-#endif // !CORELIB_JSONSERIALIZER_H

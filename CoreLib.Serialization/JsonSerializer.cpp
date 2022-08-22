@@ -137,7 +137,7 @@ namespace JxCoreLib::Serialization
     }
 
 
-    static Object_sp _DeserializeObject(const json& js, Type* type);
+    static Object_sp _DeserializeObject(const json& js, Type* type, sptr<Object> default_v = nullptr);
 
     static Object_sp _DeserializeArray(const json& js, Type* type)
     {
@@ -156,9 +156,13 @@ namespace JxCoreLib::Serialization
         return list_sp;
     }
 
-    static Object_sp _DeserializeClassObject(const json& js, Type* type)
+    static Object_sp _DeserializeClassObject(const json& js, Type* type, sptr<Object> default_v = nullptr)
     {
-        Object_sp obj = type->CreateSharedInstance({});
+        Object_sp obj = default_v;
+        if (default_v == nullptr)
+        {
+            obj = type->CreateSharedInstance({});
+        }
 
         for (auto field_info : type->get_fieldinfos())
         {
@@ -190,7 +194,7 @@ namespace JxCoreLib::Serialization
         return ptr;
     }
 
-    static Object_sp _DeserializeObject(const json& js, Type* type)
+    static Object_sp _DeserializeObject(const json& js, Type* type, sptr<Object> default_v)
     {
         if (type->is_primitive_type())
         {
@@ -205,7 +209,11 @@ namespace JxCoreLib::Serialization
         if (type->is_custom_primitive_type())
         {
             if (!js.is_string()) return nullptr;
-            auto obj = type->CreateSharedInstance({});
+            sptr<Object> obj = default_v;
+            if (default_v == nullptr)
+            {
+                obj = type->CreateSharedInstance({});
+            }
             sptr_cast<CustomPrimitiveObject>(obj)->Parse(js.get<string>());
             return obj;
         }
@@ -217,13 +225,13 @@ namespace JxCoreLib::Serialization
         }
 
         //other
-        return _DeserializeClassObject(js, type);
+        return _DeserializeClassObject(js, type, default_v);
     }
 
 
-    sptr<Object> JsonSerializer::Deserialize(const string& jstr, Type* type)
+    sptr<Object> JsonSerializer::Deserialize(const string& jstr, Type* type, sptr<Object> default_v)
     {
-        return _DeserializeObject(nlohmann::json::parse(jstr), type);
+        return _DeserializeObject(nlohmann::json::parse(jstr), type, default_v);
     }
 
 }

@@ -114,6 +114,8 @@ namespace JxCoreLib
         std::vector<uint8_t> GetBytes(const string_view& str);
         std::u16string Utf8ToUtf16(const string& str);
         string Utf16ToUtf8(const std::u16string& str);
+        string Utf8ToAnsi(string_view str);
+        string AnsiToUtf8(string_view str);
         string StringCast(const std::u8string& str);
         std::vector<string> Split(string_view str, u8char c);
         string Substring(string_view str, size_t offset_char_pos, size_t char_count);

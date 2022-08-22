@@ -35,7 +35,7 @@ namespace JxCoreLib::Platform::Window
         return strTemp;
     }
 
-    string ANSIToUTF8(const char* src_str)
+    static string ANSIToUTF8(const char* src_str)
     {
         string outUtf8 = "";
         int n = MultiByteToWideChar(CP_ACP, 0, src_str, -1, NULL, 0);
