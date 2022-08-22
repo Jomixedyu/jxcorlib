@@ -6,7 +6,7 @@
 namespace JxCoreLib::Serialization
 {
     using namespace nlohmann;
-
+    using namespace JxCoreLib;
 
     static json _SerializeArray(IList* list, const JsonSerializerSettings& settings);
     static json _SerializeClassObject(Object* obj, const JsonSerializerSettings& settings);
