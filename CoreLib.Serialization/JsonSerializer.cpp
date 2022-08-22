@@ -155,7 +155,7 @@ namespace JxCoreLib::Serialization
 
         return list_sp;
     }
-
+    
     static Object_sp _DeserializeClassObject(const json& js, Type* type, sptr<Object> default_v = nullptr)
     {
         Object_sp obj = default_v;
