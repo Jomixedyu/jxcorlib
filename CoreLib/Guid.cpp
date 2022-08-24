@@ -1,19 +1,35 @@
 #include "Guid.h"
+#include <random>
 
+#if WIN32
 #include <objbase.h>
+#endif
 
 namespace JxCoreLib
 {
 
     guid_t guid_t::create_new()
     {
+        guid_t nguid;
+#if WIN32
         static_assert(sizeof(GUID) == sizeof(guid_t));
         GUID guid;
-        guid_t nguid;
         if (CoCreateGuid(&guid) == S_OK)
         {
             memcpy(&nguid, &guid, sizeof(guid_t));
         }
+#else
+        static std::random_device seed;
+        static std::ranlux48 engine{ seed() };
+        static std::uniform_int_distribution<> distrib{ 0, 15 };
+
+        char* v = (char*)&nguid;
+
+        for (size_t i = 0; i < 16; i++)
+        {
+            v[i] = distrib(engine);
+        }
+#endif
         return nguid;
     }
 

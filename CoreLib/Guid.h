@@ -6,14 +6,14 @@
 
 namespace JxCoreLib
 {
-    struct guid_t
+    struct alignas(16) guid_t
     {
         uint32_t x = 0;
         uint32_t y = 0;
         uint32_t z = 0;
         uint32_t w = 0;
     public:
-
+        
     public:
         static guid_t create_new();
         static guid_t parse(std::string_view str);
