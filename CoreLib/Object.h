@@ -27,7 +27,11 @@
     template<typename T> \
     using NAME##_wp = ::JxCoreLib::wptr<NAME<T>>;
 
-#define DLL_EXPORT __declspec(dllexport)
+#ifdef WIN32
+#define API_JxCoreLib __declspec(dllexport)
+#else
+#define API_JxCoreLib
+#endif
 
 namespace JxCoreLib
 {
@@ -86,7 +90,7 @@ namespace JxCoreLib
         using type = T::element_type;
     };
 
-    class Object
+    class Object : public std::enable_shared_from_this<Object>
     {
     public:
         static Type* StaticType();

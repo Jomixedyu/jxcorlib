@@ -52,7 +52,9 @@ public: \
 private: \
     static inline struct __corelib_type { \
         __corelib_type() { NAME::StaticType(); } \
-    } __corelib_type_init_;
+    } __corelib_type_init_; \
+    ::JxCoreLib::sptr<__corelib_curclass> self() { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); }
+
 
 #define CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAME, BASE) \
 public: static inline ::JxCoreLib::Type* StaticType() \
@@ -170,7 +172,8 @@ private: \
     private: \
         static inline struct __corelib_type { \
             __corelib_type() { NAME<__VA_ARGS__>::StaticType(); } \
-        } __corelib_type_init_;
+        } __corelib_type_init_; \
+        ::JxCoreLib::sptr<__corelib_curclass> self() { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); }
 
 #define CORELIB_IMPL_INTERFACES(...) \
     static inline struct __corelib_interface_list { \

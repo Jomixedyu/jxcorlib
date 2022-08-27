@@ -2,6 +2,7 @@
 #include <cassert>
 #include <string>
 #include <array>
+#include <CoreLib/UString.h>
 #include <CoreLib.Serialization/DataSerializer.h>
 #include <CoreLib/Core.h>
 using namespace JxCoreLib;

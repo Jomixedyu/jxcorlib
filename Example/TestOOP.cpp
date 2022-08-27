@@ -12,9 +12,10 @@ class ExampleClass : public Object
 public:
 
 
-    CORELIB_REFL_DECL_FUNC(create)
-        sptr<ExampleClass> create() { return mksptr(new ExampleClass); }
+    CORELIB_REFL_DECL_FUNC(get_inst);
+    sptr<ExampleClass> get_inst() { return self(); }
 };
+CORELIB_DECL_SHORTSPTR(ExampleClass);
 
 template<typename T, typename K>
 class TemplateClass : public Object
@@ -30,13 +31,15 @@ void TestOOP()
 {
     using namespace std;
 
-    ExampleClass* exm = new ExampleClass;
+    ExampleClass_sp exm = mksptr(new ExampleClass);
+
+    auto that = exm->get_inst();
 
     assert(exm->GetType()->get_base() == cltypeof<Object>());
     assert(exm->GetType()->get_name() == string("ExampleClass"));
 
-    assert(cltypeof<Object>()->IsInstanceOfType(exm));
-    
+    assert(cltypeof<Object>()->IsInstanceOfType(exm.get()));
+
     assert(ExampleClass::StaticType() == cltypeof<ExampleClass>());
 
     assert(cltypeof<ExampleClass>()->IsSubclassOf(cltypeof<Object>()));
