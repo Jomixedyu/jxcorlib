@@ -10,10 +10,10 @@ class ExampleClass : public Object
 {
     CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, ExampleClass, Object);
 public:
-
-
-    CORELIB_REFL_DECL_FUNC(get_inst);
-    sptr<ExampleClass> get_inst() { return self(); }
+    CORELIB_REFL_DECL_FIELD(ilist);
+    List_sp<int> ilist;
+    CORELIB_REFL_DECL_FIELD(slist);
+    List_sp<sptr<ExampleClass>> slist;
 };
 CORELIB_DECL_SHORTSPTR(ExampleClass);
 
@@ -33,7 +33,16 @@ void TestOOP()
 
     ExampleClass_sp exm = mksptr(new ExampleClass);
 
-    auto that = exm->get_inst();
+    ExampleClass_sp exm1 = mksptr(new ExampleClass);
+
+    exm->ilist = mksptr(new List<int>{ 2,3 });
+    exm1->ilist = mksptr(new List<int>{ 5,35 });
+
+    exm->slist = mksptr(new List<ExampleClass_sp> { exm1 });
+
+    auto copy = sptr_cast<ExampleClass>(ObjectUtil::DeepCopyObject(exm));
+
+    assert(exm->ilist->Equals(copy->ilist.get()), "");
 
     assert(exm->GetType()->get_base() == cltypeof<Object>());
     assert(exm->GetType()->get_name() == string("ExampleClass"));

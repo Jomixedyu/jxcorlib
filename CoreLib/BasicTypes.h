@@ -33,7 +33,7 @@ namespace JxCoreLib
         CORELIB_DECL_DYNCINST() { \
             if (params.Count() != 1 || !params.Check<DataType>()) \
             { \
-                return nullptr; \
+                return new Class{ DataType{0} }; \
             } \
             return new Class{ params.Get<DataType>(0) }; \
         } \
@@ -228,6 +228,11 @@ namespace JxCoreLib
         static_assert((cltype_concept<T>&& is_shared_ptr<T>::value) || !cltype_concept<T>, "");
         constexpr static bool is_shared_cltype = cltype_concept<T> && is_shared_ptr<T>::value;
     public:
+        List() {}
+        List(std::initializer_list<T> list)
+        {
+            for (auto& item : list) this->push_back(item);
+        }
         virtual void Add(Object_rsp value) override
         {
             if constexpr (is_shared_cltype)
@@ -288,9 +293,46 @@ namespace JxCoreLib
         virtual int32_t GetCount() const override { return static_cast<int32_t>(this->size()); }
 
         virtual Type* GetIListElementType() const override { return cltypeof<typename get_boxing_type<T>::type>(); }
+
+        virtual bool Equals(Object* obj) override
+        {
+            if (obj == nullptr) return false;
+            if (this->GetType() != obj->GetType()) return false;
+
+            List<T>* list = static_cast<List<T>*>(obj);
+
+            if (this->size() != list->size()) return false;
+
+            if constexpr (is_shared_cltype)
+            {
+                for (int i = 0; i < this->size(); i++)
+                {
+                    if (!this->At(i)->Equals(list->At(i).get()))
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < this->size(); i++)
+                {
+                    if (this->at(i) != list->at(i))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
     };
-
-
-
     CORELIB_DECL_TEMP_SHORTSPTR(List);
+
+
+    namespace ObjectUtil
+    {
+        void DeepCopyObject(const sptr<Object>& from, sptr<Object>& to);
+        sptr<Object> DeepCopyObject(const sptr<Object>& from);
+    }
+
 }

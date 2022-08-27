@@ -54,7 +54,7 @@ private: \
         __corelib_type() { NAME::StaticType(); } \
     } __corelib_type_init_; \
     ::JxCoreLib::sptr<__corelib_curclass> self() { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); } \
-    ::JxCoreLib::sptr<__corelib_curclass> self_weak() { return wptr<__corelib_curclass>(self()); }
+    ::JxCoreLib::wptr<__corelib_curclass> self_weak() { return wptr<__corelib_curclass>(self()); }
 
 
 #define CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAME, BASE) \
@@ -175,7 +175,7 @@ private: \
             __corelib_type() { NAME<__VA_ARGS__>::StaticType(); } \
         } __corelib_type_init_; \
         ::JxCoreLib::sptr<__corelib_curclass> self() { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); } \
-        ::JxCoreLib::sptr<__corelib_curclass> self_weak() { return wptr<__corelib_curclass>(self()); }
+        ::JxCoreLib::wptr<__corelib_curclass> self_weak() { return wptr<__corelib_curclass>(self()); }
 
 
 #define CORELIB_IMPL_INTERFACES(...) \
@@ -531,12 +531,14 @@ namespace JxCoreLib
     template<typename T>
     sptr<T> interface_sptr_cast(Object_rsp obj)
     {
-        return obj->GetType()->GetInterface(obj, cltypeof<T>());
+        if (obj == nullptr) return nullptr;
+        return sptr_cast<T>(obj->GetType()->GetSharedInterface(obj, cltypeof<T>()));
     }
 
     template<typename T>
     T* interface_cast(Object* obj)
     {
+        if (obj == nullptr) return nullptr;
         return (T*)obj->GetType()->GetInterface(obj, cltypeof<T>());
     }
 

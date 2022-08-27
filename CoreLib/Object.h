@@ -109,7 +109,7 @@ namespace JxCoreLib
         virtual ~Object();
     public:
         virtual string ToString() const;
-        virtual bool Equals(Object* object) const;
+        virtual bool Equals(Object* object);
     };
 
 

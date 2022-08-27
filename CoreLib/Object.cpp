@@ -38,7 +38,7 @@ namespace JxCoreLib
         return this->GetType()->get_name();
     }
 
-    bool Object::Equals(Object* object) const
+    bool Object::Equals(Object* object)
     {
         return this == object;
     }
