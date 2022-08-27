@@ -35,7 +35,7 @@ public: static inline ::JxCoreLib::Type* StaticType() \
                 dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
             } \
             ::JxCoreLib::Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
-            type = new ::JxCoreLib::Type(dynptr, assm, cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
+            type = new ::JxCoreLib::Type(dynptr, assm, ::JxCoreLib::cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
             assm->RegisterType(type); \
         } \
         return type; \
@@ -53,7 +53,8 @@ private: \
     static inline struct __corelib_type { \
         __corelib_type() { NAME::StaticType(); } \
     } __corelib_type_init_; \
-    ::JxCoreLib::sptr<__corelib_curclass> self() { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); }
+    ::JxCoreLib::sptr<__corelib_curclass> self() { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); } \
+    ::JxCoreLib::sptr<__corelib_curclass> self_weak() { return wptr<__corelib_curclass>(weak_from_this()); }
 
 
 #define CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAME, BASE) \
@@ -173,7 +174,9 @@ private: \
         static inline struct __corelib_type { \
             __corelib_type() { NAME<__VA_ARGS__>::StaticType(); } \
         } __corelib_type_init_; \
-        ::JxCoreLib::sptr<__corelib_curclass> self() { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); }
+        ::JxCoreLib::sptr<__corelib_curclass> self() { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); } \
+        ::JxCoreLib::sptr<__corelib_curclass> self_weak() { return wptr<__corelib_curclass>(weak_from_this()); }
+
 
 #define CORELIB_IMPL_INTERFACES(...) \
     static inline struct __corelib_interface_list { \
