@@ -285,7 +285,6 @@ namespace JxCoreLib
         const std::type_info& get_typeinfo() const { return this->typeinfo_; }
         bool is_primitive_type() const;
         bool is_boxing_type() const;
-        bool is_custom_primitive_type() const;
         bool is_interface() const { return this->is_interface_; }
         bool is_enum() const { return this->enum_getter_; }
     public:
@@ -351,9 +350,9 @@ namespace JxCoreLib
 
         IInterface_sp GetSharedInterface(Object_rsp instance, Type* type)
         {
-            for (auto& [type, func, sfunc] : this->interfaces_)
+            for (auto& [ty, func, sfunc] : this->interfaces_)
             {
-                if (type == type)
+                if (ty == type)
                 {
                     return sfunc(instance);
                 }
@@ -362,9 +361,9 @@ namespace JxCoreLib
         }
         IInterface* GetInterface(Object* instance, Type* type)
         {
-            for (auto& [type, func, sfunc] : this->interfaces_)
+            for (auto& [ty, func, sfunc] : this->interfaces_)
             {
-                if (type == type)
+                if (ty == type)
                 {
                     return func(instance);
                 }

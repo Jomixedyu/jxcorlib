@@ -40,9 +40,9 @@ namespace JxCoreLib::Serialization
             return enum_js;
         }
 
-        if (obj->GetType()->is_custom_primitive_type())
+        if (IStringify* stringify = interface_cast<IStringify>(obj))
         {
-            return json(obj->ToString());
+            return json(stringify->IStringify_Stringify());
         }
 
         //list
@@ -206,7 +206,7 @@ namespace JxCoreLib::Serialization
             return _DeserializeEnum(js, type);
         }
 
-        if (type->is_custom_primitive_type())
+        if (type->IsImplementedInterface(cltypeof<IStringify>()))
         {
             if (!js.is_string()) return nullptr;
             sptr<Object> obj = default_v;
@@ -214,7 +214,8 @@ namespace JxCoreLib::Serialization
             {
                 obj = type->CreateSharedInstance({});
             }
-            sptr_cast<CustomPrimitiveObject>(obj)->Parse(js.get<string>());
+
+            interface_cast<IStringify>(obj.get())->IStringify_Parse(js.get<string>());
             return obj;
         }
 

@@ -25,9 +25,10 @@ namespace JxCoreLib
         static guid_t empty() { return guid_t(); }
     };
 
-    class Guid : public CustomPrimitiveObject
+    class Guid : public BoxingObject, public IStringify
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Guid, CustomPrimitiveObject);
+        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Guid, BoxingObject);
+        CORELIB_IMPL_INTERFACES(IStringify);
     public:
         using unboxing_type = guid_t;
         guid_t get_unboxing_value() const { return this->value_; }
@@ -35,8 +36,10 @@ namespace JxCoreLib
         Guid() {}
         Guid(guid_t guid) : value_(guid) {}
         virtual string ToString() const override { return this->value_.to_string(); }
-        virtual void Parse(const string& value) override { this->value_ = guid_t::parse(value); };
-    private:
+    public: /*Interfaces*/
+        virtual void IStringify_Parse(const string& value) override { this->value_ = guid_t::parse(value); }
+        virtual string IStringify_Stringify() override { return this->ToString(); }
+    private: /*Fields*/
         guid_t value_;
     };
     CORELIB_DECL_SHORTSPTR(Guid);

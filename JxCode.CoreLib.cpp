@@ -25,10 +25,10 @@ extern void TestGuid();
 extern void TestMath();
 extern void TestPlatform();
 
-
 int main()
 {
     using namespace std;
+
     TestOOP();
     TestEnum();
     TestProperty();

@@ -11,13 +11,12 @@ namespace JxCoreLib
     
     };
 
-    class CustomPrimitiveObject : public BoxingObject
+    class IStringify : public IInterface
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::CustomPrimitiveObject, BoxingObject);
+        CORELIB_DEF_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IStringify, IInterface);
 
-    public:
-        virtual void Parse(const string& value) = 0;
-        //override Parse and ToString
+        virtual void IStringify_Parse(const string& value) = 0;
+        virtual string IStringify_Stringify() = 0;
     };
 
     class PrimitiveObject : public BoxingObject

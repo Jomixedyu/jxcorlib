@@ -98,12 +98,6 @@ namespace JxCoreLib
         return this->IsSubclassOf(cltypeof<BoxingObject>());
     }
 
-    bool Type::is_custom_primitive_type() const
-    {
-        return this->IsSubclassOf(cltypeof<CustomPrimitiveObject>());
-    }
-
-
     void Type::get_memberinfos(array_list<MemberInfo*>& out, TypeBinding attr)
     {
         for (auto& [name, info] : this->member_infos_)
