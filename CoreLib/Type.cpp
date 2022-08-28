@@ -104,11 +104,8 @@ namespace JxCoreLib
     }
 
 
-    std::vector<MemberInfo*> Type::get_memberinfos(TypeBinding attr)
+    void Type::get_memberinfos(array_list<MemberInfo*>& out, TypeBinding attr)
     {
-        std::vector<MemberInfo*> v;
-        v.reserve(this->member_infos_.size());
-
         for (auto& [name, info] : this->member_infos_)
         {
             if (!EnumHasFlag(attr, TypeBinding::NonPublic))
@@ -120,8 +117,18 @@ namespace JxCoreLib
                 if (!info->is_static_) continue;
             }
 
-            v.push_back(info);
+            out.push_back(info);
         }
+        if (this->get_base())
+        {
+            this->get_base()->get_memberinfos(out, attr);
+        }
+    }
+
+    array_list<MemberInfo*> Type::get_memberinfos(TypeBinding attr)
+    {
+        array_list<MemberInfo*> v;
+        this->get_memberinfos(v, attr);
         return v;
     }
 
@@ -134,11 +141,8 @@ namespace JxCoreLib
         return this->member_infos_.at(name);
     }
 
-    std::vector<FieldInfo*> Type::get_fieldinfos(TypeBinding attr)
+    void Type::get_fieldinfos(array_list<FieldInfo*>& out, TypeBinding attr)
     {
-        std::vector<FieldInfo*> v;
-        v.reserve(this->member_infos_.size());
-
         Type* fieldinfo_type = cltypeof<FieldInfo>();
 
         for (auto& [name, info] : this->member_infos_)
@@ -155,13 +159,18 @@ namespace JxCoreLib
             {
                 if (!info->is_static_) continue;
             }
-            v.push_back(static_cast<FieldInfo*>(info));
+            out.push_back(static_cast<FieldInfo*>(info));
         }
         if (this->get_base())
         {
-            auto infos = this->get_base()->get_fieldinfos(attr);
-            v.insert(v.end(), infos.begin(), infos.end());
+            this->get_base()->get_fieldinfos(out, attr);
         }
+    }
+
+    array_list<FieldInfo*> Type::get_fieldinfos(TypeBinding attr)
+    {
+        array_list<FieldInfo*> v;
+        this->get_fieldinfos(v, attr);
         return v;
     }
 
@@ -179,11 +188,8 @@ namespace JxCoreLib
         return static_cast<FieldInfo*>(info);
     }
 
-    std::vector<MethodInfo*> Type::get_methodinfos(TypeBinding attr)
+    void Type::get_methodinfos(array_list<MethodInfo*>& out, TypeBinding attr)
     {
-        std::vector<MethodInfo*> v;
-        v.reserve(this->member_infos_.size());
-
         Type* methodi_type = cltypeof<MethodInfo>();
 
         for (auto& [name, info] : this->member_infos_)
@@ -200,7 +206,18 @@ namespace JxCoreLib
             {
                 if (!info->is_static_) continue;
             }
+            out.push_back(static_cast<MethodInfo*>(info));
         }
+        if (this->get_base())
+        {
+            this->get_base()->get_methodinfos(out, attr);
+        }
+    }
+
+    array_list<MethodInfo*> Type::get_methodinfos(TypeBinding attr)
+    {
+        array_list<MethodInfo*> v;
+        this->get_methodinfos(v, attr);
         return v;
     }
 

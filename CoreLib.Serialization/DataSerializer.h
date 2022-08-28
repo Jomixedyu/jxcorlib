@@ -62,6 +62,7 @@ namespace JxCoreLib::Serialization
     Stream& ReadWriteStream(Stream& stream, bool is_write, double& out);
     Stream& ReadWriteStream(Stream& stream, bool is_write, std::string& out);
 
+
     template<typename T>
     Stream& ReadWriteStream(Stream& stream, bool is_write, std::vector<T>& arr)
     {

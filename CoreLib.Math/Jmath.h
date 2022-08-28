@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <string>
+#include <type_traits>
 
 namespace jmath
 {
@@ -38,7 +39,6 @@ namespace jmath
 
         T& operator[](int index) { return *(&x + index); }
         const T& operator[](int index) const { return *(&x + index); }
-
     };
     template<typename T> std::string to_string(const Vector4<T>& v)
     {
@@ -51,9 +51,26 @@ namespace jmath
         return s;
     }
 
+    template<typename T> Vector4<T> operator+(const Vector4<T>& a, const Vector4<T>& b) { return { a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w }; }
+    template<typename T> Vector4<T> operator-(const Vector4<T>& a, const Vector4<T>& b) { return { a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w }; }
+    template<typename T> Vector4<T> operator*(const Vector4<T>& a, const Vector4<T>& b) { return { a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w }; }
+    template<typename T> Vector4<T> operator/(const Vector4<T>& a, const Vector4<T>& b) { return { a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w }; }
+    template<typename T> Vector4<T> operator+(const Vector4<T>& a, T b) { return { a.x + b, a.y + b, a.z + b, a.w + b }; }
+    template<typename T> Vector4<T> operator-(const Vector4<T>& a, T b) { return { a.x - b, a.y - b, a.z - b, a.w - b }; }
+    template<typename T> Vector4<T> operator*(const Vector4<T>& a, T b) { return { a.x * b, a.y * b, a.z * b, a.w * b }; }
+    template<typename T> Vector4<T> operator/(const Vector4<T>& a, T b) { return { a.x / b, a.y / b, a.z / b, a.w / b }; }
+    template<typename T> Vector4<T> operator+(T a, const Vector4<T>& b) { return { a + b.x, a + b.y, a + b.z, a + b.w }; }
+    template<typename T> Vector4<T> operator-(T a, const Vector4<T>& b) { return { a - b.x, a - b.y, a - b.z, a - b.w }; }
+    template<typename T> Vector4<T> operator*(T a, const Vector4<T>& b) { return { a * b.x, a * b.y, a * b.z, a * b.w }; }
+    template<typename T> Vector4<T> operator/(T a, const Vector4<T>& b) { return { a / b.x, a / b.y, a / b.z, a / b.w }; }
+    template<typename T> bool operator==(const Vector4<T>& a, const Vector4<T>& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
+
     using Vector4f = Vector4<float>;
     using Vector4d = Vector4<double>;
     using Vector4i = Vector4<int>;
+
+    template<typename T>
+    T Sum(const Vector4<T>& v) { return v.x + v.y + v.z + v.w; }
 
     template<typename T>
     struct Vector3
@@ -150,6 +167,9 @@ namespace jmath
     using Vector3i = Vector3<int>;
 
     template<typename T>
+    T Sum(const Vector3<T>& v) { return v.x + v.y + v.z; }
+
+    template<typename T>
     struct Vector2
     {
         using value_type = T;
@@ -226,6 +246,9 @@ namespace jmath
     using Vector2f = Vector2<float>;
     using Vector2d = Vector2<double>;
     using Vector2i = Vector2<int>;
+
+    template<typename T>
+    T Sum(const Vector2<T>& v) { return v.x + v.y; }
 
     template<typename T>
     struct Matrix2
@@ -310,6 +333,8 @@ namespace jmath
 
         const T* get_value_ptr() const { return &M[0].x; }
 
+        Matrix4() {}
+
         Matrix4(
             T ax, T bx, T cx, T dx,
             T ay, T by, T cy, T dy,
@@ -329,6 +354,9 @@ namespace jmath
         Vector4<T>& operator[](int i) { return M[i]; }
         const Vector4<T>& operator[](int i) const { return M[i]; }
 
+        Vector4<T> GetColumn(int i) const { return M[i]; }
+        Vector4<T> GetRow(int i) const { return Vector4<T>{ M[0][i], M[1][i], M[2][i], M[3][i] }; }
+
         static Matrix4 StaticScalar(T k = T(1))
         {
             return Matrix4(
@@ -339,6 +367,21 @@ namespace jmath
             );
         }
     };
+
+
+    template<typename T>
+    Matrix4<T> operator*(const Matrix4<T>& a, const Matrix4<T>& b)
+    {
+        Matrix4<T> m;
+        for (int l = 0; l < 4; l++)
+        {
+            for (int r = 0; r < 4; r++)
+            {
+                m[l][r] = Sum(a.GetRow(r) * b.GetColumn(l));
+            }
+        }
+        return m;
+    }
 
     using Matrix4f = Matrix4<float>;
     using Matrix4d = Matrix4<double>;
@@ -422,6 +465,54 @@ namespace jmath
             *this *= q;
         }
     };
+
+    template<typename T>
+    Matrix4<T> Translate(const Vector3<T>& v)
+    {
+        Matrix4<T> m = Matrix4<T>::StaticScalar();
+        m[3][0] = v.x;
+        m[3][1] = v.y;
+        m[3][2] = v.z;
+        return m;
+    }
+
+    template<typename T>
+    Matrix4<T> Rotate(const Quaternion<T>& q)
+    {
+        Matrix4<T> Result;
+        T qxx(q.x * q.x);
+        T qyy(q.y * q.y);
+        T qzz(q.z * q.z);
+        T qxz(q.x * q.z);
+        T qxy(q.x * q.y);
+        T qyz(q.y * q.z);
+        T qwx(q.w * q.x);
+        T qwy(q.w * q.y);
+        T qwz(q.w * q.z);
+
+        Result[0][0] = T(1) - T(2) * (qyy + qzz);
+        Result[0][1] = T(2) * (qxy + qwz);
+        Result[0][2] = T(2) * (qxz - qwy);
+
+        Result[1][0] = T(2) * (qxy - qwz);
+        Result[1][1] = T(1) - T(2) * (qxx + qzz);
+        Result[1][2] = T(2) * (qyz + qwx);
+
+        Result[2][0] = T(2) * (qxz + qwy);
+        Result[2][1] = T(2) * (qyz - qwx);
+        Result[2][2] = T(1) - T(2) * (qxx + qyy);
+        return Result;
+    }
+    template<typename T>
+    Matrix4<T> Scale(const Vector3<T>& v)
+    {
+        Matrix4<T> m;
+        m[0][0] = v.x;
+        m[1][1] = v.x;
+        m[2][2] = v.z;
+        m[3][3] = T(1);
+        return m;
+    }
 
     template<typename T>
     inline std::string to_string(const Quaternion<T>& v)

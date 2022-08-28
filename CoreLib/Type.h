@@ -332,12 +332,17 @@ namespace JxCoreLib
         friend class MethodInfo;
         friend class ReflectionBuilder;
     public:
-        std::vector<MemberInfo*> get_memberinfos(TypeBinding attr = TypeBinding::None);
         MemberInfo* get_memberinfo(const string& name);
-        std::vector<FieldInfo*> get_fieldinfos(TypeBinding attr = TypeBinding::None);
+        void get_memberinfos(array_list<MemberInfo*>& out, TypeBinding attr = TypeBinding::None);
+        array_list<MemberInfo*> get_memberinfos(TypeBinding attr = TypeBinding::None);
+
         FieldInfo* get_fieldinfo(const string& name);
-        std::vector<MethodInfo*> get_methodinfos(TypeBinding attr = TypeBinding::None);
+        void get_fieldinfos(array_list<FieldInfo*>& out, TypeBinding attr = TypeBinding::None);
+        array_list<FieldInfo*> get_fieldinfos(TypeBinding attr = TypeBinding::None);
+
         MethodInfo* get_methodinfo(const string& name);
+        void get_methodinfos(array_list<MethodInfo*>& out, TypeBinding attr = TypeBinding::None);
+        array_list<MethodInfo*> get_methodinfos(TypeBinding attr = TypeBinding::None);
     private:
         std::map<string, MemberInfo*> member_infos_;
     private:
