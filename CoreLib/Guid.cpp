@@ -1,5 +1,6 @@
 #include "Guid.h"
 #include <random>
+#include <memory>
 
 #if WIN32
 #include <objbase.h>
