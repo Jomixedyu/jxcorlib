@@ -348,30 +348,10 @@ namespace JxCoreLib
         void _AddMemberInfo(MemberInfo* info);
     public:
 
-        IInterface_sp GetSharedInterface(Object_rsp instance, Type* type)
-        {
-            for (auto& [ty, func, sfunc] : this->interfaces_)
-            {
-                if (ty == type)
-                {
-                    return sfunc(instance);
-                }
-            }
-            return nullptr;
-        }
-        IInterface* GetInterface(Object* instance, Type* type)
-        {
-            for (auto& [ty, func, sfunc] : this->interfaces_)
-            {
-                if (ty == type)
-                {
-                    return func(instance);
-                }
-            }
-            return nullptr;
-        }
+        IInterface_sp GetSharedInterface(Object_rsp instance, Type* type);
+        IInterface* GetInterface(Object* instance, Type* type);
 
-        auto GetEnumDefinitions() const
+        const EnumDatas* GetEnumDefinitions() const
         {
             return this->enum_getter_();
         }

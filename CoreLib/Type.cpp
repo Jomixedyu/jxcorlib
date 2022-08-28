@@ -233,6 +233,35 @@ namespace JxCoreLib
         this->member_infos_.insert({ info->get_name(), info });
     }
 
+    IInterface_sp Type::GetSharedInterface(Object_rsp instance, Type* type)
+    {
+        for (auto& [ty, func, sfunc] : this->interfaces_)
+        {
+            if (type->IsSubclassOf(ty))
+            {
+                return sfunc(instance);
+            }
+        }
+        return nullptr;
+    }
+
+    IInterface* Type::GetInterface(Object* instance, Type* type)
+    {
+        for (auto& [ty, func, sfunc] : this->interfaces_)
+        {
+            if (type->IsSubclassOf(ty))
+            {
+                return func(instance);
+            }
+        }
+        if (this->get_base())
+        {
+            IInterface* intfc = this->get_base()->GetInterface(instance, type);
+            if (intfc) { return intfc; }
+        }
+        return nullptr;
+    }
+
     Type* IInterface::StaticType()
     {
         static Type* type = nullptr;
