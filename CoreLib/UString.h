@@ -116,6 +116,8 @@ namespace JxCoreLib
         string Utf16ToUtf8(const std::u16string& str);
         string Utf8ToAnsi(string_view str);
         string AnsiToUtf8(string_view str);
+        string EncodeBase64(uint8_t* buf, int32_t len);
+        int32_t DecodeBase64(const string& data, uint8_t* buf, int32_t len);
         string StringCast(const std::u8string& str);
         std::vector<string> Split(string_view str, u8char c);
         string Substring(string_view str, size_t offset_char_pos, size_t char_count);
