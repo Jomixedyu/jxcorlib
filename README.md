@@ -1,4 +1,4 @@
-# JxCode.CoreLib
+﻿# JxCode.CoreLib
 
 ![](https://img.shields.io/github/license/JomiXedYu/JxCode.CoreLib?style=for-the-badge)
 ![](https://img.shields.io/github/v/release/JomiXedYu/JxCode.CoreLib?style=for-the-badge)
@@ -11,6 +11,7 @@ CoreLib总共分为4各部分：
 - Serialization: 序列化系统，支持Json，二进制，Stream与读写等功能。
 - Platform: 提供操作系统平台的抽象API，如文件、进程、对话框等工具。目前暂支持Windows系统。
 - Math: 3D数学库，提供向量、矩阵类型模板与常见运算，提供装箱类型并支持序列化。
+
 
 
 - [JxCode.CoreLib](#jxcodecorelib)
