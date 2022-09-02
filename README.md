@@ -6,7 +6,7 @@
 ![](https://img.shields.io/badge/StdVer-C++20-blueviolet.svg?style=for-the-badge&logo=c%2B%2B)
 
 
--CoreLib总共分为4各部分：
+- CoreLib总共分为4各部分：
   - CoreLib: 提供类型系统、运行时反射、值装拆箱、字符串工具，委托与事件模板等基础设施。
   - Serialization: 序列化系统，支持Json，二进制，Stream与读写等功能。
   - Platform: 提供操作系统平台的抽象API，如文件、进程、对话框等工具。目前暂支持Windows系统。
