@@ -235,6 +235,10 @@ namespace JxCoreLib
         std::is_base_of<IInterface, typename remove_shared_ptr<typename std::remove_pointer<T>::type>::type>::value;
 
     template<typename T>
+    concept cltype_sptr =
+        std::is_base_of_v<Object, typename remove_shared_ptr<T>::type> && is_shared_ptr<T>::value;
+
+    template<typename T>
     concept newable_concept = requires { new T; };
 
     template<typename T>

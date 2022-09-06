@@ -170,7 +170,7 @@ namespace JxCoreLib
         MethodInfo(const MethodInfo& right) = delete;
         MethodInfo(MethodInfo&& right) = delete;
     public:
-        std::any Invoke(Object* instance, const ParameterPackage& params) const;
+        Object_sp Invoke(Object* instance, array_list<Object_sp>&& params) const;
     };
 
 

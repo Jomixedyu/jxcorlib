@@ -40,9 +40,10 @@ namespace JxCoreLib
     {
     }
 
-    std::any MethodInfo::Invoke(Object* instance, const ParameterPackage& params) const
+    Object_sp MethodInfo::Invoke(Object* instance, array_list<Object_sp>&& params) const
     {
-        return std::any();
+        
+        return nullptr;
     }
 
 

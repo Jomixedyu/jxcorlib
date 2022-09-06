@@ -26,6 +26,40 @@ namespace space
 }
 
 
+struct gen_lambda
+{
+    template<typename R>
+    static std::function<Object_sp(array_list<Object_sp>&&)> get(R(*ptr)())
+    {
+        return [ptr](array_list<Object_sp>&& objs) -> Object_sp {
+            auto ret = ptr();
+            if (cltype_concept<R>)
+            {
+
+            }
+            return BoxUtil::Box(ret);
+        };
+    }
+
+    template<typename R, typename P1>
+    static std::function<Object_sp(array_list<Object_sp>&&)> get(R(*ptr)(P1))
+    {
+        return [ptr](array_list<Object_sp>&& objs) -> Object_sp {
+            auto ret = ptr(UnboxUtil::Unbox<P1>(objs[0]));
+            return BoxUtil::Box(ret);
+        };
+    }
+
+    template<typename R, typename P1, typename P2>
+    static std::function<Object_sp(array_list<Object_sp>&&)> get(R(*ptr)(P1, P2))
+    {
+        return [ptr](array_list<Object_sp>&& objs) -> Object_sp {
+            auto ret = ptr(UnboxUtil::Unbox<P1>(objs[0]), UnboxUtil::Unbox<P2>(objs[1]));
+            return BoxUtil::Box(ret);
+        };
+    }
+};
+
 class DataModel : public Object
 {
     CORELIB_DEF_TYPE(AssemblyObject_Test, DataModel, Object);
@@ -51,7 +85,7 @@ public:
 
     static int AddOne(int32_t a, int64_t b)
     {
-        return a + b;
+        return a + int(b);
     }
 
     static inline struct __corelib_refl_AddOne
@@ -61,9 +95,11 @@ public:
             array_list<ParameterInfo*> infos;
             ReflectionBuilder::CreateMethodParameterInfos(AddOne, &infos);
             ReflectionBuilder::CreateMethodInfo(StaticType(), "AddOne", true, true, std::move(infos));
-            //auto lambd = []() {
-            //    AddOne()
-            //};
+            auto lambd = [](array_list<Object_sp>&& objs) -> Object_sp {
+                auto ret = AddOne(UnboxUtil::Unbox<int32_t>(objs[0]), UnboxUtil::Unbox<int64_t>(objs[1]));
+                return BoxUtil::Box(ret);
+            };
+            gen_lambda::get(AddOne);
         }
     } __corelib_refl_AddOne_;
 };
@@ -110,7 +146,8 @@ void TestReflection()
     assert(value == obj);
 
 
-    MethodInfo* minfo = cltypeof< DataModel>()->get_methodinfo("AddOne");
+    MethodInfo* minfo = cltypeof<DataModel>()->get_methodinfo("AddOne");
     assert(minfo->get_parameter_infos().at(0)->get_param_type() == cltypeof<Integer32>());
     assert(minfo->get_parameter_infos().at(1)->get_param_type() == cltypeof<Integer64>());
+    minfo->Invoke(model, {});
 }
