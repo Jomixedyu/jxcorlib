@@ -34,13 +34,13 @@ namespace JxCoreLib
 
     MethodInfo::MethodInfo(
         const string& name, bool is_static, bool is_public,
-        ParameterInfo* ret_type, std::vector<ParameterInfo*>& params_infos, bool is_abstract
+        ParameterInfo* ret_type, array_list<ParameterInfo*>&& params_infos, bool is_abstract
     ) : base(name, is_static, is_public),
         ret_type_(ret_type), param_types_(params_infos), is_abstract_(is_abstract)
     {
     }
 
-    std::any MethodInfo::Invoke(void* instance, const ParameterPackage& params) const
+    std::any MethodInfo::Invoke(Object* instance, const ParameterPackage& params) const
     {
         return std::any();
     }

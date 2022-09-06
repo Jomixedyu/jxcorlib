@@ -41,33 +41,33 @@ public:
     CORELIB_REFL_DECL_FIELD(name);
     sptr<Object> name;
 
-    //static inline struct __corelib_refl_ff \
-    //{ \
-    //    template<typename T> using _Detected = decltype(T::FF); \
-    //    __corelib_refl_ff() \
-    //{ \
-    //    using MethodType = decltype(__corelib_curclass::FF);
-    //    using RetType = decltype(std::declval<__corelib_curclass&>().FF());
-    //    constexpr bool ispublic = JxCoreLib::is_detected<_Detected, __corelib_curclass>::value;
-
-    //    ReflectionBuilder::CreateMethodInfo(nullptr, "FF", ispublic, )
-    //    ReflectionBuilder::CreateFieldInfo<__corelib_curclass, FieldType>(\
-    //        #NAME, false, JxCoreLib::is_detected<_Detected, __corelib_curclass>::value, \
-    //        [](Object* p) -> sptr<Object> { \
-    //        auto rawptr = (__corelib_curclass*)p; \
-    //        return get_object_pointer<CleanType>::get(rawptr->NAME); \
-    //        }, \
-    //        [](Object* p, sptr<Object> value) { \
-    //        auto rawptr = (__corelib_curclass*)p; \
-    //        object_assign<CleanType>::assign(&rawptr->NAME, value); \
-    //        }); \
-    //} \
-    //} __corelib_refl_ff_;
-
-    //void FF(int);
 
 
+
+    static int GetNum()
+    {
+        return 3;
+    }
+
+    static int AddOne(int32_t a, int64_t b)
+    {
+        return a + b;
+    }
+
+    static inline struct __corelib_refl_AddOne
+    {
+        __corelib_refl_AddOne()
+        {
+            array_list<ParameterInfo*> infos;
+            ReflectionBuilder::CreateMethodParameterInfos(AddOne, &infos);
+            ReflectionBuilder::CreateMethodInfo(StaticType(), "AddOne", true, true, std::move(infos));
+            //auto lambd = []() {
+            //    AddOne()
+            //};
+        }
+    } __corelib_refl_AddOne_;
 };
+
 
 
 void TestReflection()
@@ -75,7 +75,7 @@ void TestReflection()
     sptr<Object> n;
 
     //dynamic create
-    Type* dyn_type =  Assembly::StaticFindAssembly(AssemblyObject_Test)->FindType("space::DynCreateClass");
+    Type* dyn_type = Assembly::StaticFindAssembly(AssemblyObject_Test)->FindType("space::DynCreateClass");
     auto dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 
     assert(dyn->GetType() == cltypeof<space::DynCreateClass>());
@@ -108,4 +108,9 @@ void TestReflection()
 
     auto value = name_field->GetValue(model);
     assert(value == obj);
+
+
+    MethodInfo* minfo = cltypeof< DataModel>()->get_methodinfo("AddOne");
+    assert(minfo->get_parameter_infos().at(0)->get_param_type() == cltypeof<Integer32>());
+    assert(minfo->get_parameter_infos().at(1)->get_param_type() == cltypeof<Integer64>());
 }

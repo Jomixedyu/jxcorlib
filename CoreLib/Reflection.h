@@ -9,11 +9,18 @@
 #ifndef _CORELIB_REFLECTION_H
 #define _CORELIB_REFLECTION_H
 
-#include "Core.h"
+#include "UString.h"
+#include "Object.h"
+#include "Type.h"
+#include "Assembly.h"
+#include "BasicTypes.h"
+#include "Enum.h"
 
 #include <functional>
 #include <any>
 #include <memory>
+
+
 //支持 基础值类型 系统内指针（包括智能指针）类型
 #define CORELIB_REFL_DECL_FIELD(NAME) \
     static inline struct __corelib_refl_##NAME \
@@ -38,7 +45,15 @@
         } \
     } __corelib_refl_##NAME##_;
 
-#define CORELIB_REFL_DECL_FUNC(NAME)
+#define CORELIB_REFL_DECL_FUNC(NAME) \
+    static inline struct __corelib_refl_##NAME \
+    { \
+        __corelib_refl_##NAME() \
+        { \
+            array_list<ParameterInfo*> infos; \
+            ReflectionBuilder::CreateMethodParameterInfos(NAME, &infos); \
+        } \
+    } __corelib_refl_##NAME##_;
 
 namespace JxCoreLib
 {
@@ -112,14 +127,14 @@ namespace JxCoreLib
         Type* param_type_;
         bool is_pointer_;
         bool is_const_;
-        bool is_reference_;
-        bool is_rreference_;
+        bool is_ref_;
+        bool is_rref_;
     public:
         Type* get_param_type() const { return this->param_type_; }
         bool is_pointer() const { return this->is_pointer_; }
         bool is_const() const { return this->is_const_; }
-        bool is_reference() const { return this->is_reference_; }
-        bool is_rreference() const { return this->is_rreference_; }
+        bool is_reference() const { return this->is_ref_; }
+        bool is_rreference() const { return this->is_rref_; }
     public:
         ParameterInfo(const ParameterInfo&) = delete;
         ParameterInfo(ParameterInfo&&) = delete;
@@ -127,8 +142,13 @@ namespace JxCoreLib
             Type* param_type,
             bool is_pointer,
             bool is_const,
-            bool is_reference,
-            bool is_rreference);
+            bool is_ref,
+            bool is_rref)
+            : param_type_(param_type),
+            is_pointer_(is_pointer),
+            is_const_(is_const),
+            is_ref_(is_ref),
+            is_rref_(is_rref) {}
     };
 
     //TODO
@@ -136,7 +156,7 @@ namespace JxCoreLib
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::MethodInfo, MemberInfo);
     protected:
-        std::vector<ParameterInfo*> param_types_;
+        array_list<ParameterInfo*> param_types_;
         ParameterInfo* ret_type_;
         bool is_abstract_;
     public:
@@ -146,11 +166,11 @@ namespace JxCoreLib
     public:
         MethodInfo(
             const string& name, bool is_static, bool is_public,
-            ParameterInfo* ret_type, std::vector<ParameterInfo*>& params_infos, bool is_abstract);
+            ParameterInfo* ret_type, array_list<ParameterInfo*>&& params_infos, bool is_abstract);
         MethodInfo(const MethodInfo& right) = delete;
         MethodInfo(MethodInfo&& right) = delete;
     public:
-        std::any Invoke(void* instance, const ParameterPackage& params) const;
+        std::any Invoke(Object* instance, const ParameterPackage& params) const;
     };
 
 
@@ -171,18 +191,45 @@ namespace JxCoreLib
             info.is_raw_pointer = std::is_pointer<TField>::value;
             info.is_const = std::is_const<TField>::value;
             info.is_shared_pointer = is_shared_ptr<TField>::value;
-            
+
             using ClType = get_boxing_type<typename fulldecay<TField>::type>::type;
             Type* field_type = cltypeof<ClType>();
 
             cltypeof<T>()->_AddMemberInfo(new FieldInfo{ name, is_static, is_public, info, field_type, getter, setter });
         }
 
-        //static void CreateMethodInfo(Type* type, const string& name, bool is_public, Type* )
-        //{
-        //    auto method = new MethodInfo(name, false, is_public, )
-        //    type->_AddMemberInfo()
-        //}
+    private:
+
+        static void _GetParameters(array_list<ParameterInfo*>* out) {}
+
+        template<typename T, typename... P>
+        static void _GetParameters(array_list<ParameterInfo*>* out, T* t, P*... params)
+        {
+            using Box = typename get_boxing_type<T>::type;
+            out->push_back(new ParameterInfo(cltypeof<Box>(),
+                std::is_pointer_v<Box>,
+                std::is_const_v<Box>,
+                std::is_reference_v<Box>,
+                std::is_rvalue_reference_v<Box>));
+            _GetParameters(out, params...);
+        }
+
+        template<typename T>
+        static constexpr T* GenNullptr() { return (T*)nullptr; }
+    public:
+
+        template<typename R, typename... P>
+        static void CreateMethodParameterInfos(R(*p)(P...), array_list<ParameterInfo*>* out)
+        {
+            _GetParameters(out, GenNullptr<P>()...);
+        }
+
+
+        static void CreateMethodInfo(Type* type, const string& name, bool is_static, bool is_public, array_list<ParameterInfo*>&& info)
+        {
+            //todo: return value
+            type->_AddMemberInfo(new MethodInfo(name, is_static, is_public, nullptr, std::move(info), false));
+        }
     };
 }
 
