@@ -52,4 +52,5 @@ public:
 void TestEvents()
 {
     TestEventsClass c;
+
 }
