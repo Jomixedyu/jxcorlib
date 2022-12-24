@@ -2,7 +2,6 @@
 
 #include "Object.h"
 #include "Type.h"
-#include "Events.hpp"
 
 namespace JxCoreLib
 {
@@ -20,7 +19,7 @@ namespace JxCoreLib
         void RegisterType(Type* type);
 
     public:
-        static inline FunctionEvents<Action<>> OnReset;
+        //static inline FunctionEvents<Action<>> OnReset;
 
         static Assembly* StaticBuildAssemblyByName(string_view name);
         static Assembly* StaticBuildAssembly(const AssemblyTypeObject& obj);

@@ -1,225 +1,193 @@
 #pragma once
-
+#include "Assembly.h"
 #include "Object.h"
 #include "Type.h"
+#include "BasicTypes.h"
 #include <functional>
+#include "CommonException.h"
 
 namespace JxCoreLib
 {
-
     class Delegate : public Object
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Delegate, Object);
 
     public:
         virtual Object_sp DynamicInvoke(const array_list<Object_sp>& params) = 0;
-    private:
-        Object_sp target_;
-
-
     };
-    
+
+    template<typename T>
+    class MakeReturnObject
+    {
+    public:
+        static Object_sp GetValue(T&& t)
+        {
+            if constexpr (cltype_concept<T>)
+            {
+                return t;
+            }
+            else
+            {
+                return BoxUtil::Box(t);
+            }
+        }
+    };
+
+    template<>
+    class MakeReturnObject<void>
+    {
+    public:
+        static Object_sp GetValue() { return nullptr; }
+    };
 
     template<typename TReturn, typename... TArgs>
-    class MulticastDelegate : public Delegate
+    class FunctionDelegate : public Delegate
     {
+        CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::FunctionDelegate, Delegate, TReturn, TArgs...);
+
+        using This = FunctionDelegate<TReturn, TArgs...>;
         using FunctionType = std::function<TReturn(TArgs...)>;
         using FunctionPointer = TReturn(*)(TArgs...);
+
         enum class FunctionInfoType
         {
             Static, Lambda, Member
         };
+
         class FunctionInfo
         {
         public:
-            unsigned int index;
             FunctionInfoType type;
         public:
-            FunctionInfo(const unsigned int& index, const FunctionInfoType& type)
-                : index(index), type(type)
+            FunctionInfo(const FunctionInfoType& type) : type(type)
             {
             }
         public:
-            bool operator ==(const FunctionInfo& r) {
-                return this->index == r.index;
-            }
-            virtual TReturn Invoke(TArgs...) = 0;
+            virtual bool Equals(FunctionInfo* Func) = 0;
+            virtual TReturn Invoke(TArgs... args) = 0;
         };
+
         class StaticFunctionInfo : public FunctionInfo
         {
         public:
-            FunctionPointer ptr;
-            StaticFunctionInfo(const unsigned int& index, FunctionPointer ptr)
-                : FunctionInfo(index, FunctionInfoType::Static), ptr(ptr)
+            FunctionPointer ptr_;
+            StaticFunctionInfo(FunctionPointer ptr) : FunctionInfo(FunctionInfoType::Static), ptr_(ptr)
             {
             }
-            virtual TReturn Invoke(TArgs... args) override {
-                return (*ptr)(args...);
+            virtual bool Equals(FunctionInfo* func) override
+            {
+                if (func == nullptr || this->type != func->type) return false;
+                return this->ptr_ == static_cast<StaticFunctionInfo*>(func)->ptr_;
+            }
+            virtual TReturn Invoke(TArgs... args) override
+            {
+                return (*this->ptr_)(args...);
             }
         };
+
         class LambdaFunctionInfo : public FunctionInfo
         {
         public:
-            FunctionType func;
-            void* instance;
-            LambdaFunctionInfo(
-                const unsigned int& index,
-                void* instance,
-                const FunctionType& func)
-                : FunctionInfo(index, FunctionInfoType::Lambda), instance(instance), func(func)
+            FunctionType func_;
+            LambdaFunctionInfo(const FunctionType& func)
+                : FunctionInfo(FunctionInfoType::Lambda), func_(func)
             {
             }
-            virtual TReturn Invoke(TArgs... args) override {
-                return func(args...);
+            virtual bool Equals(FunctionInfo* func) override
+            {
+                if (func == nullptr || this->type != func->type) return false;
+                //todo: error
+                return this->func_.target() == static_cast<LambdaFunctionInfo*>(func)->func_.target();
+            }
+            virtual TReturn Invoke(TArgs... args) override
+            {
+                return this->func_(args...);
             }
         };
+
         template<typename TObj>
         class MemberFunctionInfo : public FunctionInfo
         {
         public:
-            TObj* instance;
-            TReturn(TObj::* ptr)(TArgs...);
+            sptr<TObj> instance_;
+            TReturn(TObj::* ptr_)(TArgs...);
 
-            MemberFunctionInfo(
-                const unsigned int& index,
-                TObj* instance,
-                TReturn(TObj::* ptr)(TArgs...))
-                : FunctionInfo(index, FunctionInfoType::Member), instance(instance), ptr(ptr)
+            MemberFunctionInfo(const sptr<TObj>& instance, TReturn(TObj::* ptr)(TArgs...))
+                : FunctionInfo(FunctionInfoType::Member), instance_(instance), ptr_(ptr)
             {
             }
-            virtual TReturn Invoke(TArgs... args) override {
-                return (instance->*ptr)(args...);
+            virtual bool Equals(FunctionInfo* func) override
+            {
+                if (func == nullptr || this->type != func->type) return false;
+                //todo
+                return false;
+            }
+            virtual TReturn Invoke(TArgs... args) override 
+            {
+                return (this->instance_.get()->*ptr_)(args...);
             }
         };
 
     protected:
-        unsigned int index;
-        std::list<FunctionInfo*> event_list_;
+        FunctionInfo* func_ptr_;
+
+        FunctionDelegate(FunctionPointer funcptr) : func_ptr_(new StaticFunctionInfo(funcptr)) {}
+        FunctionDelegate(const FunctionType& func) : func_ptr_(new LambdaFunctionInfo(func)) {}
+
+        template<typename TObject>
+        FunctionDelegate(const sptr<TObject>& obj, TReturn(TObject::* ptr)(TArgs...))
+            : func_ptr_(new MemberFunctionInfo<TObject>(obj, ptr))
+        {}
     public:
-        int Count() const {
-            return this->event_list_.size();
+
+        static sptr<FunctionDelegate> FromRaw(FunctionPointer funcptr)
+        {
+            return mksptr(new FunctionDelegate(funcptr));
         }
-    public:
-        Events() : index(0) {}
-        Events(const Events& right) = delete;
-        Events(Events&& right) = delete;
-        ~Events() {
-            this->RemoveAllListener();
-        }
-    protected:
-        void RemoveAllListener() {
-            for (auto it = this->event_list_.begin(); it != this->event_list_.end(); it++) {
-                delete* it;
-            }
-            this->event_list_.clear();
-        }
-    public:
-        //static
-        unsigned int AddListener(FunctionPointer funcPtr) {
-            if (funcPtr == nullptr) {
-                return 0;
-            }
-            this->event_list_.push_back(new StaticFunctionInfo(++this->index, funcPtr));
-            return this->index;
-        }
-        //member
-        template<typename TObj>
-        unsigned int AddListener(TObj* obj, TReturn(TObj::* ptr)(TArgs...)) {
-            if (obj == nullptr) {
-                return 0;
-            }
-            this->event_list_.push_back(new MemberFunctionInfo<TObj>(++this->index, obj, ptr));
-            return this->index;
-        }
-        //lambda
-        template<typename TObj>
-        unsigned int AddListener(TObj* obj, const FunctionType& func) {
-            this->event_list_.push_back(new LambdaFunctionInfo(++this->index, obj, func));
-            return this->index;
+        static sptr<FunctionDelegate> FromLambda(const FunctionType& func)
+        {
+            return mksptr(new FunctionDelegate(func));
         }
 
-        //static
-        unsigned int RemoveListener(FunctionPointer funcPtr) {
-            for (auto it = this->event_list_.rbegin(); it != this->event_list_.rend(); it++) {
-                if ((*it)->type == FunctionInfoType::Static
-                    && static_cast<StaticFunctionInfo*>(*it)->ptr == funcPtr) {
-                    auto index = (*it)->index;
-                    delete* it;
-                    this->event_list_.erase((++it).base());
-                    return index;
-                }
-            }
-            return 0;
-        }
-        //member
-        template<typename TObj>
-        unsigned int RemoveListener(TObj* obj, TReturn(TObj::* ptr)(TArgs...)) {
-            for (auto it = this->event_list_.rbegin(); it != this->event_list_.rend(); it++)
-            {
-                if ((*it)->type == FunctionInfoType::Member
-                    && static_cast<MemberFunctionInfo<TObj>*>(*it)->instance == obj
-                    && static_cast<MemberFunctionInfo<TObj>*>(*it)->ptr == ptr)
-                {
-                    auto index = (*it)->index;
-                    delete* it;
-                    this->event_list_.erase((++it).base());
-                    return index;
-                }
-            }
-            return 0;
+        template<typename TObject>
+        static sptr<FunctionDelegate> FromMember(const sptr<TObject>& obj, TReturn(TObject::* ptr)(TArgs...))
+        {
+            return mksptr(new FunctionDelegate(obj, ptr));
         }
 
+        FunctionDelegate() = delete;
+        FunctionDelegate(const FunctionDelegate&) = delete;
+        FunctionDelegate(FunctionDelegate&&) = delete;
 
-        unsigned int RemoveListenerByIndex(unsigned int index) {
-            if (index <= 0) {
-                return 0;
-            }
-            for (auto it = this->event_list_.rbegin(); it != this->event_list_.rend(); it++) {
-                if ((*it)->index == index) {
-                    delete* it;
-                    this->event_list_.erase((++it).base());
-                    return index;
-                }
-            }
-            return 0;
+        ~FunctionDelegate()
+        {
+            delete this->func_ptr_;
         }
 
-        //member lambda
-        template<typename TObj>
-        void RemoveListenerByInstance(TObj* obj) {
-            for (auto it = this->event_list_.begin(); it != this->event_list_.end(); ) {
-                if ((
-                    (*it)->type == FunctionInfoType::Member
-                    && (static_cast<MemberFunctionInfo<TObj>*>(*it))->instance == obj
-                    ) || (
-                        (*it)->type == FunctionInfoType::Lambda
-                        && static_cast<LambdaFunctionInfo*>(*it)->instance == obj
-                        )
-                    )
-                {
-                    delete* it;
-                    it = this->event_list_.erase(it);
-                }
-                else {
-                    it++;
-                }
-            }
+        virtual bool Equals(Object* object) override
+        {
+            if (object == nullptr || object->GetType() != this->GetType()) return false;
+            return this->func_ptr_->Equals(static_cast<This*>(object)->func_ptr_);
         }
-
-        unsigned int operator+=(FunctionPointer ptr) {
-            return this->AddListener(ptr);
+        TReturn Invoke(TArgs... args)
+        {
+            return this->func_ptr_->Invoke(args...);
         }
+        virtual Object_sp DynamicInvoke(const array_list<Object_sp>& params) override
+        {
+            //constexpr int size = sizeof...(TArgs);
+            //auto arr = array_list<Type*>{ cltypeof<typename get_boxing_type<TArgs>::type>()... };
+            //assert(arr.size() == size);
+            //if constexpr (size == 0)
+            //    return MakeReturnObject<TReturn>(this->func_ptr_->Invoke(UnboxUtil::Unbox<> params.at(0)));
 
-        unsigned int operator-=(FunctionPointer ptr) {
-            return this->RemoveListener(ptr);
+            throw NotImplementException();
         }
     };
 
-    template<typename... TArgs>
-    class ActionDelegate : public MulticastDelegate<void, TArgs...>
-    {
-
-    };
-
-
+    //template<typename TReturn, typename... TArgs>
+    //TReturn Invoke(auto func, const array_list<Object_sp>& params)
+    //{
+    //    return MakeReturnObject<TReturn>(func(UnboxUtil::Unbox<typename get_boxing_type<TArgs>::type>(params)...));
+    //}
 }

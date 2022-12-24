@@ -10,11 +10,14 @@
 #define _CORELIB_EXCEPTION_H
 
 #include <stdexcept>
+#include <cassert>
 #include "Core.h"
 
 #define DEF_EXCEPTION_CTOR(class) \
 class() {} \
 class(const string& message) : base(message) {}
+
+#define sthrow(Exception) throw mksptr(new Exception)
 
 namespace JxCoreLib
 {

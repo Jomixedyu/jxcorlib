@@ -24,6 +24,7 @@ extern void TestEnum();
 extern void TestGuid();
 extern void TestMath();
 extern void TestPlatform();
+extern void TestDelegate();
 
 int main()
 {
@@ -33,6 +34,7 @@ int main()
     TestEnum();
     TestProperty();
     TestString();
+    TestDelegate();
     TestEvents();
     TestReflection();
     TestJsonSerializer();

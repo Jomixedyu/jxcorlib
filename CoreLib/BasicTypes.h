@@ -8,7 +8,7 @@ namespace JxCoreLib
     class BoxingObject : public Object
     {
         CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::BoxingObject, Object);
-    
+
     };
 
     class IStringify : public IInterface
@@ -196,21 +196,22 @@ namespace JxCoreLib
         static inline sptr<Object> Box(const T& value) { return mksptr((Object*)new get_boxing_type<T>::type(value)); }
     };
 
-    
+
     struct UnboxUtil
     {
         template<typename T>
-        static inline T Unbox(Object* value)
-        {
-            //value->GetType()->is_valuetype(); //assert
-            return static_cast<get_boxing_type<T>::type*>(value)->get_unboxing_value();
-        }
-        template<typename T>
         static inline T Unbox(const sptr<Object>& value)
         {
-            //value->GetType()->is_valuetype(); //assert
-            return static_cast<get_boxing_type<T>::type*>(value.get())->get_unboxing_value();
+            if constexpr (cltype_sptr_concept<T>)
+            {
+                return value;
+            }
+            else
+            {
+                return static_cast<get_boxing_type<T>::type*>(value.get())->get_unboxing_value();
+            }
         }
+
     };
 
     template<typename T>
@@ -240,7 +241,7 @@ namespace JxCoreLib
             }
             else
             {
-                this->push_back(UnboxUtil::Unbox<T>(value.get()));
+                this->push_back(UnboxUtil::Unbox<T>(value));
             }
         }
         virtual Object_sp At(int32_t index) override
@@ -277,7 +278,7 @@ namespace JxCoreLib
                 }
                 else
                 {
-                    if (item == UnboxUtil::Unbox<T>(value.get()))
+                    if (item == UnboxUtil::Unbox<T>(value))
                     {
                         return i;
                     }
