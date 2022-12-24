@@ -42,7 +42,7 @@ void TestOOP()
 
     auto copy = sptr_cast<ExampleClass>(ObjectUtil::DeepCopyObject(exm));
 
-    assert(exm->ilist->Equals(copy->ilist.get()), "");
+    assert(exm->ilist->Equals(copy->ilist.get()));
 
     assert(exm->GetType()->get_base() == cltypeof<Object>());
     assert(exm->GetType()->get_name() == string("ExampleClass"));

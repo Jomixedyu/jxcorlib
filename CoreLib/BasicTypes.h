@@ -180,10 +180,10 @@ namespace JxCoreLib
         CORELIB_DEF_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IList, IInterface);
 
         virtual void Add(Object_rsp value) = 0;
-        virtual Object_sp At(int32_t index) = 0;
+        virtual Object_sp At(int32_t index) const = 0;
         virtual void Clear() = 0;
         virtual void RemoveAt(int32_t index) = 0;
-        virtual int32_t IndexOf(Object_rsp value) = 0;
+        virtual int32_t IndexOf(Object_rsp value) const = 0;
         virtual bool Contains(Object_rsp value) = 0;
         virtual int32_t GetCount() const = 0;
         virtual Type* GetIListElementType() const = 0;
@@ -254,7 +254,7 @@ namespace JxCoreLib
                 this->push_back(UnboxUtil::Unbox<T>(value));
             }
         }
-        virtual Object_sp At(int32_t index) override
+        virtual Object_sp At(int32_t index) const override
         {
             if constexpr (is_shared_cltype)
             {
@@ -270,7 +270,7 @@ namespace JxCoreLib
         {
             this->erase(this->begin() + index);
         }
-        virtual int32_t IndexOf(Object_rsp value) override
+        virtual int32_t IndexOf(Object_rsp value) const override
         {
             for (int32_t i = 0; i < this->size(); i++)
             {
@@ -304,7 +304,7 @@ namespace JxCoreLib
 
         virtual Type* GetIListElementType() const override { return cltypeof<typename get_boxing_type<T>::type>(); }
 
-        virtual bool Equals(Object* obj) override
+        virtual bool Equals(Object* obj) const override
         {
             if (obj == nullptr) return false;
             if (this->GetType() != obj->GetType()) return false;

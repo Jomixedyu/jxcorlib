@@ -38,11 +38,10 @@ namespace JxCoreLib
         return this->GetType()->get_name();
     }
 
-    bool Object::Equals(Object* object)
+    bool Object::Equals(Object* object) const
     {
         return this == object;
     }
-
 
 }
 

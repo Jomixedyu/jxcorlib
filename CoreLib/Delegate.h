@@ -126,7 +126,7 @@ namespace JxCoreLib
             {
             }
         public:
-            virtual bool Equals(FunctionInfo* Func) = 0;
+            virtual bool Equals(FunctionInfo* Func) const = 0;
             virtual TReturn Invoke(TArgs... args) = 0;
         };
 
@@ -137,7 +137,7 @@ namespace JxCoreLib
             StaticFunctionInfo(FunctionPointer ptr) : FunctionInfo(FunctionInfoType::Static), ptr_(ptr)
             {
             }
-            virtual bool Equals(FunctionInfo* func) override
+            virtual bool Equals(FunctionInfo* func) const override
             {
                 if (func == nullptr || this->type != func->type) return false;
                 return this->ptr_ == static_cast<StaticFunctionInfo*>(func)->ptr_;
@@ -156,10 +156,9 @@ namespace JxCoreLib
                 : FunctionInfo(FunctionInfoType::Lambda), func_(func)
             {
             }
-            virtual bool Equals(FunctionInfo* func) override
+            virtual bool Equals(FunctionInfo* func) const override
             {
                 if (func == nullptr || this->type != func->type) return false;
-                //todo: error
                 return this->func_.target() == static_cast<LambdaFunctionInfo*>(func)->func_.target();
             }
             virtual TReturn Invoke(TArgs... args) override
@@ -179,11 +178,10 @@ namespace JxCoreLib
                 : FunctionInfo(FunctionInfoType::Member), instance_(instance), ptr_(ptr)
             {
             }
-            virtual bool Equals(FunctionInfo* func) override
+            virtual bool Equals(FunctionInfo* func) const override
             {
                 if (func == nullptr || this->type != func->type) return false;
-                //todo
-                return false;
+                return this->ptr_ == static_cast<MemberFunctionInfo*>(func)->ptr_;
             }
             virtual TReturn Invoke(TArgs... args) override
             {
@@ -227,7 +225,7 @@ namespace JxCoreLib
             delete this->func_ptr_;
         }
 
-        virtual bool Equals(Object* object) override
+        virtual bool Equals(Object* object) const override
         {
             if (object == nullptr || object->GetType() != this->GetType()) return false;
             return this->func_ptr_->Equals(static_cast<This*>(object)->func_ptr_);

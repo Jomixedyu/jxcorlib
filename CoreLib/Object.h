@@ -96,9 +96,7 @@ namespace JxCoreLib
         static Type* StaticType();
     private:
         static inline struct _ObjectInit {
-            _ObjectInit() {
-                Object::StaticType();
-            }
+            _ObjectInit() { Object::StaticType(); }
         } _object_init_;
     private:
     public:
@@ -109,7 +107,18 @@ namespace JxCoreLib
         virtual ~Object();
     public:
         virtual string ToString() const;
-        virtual bool Equals(Object* object);
+        virtual bool Equals(Object* object) const;
+        //hidden in derived
+        bool Equals(const sptr<Object>& object) const { return this->Equals(object.get()); }
+        bool EqualsSptr(const sptr<Object>& object) const { return this->Equals(object.get()); }
+
+        template<typename T, typename U>
+        static bool StaticEquals(const T& a, const U& b)
+        {
+            if (a == b) return true;
+            if (a == nullptr || b == nullptr) return false;
+            return a->Equals(b);
+        }
     };
 
 
