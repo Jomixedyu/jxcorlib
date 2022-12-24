@@ -3,11 +3,10 @@
 * @Date        : 2021/05/23
 * @Author      : JomiXedYu
 * @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
-* @StdRequired : c++17
+* @StdRequired : c++20
 */
 
-#ifndef _CORELIB_REFLECTION_H
-#define _CORELIB_REFLECTION_H
+#pragma once
 
 #include "UString.h"
 #include "Object.h"
@@ -232,6 +231,3 @@ namespace JxCoreLib
         }
     };
 }
-
-
-#endif // !_CORELIB_REFLECTION_H

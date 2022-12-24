@@ -53,8 +53,10 @@ private: \
     static inline struct __corelib_type { \
         __corelib_type() { NAME::StaticType(); } \
     } __corelib_type_init_; \
-    ::JxCoreLib::sptr<ThisClass> self() const { return ::JxCoreLib::sptr_cast<ThisClass>(shared_from_this()); } \
-    ::JxCoreLib::wptr<ThisClass> self_weak() const { return wptr<ThisClass>(self()); }
+    ::JxCoreLib::sptr<ThisClass> self() { return ::JxCoreLib::sptr_cast<ThisClass>(shared_from_this()); } \
+    ::JxCoreLib::sptr<const ThisClass> self() const { return ::JxCoreLib::sptr_cast<const ThisClass>(shared_from_this()); } \
+    ::JxCoreLib::wptr<ThisClass> self_weak() { return ::JxCoreLib::wptr<ThisClass>(self()); } \
+    ::JxCoreLib::wptr<const ThisClass> self_weak() const { return ::JxCoreLib::wptr<const ThisClass>(self()); }
 
 
 #define CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAME, BASE) \
@@ -133,7 +135,7 @@ public: static inline ::JxCoreLib::Type* StaticType() \
     } \
 private: \
     using base = BASE; \
-    using ThisClass = NAME__VA_ARGS__<>; \
+    using ThisClass = NAME<__VA_ARGS__>; \
     friend class ::JxCoreLib::Type; \
     friend class ::JxCoreLib::TypeTraits; \
 private: \
@@ -174,8 +176,10 @@ private: \
         static inline struct __corelib_type { \
             __corelib_type() { NAME<__VA_ARGS__>::StaticType(); } \
         } __corelib_type_init_; \
-        ::JxCoreLib::sptr<ThisClass> self() const { return ::JxCoreLib::sptr_cast<ThisClass>(shared_from_this()); } \
-        ::JxCoreLib::wptr<ThisClass> self_weak() const { return wptr<ThisClass>(self()); }
+        ::JxCoreLib::sptr<ThisClass> self() { return ::JxCoreLib::sptr_cast<ThisClass>(shared_from_this()); } \
+        ::JxCoreLib::sptr<const ThisClass> self() const { return ::JxCoreLib::sptr_cast<const ThisClass>(shared_from_this()); } \
+        ::JxCoreLib::wptr<ThisClass> self_weak() { return ::JxCoreLib::wptr<ThisClass>(self()); } \
+        ::JxCoreLib::wptr<const ThisClass> self_weak() const { return ::JxCoreLib::wptr<const ThisClass>(self()); }
 
 
 #define CORELIB_IMPL_INTERFACES(...) \
