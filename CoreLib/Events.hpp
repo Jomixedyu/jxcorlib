@@ -215,7 +215,7 @@ namespace JxCoreLib
     };
 
     template<typename TReturn, typename... TArgs>
-    class Delegate : public Events<TReturn, TArgs...>
+    class DelegateBase : public Events<TReturn, TArgs...>
     {
         using base = Events<TReturn, TArgs...>;
     public:
@@ -234,13 +234,13 @@ namespace JxCoreLib
     using ActionEvents = Events<void, TArgs...>;
 
     template<typename... TArgs>
-    using Action = Delegate<void, TArgs...>;
+    using Action = DelegateBase<void, TArgs...>;
 
     template<typename TReturn, typename... TArgs>
     using FunctionEvents = Events<TReturn, TArgs...>;
 
     template<typename TReturn, typename... TArgs>
-    class Function : public Delegate<TReturn, TArgs...>
+    class Function : public DelegateBase<TReturn, TArgs...>
     {
     public:
         std::vector<TReturn> InvokeResult(TArgs... args) {
@@ -253,7 +253,7 @@ namespace JxCoreLib
     };
 
     template<>
-    class Function<bool> : public Delegate<bool>
+    class Function<bool> : public DelegateBase<bool>
     {
     public:
         std::vector<bool> InvokeResult() {

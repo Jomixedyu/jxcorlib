@@ -3,6 +3,7 @@
 #include <functional>
 #include <map>
 #include <iostream>
+#include <CoreLib/Delegate.h>
 
 using namespace JxCoreLib;
 
