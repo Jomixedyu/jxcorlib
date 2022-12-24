@@ -16,34 +16,97 @@ namespace JxCoreLib
         virtual Object_sp DynamicInvoke(const array_list<Object_sp>& params) = 0;
     };
 
-    template<typename T>
-    class MakeReturnObject
-    {
-    public:
-        static Object_sp GetValue(T&& t)
-        {
-            if constexpr (cltype_concept<T>)
-            {
-                return t;
-            }
-            else
-            {
-                return BoxUtil::Box(t);
-            }
-        }
-    };
+#define _CORELIB_DELEGATE_GETVALUE(T, index) UnboxUtil::Unbox<typename get_boxing_type<T>::type>(params[index])
 
-    template<>
-    class MakeReturnObject<void>
+#define _CORELIB_DELEGATE_INVOKE1 (inst->*func)(_CORELIB_DELEGATE_GETVALUE(T1, 0))
+#define _CORELIB_DELEGATE_INVOKE2 (inst->*func)(_CORELIB_DELEGATE_GETVALUE(T1, 0), _CORELIB_DELEGATE_GETVALUE(T2, 1))
+#define _CORELIB_DELEGATE_INVOKE3 (inst->*func)(_CORELIB_DELEGATE_GETVALUE(T1, 0), _CORELIB_DELEGATE_GETVALUE(T2, 1), _CORELIB_DELEGATE_GETVALUE(T3, 2))
+#define _CORELIB_DELEGATE_INVOKE4 (inst->*func)(_CORELIB_DELEGATE_GETVALUE(T1, 0), _CORELIB_DELEGATE_GETVALUE(T2, 1), _CORELIB_DELEGATE_GETVALUE(T3, 2), _CORELIB_DELEGATE_GETVALUE(T4, 3))
+#define _CORELIB_DELEGATE_INVOKE5 (inst->*func)(_CORELIB_DELEGATE_GETVALUE(T1, 0), _CORELIB_DELEGATE_GETVALUE(T2, 1), _CORELIB_DELEGATE_GETVALUE(T3, 2), _CORELIB_DELEGATE_GETVALUE(T4, 3), _CORELIB_DELEGATE_GETVALUE(T5, 4))
+#define _CORELIB_DELEGATE_INVOKE6 (inst->*func)(_CORELIB_DELEGATE_GETVALUE(T1, 0), _CORELIB_DELEGATE_GETVALUE(T2, 1), _CORELIB_DELEGATE_GETVALUE(T3, 2), _CORELIB_DELEGATE_GETVALUE(T4, 3), _CORELIB_DELEGATE_GETVALUE(T5, 4), _CORELIB_DELEGATE_GETVALUE(T6, 5))
+#define _CORELIB_DELEGATE_INVOKE7 (inst->*func)(_CORELIB_DELEGATE_GETVALUE(T1, 0), _CORELIB_DELEGATE_GETVALUE(T2, 1), _CORELIB_DELEGATE_GETVALUE(T3, 2), _CORELIB_DELEGATE_GETVALUE(T4, 3), _CORELIB_DELEGATE_GETVALUE(T5, 4), _CORELIB_DELEGATE_GETVALUE(T6, 5), _CORELIB_DELEGATE_GETVALUE(T7, 6))
+#define _CORELIB_DELEGATE_INVOKE8 (inst->*func)(_CORELIB_DELEGATE_GETVALUE(T1, 0), _CORELIB_DELEGATE_GETVALUE(T2, 1), _CORELIB_DELEGATE_GETVALUE(T3, 2), _CORELIB_DELEGATE_GETVALUE(T4, 3), _CORELIB_DELEGATE_GETVALUE(T5, 4), _CORELIB_DELEGATE_GETVALUE(T6, 5), _CORELIB_DELEGATE_GETVALUE(T7, 6), _CORELIB_DELEGATE_GETVALUE(T8,7))
+
+    template<typename T, typename TReturn>
+    Object_sp InvokeInstanceFunction(T* inst, TReturn(T::* func)(), const array_list<Object_sp>& params)
     {
-    public:
-        static Object_sp GetValue() { return nullptr; }
-    };
+        assert(params.size() == 0);
+        if constexpr (std::is_same_v<TReturn, void>) { (inst->*func)(); return nullptr; }
+        else return BoxUtil::Box<TReturn>((inst->*func)());
+    }
+
+    template<typename T, typename TReturn, typename T1>
+    Object_sp InvokeInstanceFunction(T* inst, TReturn(T::* func)(T1), const array_list<Object_sp>& params)
+    {
+        assert(params.size() == 1);
+        if constexpr (std::is_same_v<TReturn, void>) { _CORELIB_DELEGATE_INVOKE1; return nullptr; }
+        else return BoxUtil::Box<TReturn>(_CORELIB_DELEGATE_INVOKE1);
+    }
+    template<typename T, typename TReturn, typename T1, typename T2>
+    Object_sp InvokeInstanceFunction(T* inst, TReturn(T::* func)(T1, T2), const array_list<Object_sp>& params)
+    {
+        assert(params.size() == 2);
+        if constexpr (std::is_same_v<TReturn, void>) { _CORELIB_DELEGATE_INVOKE2; return nullptr; }
+        else return BoxUtil::Box<TReturn>(_CORELIB_DELEGATE_INVOKE2);
+    }
+    template<typename T, typename TReturn, typename T1, typename T2, typename T3>
+    Object_sp InvokeInstanceFunction(T* inst, TReturn(T::* func)(T1, T2, T3), const array_list<Object_sp>& params)
+    {
+        assert(params.size() == 3);
+        if constexpr (std::is_same_v<TReturn, void>) { _CORELIB_DELEGATE_INVOKE3; return nullptr; }
+        else return BoxUtil::Box<TReturn>(_CORELIB_DELEGATE_INVOKE3);
+    }
+    template<typename T, typename TReturn, typename T1, typename T2, typename T3, typename T4>
+    Object_sp InvokeInstanceFunction(T* inst, TReturn(T::* func)(T1, T2, T3, T4), const array_list<Object_sp>& params)
+    {
+        assert(params.size() == 4);
+        if constexpr (std::is_same_v<TReturn, void>) { _CORELIB_DELEGATE_INVOKE4; return nullptr; }
+        else return BoxUtil::Box<TReturn>(_CORELIB_DELEGATE_INVOKE4);
+    }
+    template<typename T, typename TReturn, typename T1, typename T2, typename T3, typename T4, typename T5>
+    Object_sp InvokeInstanceFunction(T* inst, TReturn(T::* func)(T1, T2, T3, T4, T5), const array_list<Object_sp>& params)
+    {
+        assert(params.size() == 5);
+        if constexpr (std::is_same_v<TReturn, void>) { _CORELIB_DELEGATE_INVOKE5; return nullptr; }
+        else return BoxUtil::Box<TReturn>(_CORELIB_DELEGATE_INVOKE5);
+    }
+    template<typename T, typename TReturn, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+    Object_sp InvokeInstanceFunction(T* inst, TReturn(T::* func)(T1, T2, T3, T4, T5, T6), const array_list<Object_sp>& params)
+    {
+        assert(params.size() == 6);
+        if constexpr (std::is_same_v<TReturn, void>) { _CORELIB_DELEGATE_INVOKE6; return nullptr; }
+        else return BoxUtil::Box<TReturn>(_CORELIB_DELEGATE_INVOKE6);
+    }
+    template<typename T, typename TReturn, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+    Object_sp InvokeInstanceFunction(T* inst, TReturn(T::* func)(T1, T2, T3, T4, T5, T6, T7), const array_list<Object_sp>& params)
+    {
+        assert(params.size() == 7);
+        if constexpr (std::is_same_v<TReturn, void>) { _CORELIB_DELEGATE_INVOKE7; return nullptr; }
+        else return BoxUtil::Box<TReturn>(_CORELIB_DELEGATE_INVOKE7);
+    }
+    template<typename T, typename TReturn, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+    Object_sp InvokeInstanceFunction(T* inst, TReturn(T::* func)(T1, T2, T3, T4, T5, T6, T7, T8), const array_list<Object_sp>& params)
+    {
+        assert(params.size() == 8);
+        if constexpr (std::is_same_v<TReturn, void>) { _CORELIB_DELEGATE_INVOKE8; return nullptr; }
+        else return BoxUtil::Box<TReturn>(_CORELIB_DELEGATE_INVOKE8);
+    }
+#undef _CORELIB_DELEGATE_GETVALUE
+#undef _CORELIB_DELEGATE_INVOKE1
+#undef _CORELIB_DELEGATE_INVOKE2
+#undef _CORELIB_DELEGATE_INVOKE3
+#undef _CORELIB_DELEGATE_INVOKE4
+#undef _CORELIB_DELEGATE_INVOKE5
+#undef _CORELIB_DELEGATE_INVOKE6
+#undef _CORELIB_DELEGATE_INVOKE7
+#undef _CORELIB_DELEGATE_INVOKE8
 
     template<typename TReturn, typename... TArgs>
     class FunctionDelegate : public Delegate
     {
         CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::FunctionDelegate, Delegate, TReturn, TArgs...);
+
+        static_assert(sizeof...(TArgs) <= 8);
 
         using This = FunctionDelegate<TReturn, TArgs...>;
         using FunctionType = std::function<TReturn(TArgs...)>;
@@ -122,7 +185,7 @@ namespace JxCoreLib
                 //todo
                 return false;
             }
-            virtual TReturn Invoke(TArgs... args) override 
+            virtual TReturn Invoke(TArgs... args) override
             {
                 return (this->instance_.get()->*ptr_)(args...);
             }
@@ -175,19 +238,8 @@ namespace JxCoreLib
         }
         virtual Object_sp DynamicInvoke(const array_list<Object_sp>& params) override
         {
-            //constexpr int size = sizeof...(TArgs);
-            //auto arr = array_list<Type*>{ cltypeof<typename get_boxing_type<TArgs>::type>()... };
-            //assert(arr.size() == size);
-            //if constexpr (size == 0)
-            //    return MakeReturnObject<TReturn>(this->func_ptr_->Invoke(UnboxUtil::Unbox<> params.at(0)));
-
-            throw NotImplementException();
+            return InvokeInstanceFunction<FunctionInfo, TReturn, TArgs...>(this->func_ptr_, &FunctionInfo::Invoke, params);
         }
     };
 
-    //template<typename TReturn, typename... TArgs>
-    //TReturn Invoke(auto func, const array_list<Object_sp>& params)
-    //{
-    //    return MakeReturnObject<TReturn>(func(UnboxUtil::Unbox<typename get_boxing_type<TArgs>::type>(params)...));
-    //}
 }

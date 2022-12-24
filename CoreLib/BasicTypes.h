@@ -193,7 +193,17 @@ namespace JxCoreLib
     struct BoxUtil
     {
         template<typename T>
-        static inline sptr<Object> Box(const T& value) { return mksptr((Object*)new get_boxing_type<T>::type(value)); }
+        static inline sptr<Object> Box(const T& value)
+        {
+            if constexpr (cltype_sptr_concept<T>)
+            {
+                return value;
+            }
+            else
+            {
+                return mksptr((Object*)new get_boxing_type<T>::type(value));
+            }
+        }
     };
 
 
@@ -204,7 +214,7 @@ namespace JxCoreLib
         {
             if constexpr (cltype_sptr_concept<T>)
             {
-                return value;
+                return sptr_cast<T>(value);
             }
             else
             {
