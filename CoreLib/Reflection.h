@@ -28,18 +28,18 @@
         template<typename T> using _Detected = decltype(std::declval<T&>().NAME); \
         __corelib_refl_##NAME() \
         { \
-            using FieldType = decltype(std::declval<__corelib_curclass&>().NAME); \
+            using FieldType = decltype(std::declval<ThisClass&>().NAME); \
             using DecayType = fulldecay<FieldType>::type; \
             using CleanType = remove_shared_ptr<DecayType>::type; \
             using ClType = get_boxing_type<remove_shared_ptr<std::remove_cv<FieldType>::type>::type>::type; \
-            ReflectionBuilder::CreateFieldInfo<__corelib_curclass, FieldType>( \
-                #NAME, false, JxCoreLib::is_detected<_Detected, __corelib_curclass>::value, \
+            ReflectionBuilder::CreateFieldInfo<ThisClass, FieldType>( \
+                #NAME, false, JxCoreLib::is_detected<_Detected, ThisClass>::value, \
                 [](Object* p) -> sptr<Object> { \
-                    auto rawptr = (__corelib_curclass*)p; \
+                    auto rawptr = (ThisClass*)p; \
                     return get_object_pointer<CleanType>::get(rawptr->NAME); \
                 }, \
                 [](Object* p, sptr<Object> value) { \
-                    auto rawptr = (__corelib_curclass*)p; \
+                    auto rawptr = (ThisClass*)p; \
                     object_assign<CleanType>::assign(&rawptr->NAME, value); \
                 }); \
         } \

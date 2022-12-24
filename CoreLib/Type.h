@@ -29,10 +29,10 @@ public: static inline ::JxCoreLib::Type* StaticType() \
         static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
         { \
-            auto dynptr = ::JxCoreLib::TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+            auto dynptr = ::JxCoreLib::TypeTraits::get_dyninstpointer<ThisClass>::get_value(); \
             if (dynptr == nullptr) \
             { \
-                dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
+                dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<ThisClass>::get(); \
             } \
             ::JxCoreLib::Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
             type = new ::JxCoreLib::Type(dynptr, assm, ::JxCoreLib::cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
@@ -42,7 +42,7 @@ public: static inline ::JxCoreLib::Type* StaticType() \
     } \
 private: \
     using base = BASE; \
-    using __corelib_curclass = NAME; \
+    using ThisClass = NAME; \
     friend class ::JxCoreLib::Type; \
     friend class ::JxCoreLib::TypeTraits; \
 public: \
@@ -53,8 +53,8 @@ private: \
     static inline struct __corelib_type { \
         __corelib_type() { NAME::StaticType(); } \
     } __corelib_type_init_; \
-    ::JxCoreLib::sptr<__corelib_curclass> self() const { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); } \
-    ::JxCoreLib::wptr<__corelib_curclass> self_weak() const { return wptr<__corelib_curclass>(self()); }
+    ::JxCoreLib::sptr<ThisClass> self() const { return ::JxCoreLib::sptr_cast<ThisClass>(shared_from_this()); } \
+    ::JxCoreLib::wptr<ThisClass> self_weak() const { return wptr<ThisClass>(self()); }
 
 
 #define CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAME, BASE) \
@@ -65,21 +65,21 @@ public: static inline ::JxCoreLib::Type* StaticType() \
         static ::JxCoreLib::Type* type = nullptr; \
         if (type == nullptr) \
         { \
-            auto dynptr = ::JxCoreLib::TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+            auto dynptr = ::JxCoreLib::TypeTraits::get_dyninstpointer<ThisClass>::get_value(); \
             if (dynptr == nullptr) \
             { \
-                dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
+                dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<ThisClass>::get(); \
             } \
             ::JxCoreLib::Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
             type = new ::JxCoreLib::Type(dynptr, assm, ::JxCoreLib::cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
             assm->RegisterType(type); \
-            ::JxCoreLib::TypeBuilder::RegisterEnum(type, &__corelib_curclass::StaticGetDefinitions); \
+            ::JxCoreLib::TypeBuilder::RegisterEnum(type, &ThisClass::StaticGetDefinitions); \
         } \
         return type; \
     } \
 private: \
     using base = BASE; \
-    using __corelib_curclass = NAME; \
+    using ThisClass = NAME; \
     friend class ::JxCoreLib::Type; \
     friend class ::JxCoreLib::TypeTraits; \
 public: \
@@ -107,7 +107,7 @@ public: static inline ::JxCoreLib::Type* StaticType() \
         return type; \
     } \
 private: \
-    using __corelib_curclass = NAME; \
+    using ThisClass = NAME; \
     friend class ::JxCoreLib::Type; \
     friend class ::JxCoreLib::TypeTraits; \
 private: \
@@ -133,7 +133,7 @@ public: static inline ::JxCoreLib::Type* StaticType() \
     } \
 private: \
     using base = BASE; \
-    using __corelib_curclass = NAME__VA_ARGS__<>; \
+    using ThisClass = NAME__VA_ARGS__<>; \
     friend class ::JxCoreLib::Type; \
     friend class ::JxCoreLib::TypeTraits; \
 private: \
@@ -149,10 +149,10 @@ public: static inline ::JxCoreLib::Type* StaticType() \
     static ::JxCoreLib::Type* type = nullptr; \
     if (type == nullptr) \
     { \
-        auto dynptr = ::JxCoreLib::TypeTraits::get_dyninstpointer<__corelib_curclass>::get_value(); \
+        auto dynptr = ::JxCoreLib::TypeTraits::get_dyninstpointer<ThisClass>::get_value(); \
         if (dynptr == nullptr) \
         { \
-            dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<__corelib_curclass>::get(); \
+            dynptr = ::JxCoreLib::TypeTraits::get_zeroparam_object<ThisClass>::get(); \
         } \
         using TemplateType = ::JxCoreLib::TemplateTypePair<__VA_ARGS__>; \
         ::JxCoreLib::Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(ASSEMBLY); \
@@ -163,7 +163,7 @@ public: static inline ::JxCoreLib::Type* StaticType() \
 } \
 private: \
     using base = BASE; \
-    using __corelib_curclass = NAME<__VA_ARGS__>; \
+    using ThisClass = NAME<__VA_ARGS__>; \
     friend class ::JxCoreLib::Type; \
     friend class ::JxCoreLib::TypeTraits; \
     public: \
@@ -174,13 +174,13 @@ private: \
         static inline struct __corelib_type { \
             __corelib_type() { NAME<__VA_ARGS__>::StaticType(); } \
         } __corelib_type_init_; \
-        ::JxCoreLib::sptr<__corelib_curclass> self() { return ::JxCoreLib::sptr_cast<__corelib_curclass>(shared_from_this()); } \
-        ::JxCoreLib::wptr<__corelib_curclass> self_weak() { return wptr<__corelib_curclass>(self()); }
+        ::JxCoreLib::sptr<ThisClass> self() const { return ::JxCoreLib::sptr_cast<ThisClass>(shared_from_this()); } \
+        ::JxCoreLib::wptr<ThisClass> self_weak() const { return wptr<ThisClass>(self()); }
 
 
 #define CORELIB_IMPL_INTERFACES(...) \
     static inline struct __corelib_interface_list { \
-        __corelib_interface_list() { ::JxCoreLib::TypeBuilder::RegisterInterfaces<__corelib_curclass, __VA_ARGS__>(StaticType()); } \
+        __corelib_interface_list() { ::JxCoreLib::TypeBuilder::RegisterInterfaces<ThisClass, __VA_ARGS__>(StaticType()); } \
     } __corelib_interface_list_init_;
 
 
@@ -220,7 +220,7 @@ namespace JxCoreLib
     private:
         friend class Type;
         friend class TypeTraits;
-        using __corelib_curclass = IInterface;
+        using ThisClass = IInterface;
         static inline struct __corelib_type {
             __corelib_type() { IInterface::StaticType(); }
         } __corelib_type_init_;
