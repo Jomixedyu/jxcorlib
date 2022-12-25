@@ -3,11 +3,11 @@
 #include <cassert>
 #include <iostream>
 
-using namespace JxCoreLib;
+using namespace jxcorlib;
 
 class TestDelgClass : public Object
 {
-    CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, TestDelgClass, Object);
+    CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, TestDelgClass, Object);
 
 public:
     int Get(int i)

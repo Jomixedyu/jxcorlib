@@ -1,6 +1,6 @@
 #include "Assembly.h"
 
-namespace JxCoreLib
+namespace jxcorlib
 {
 
     Type* Assembly::FindType(string_view name) const

@@ -9,7 +9,7 @@
 #include <CoreLib/UString.h>
 
 using namespace std;
-using namespace JxCoreLib;
+using namespace jxcorlib;
 
 extern void TestOOP();
 extern void TestProperty();

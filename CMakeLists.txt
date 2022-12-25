@@ -1,7 +1,7 @@
 ﻿
 cmake_minimum_required (VERSION 3.8)
 
-project ("JxCoreLibTest")
+project ("jxcorlibTest")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_compile_options("/utf-8")
@@ -20,8 +20,8 @@ aux_source_directory(./ DIR_SRCS)
 
 add_executable (${PROJECT_NAME} ${DIR_SRCS})
 
-target_link_libraries(${PROJECT_NAME} "JxCode.CoreLib")
-target_link_libraries(${PROJECT_NAME} "JxCode.CoreLib.Serialization")
-target_link_libraries(${PROJECT_NAME} "JxCode.CoreLib.Math")
-target_link_libraries(${PROJECT_NAME} "JxCode.CoreLib.Platform")
+target_link_libraries(${PROJECT_NAME} "jxcorlib")
+target_link_libraries(${PROJECT_NAME} "jxcorlib.ser")
+target_link_libraries(${PROJECT_NAME} "jxcorlib.math")
+target_link_libraries(${PROJECT_NAME} "jxcorlib.platform")
 target_link_libraries(${PROJECT_NAME} "Example")

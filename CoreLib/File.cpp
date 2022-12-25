@@ -6,7 +6,7 @@
 #include <sstream>
 #include <filesystem>
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     namespace FileUtil
     {

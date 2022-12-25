@@ -6,7 +6,7 @@
 #include <objbase.h>
 #endif
 
-namespace JxCoreLib
+namespace jxcorlib
 {
 
     guid_t guid_t::create_new()

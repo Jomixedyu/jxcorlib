@@ -4,7 +4,7 @@
 #include <string_view>
 #include "BasicTypes.h"
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     struct alignas(16) guid_t
     {
@@ -27,7 +27,7 @@ namespace JxCoreLib
 
     class Guid : public BoxingObject, public IStringify
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Guid, BoxingObject);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::Guid, BoxingObject);
         CORELIB_IMPL_INTERFACES(IStringify);
     public:
         using unboxing_type = guid_t;

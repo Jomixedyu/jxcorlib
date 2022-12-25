@@ -2,17 +2,16 @@
 * @Moudule     : Events
 * @Date        : 2021/05/06
 * @Author      : JomiXedYu
-* @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
+* @Description : This file is part of jxcorlib : https://github.com/JomiXedYu/jxcorlib
 * @StdRequired : c++11
 */
 
-#ifndef _CORELIB_EVENTS_HPP
-#define _CORELIB_EVENTS_HPP
+#pragma once
 
 #include <list>
 #include <functional>
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     template<typename TReturn, typename... TArgs>
     class Events
@@ -273,5 +272,3 @@ namespace JxCoreLib
     };
 
 }
-
-#endif // !_CORELIB_EVENTS_HPP

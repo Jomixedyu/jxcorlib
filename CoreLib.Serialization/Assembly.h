@@ -1,7 +1,7 @@
 #pragma once
 #include <CoreLib/Core.h>
 
-namespace JxCoreLib::Serialization
+namespace jxcorlib::ser
 {
     CORELIB_DECL_ASSEMBLY(JxSerialization);
 }

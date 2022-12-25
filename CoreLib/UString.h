@@ -2,7 +2,7 @@
 * @Moudule     : String
 * @Date        : 2021/05/24
 * @Author      : JomiXedYu
-* @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
+* @Description : This file is part of jxcorlib : https://github.com/JomiXedYu/jxcorlib
 * @StdRequired : c++17
 */
 
@@ -18,7 +18,7 @@
 
 //Encoding: UTF-8
 
-namespace JxCoreLib
+namespace jxcorlib
 {
 
     using string = std::string;

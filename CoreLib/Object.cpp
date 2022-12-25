@@ -4,7 +4,7 @@
 #include "Type.h"
 #include "Assembly.h"
 
-namespace JxCoreLib
+namespace jxcorlib
 {
 
     static Object* CreateInstance(const ParameterPackage&)
@@ -17,8 +17,8 @@ namespace JxCoreLib
         static Type* type = nullptr;
         if (type == nullptr)
         {
-            Assembly* assm = Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib);
-            type = new Type(CreateInstance, assm, nullptr, "JxCoreLib::Object", typeid(Object), sizeof(Object));
+            Assembly* assm = Assembly::StaticBuildAssembly(AssemblyObject_jxcorlib);
+            type = new Type(CreateInstance, assm, nullptr, "jxcorlib::Object", typeid(Object), sizeof(Object));
             assm->RegisterType(type);
         }
         return type;
@@ -45,7 +45,7 @@ namespace JxCoreLib
 
 }
 
-std::string std::to_string(JxCoreLib::Object* obj)
+std::string std::to_string(jxcorlib::Object* obj)
 {
     return obj->ToString();
 }

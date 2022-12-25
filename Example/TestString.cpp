@@ -2,7 +2,7 @@
 #include <cassert>
 #include <iostream>
 
-using namespace JxCoreLib;
+using namespace jxcorlib;
 
 void TestString()
 {

@@ -1,7 +1,7 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-project ("JxCode.CoreLib.Platform")
+project ("jxcorlib.platform")
 
 
 list(APPEND LIST_SRC "Window.h")

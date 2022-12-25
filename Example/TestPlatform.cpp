@@ -2,7 +2,7 @@
 #include <cassert>
 #include <string>
 
-using namespace JxCoreLib::Platform;
+using namespace jxcorlib::platform;
 using namespace std;
 
 void TestPlatform()

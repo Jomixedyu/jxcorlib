@@ -3,11 +3,11 @@
 #include "Object.h"
 #include "Type.h"
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     class Assembly final : public Object
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Assembly, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::Assembly, Object);
     private:
         string name_;
         Assembly(string_view name) : name_(name) {}

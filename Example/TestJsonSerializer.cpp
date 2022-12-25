@@ -8,9 +8,9 @@
 #include <CoreLib/Guid.h>
 #include <CoreLib.Math/Math.h>
 
-using namespace JxCoreLib;
-using namespace JxCoreLib::Serialization;
-using namespace JxCoreLib::Math;
+using namespace jxcorlib;
+using namespace jxcorlib::ser;
+using namespace jxcorlib::math;
 using namespace std;
 
 

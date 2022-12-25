@@ -1,8 +1,8 @@
-﻿# JxCode.CoreLib
+﻿# jxcorlib
 
-![](https://img.shields.io/github/license/JomiXedYu/JxCode.CoreLib?style=for-the-badge)
-![](https://img.shields.io/github/v/release/JomiXedYu/JxCode.CoreLib?style=for-the-badge)
-![](https://img.shields.io/github/release-date/JomiXedYu/JxCode.CoreLib?style=for-the-badge)
+![](https://img.shields.io/github/license/JomiXedYu/jxcorlib?style=for-the-badge)
+![](https://img.shields.io/github/v/release/JomiXedYu/jxcorlib?style=for-the-badge)
+![](https://img.shields.io/github/release-date/JomiXedYu/jxcorlib?style=for-the-badge)
 ![](https://img.shields.io/badge/StdVer-C++20-blueviolet.svg?style=for-the-badge&logo=c%2B%2B)
 
 
@@ -14,7 +14,7 @@
 
    
 
-- [JxCode.CoreLib](#jxcodecorelib)
+- [jxcorlib](#jxcodecorelib)
   - [使用本基本库与工具的规范](#使用本基本库与工具的规范)
   - [命名规范](#命名规范)
   - [万物基于Object](#万物基于object)
@@ -202,7 +202,7 @@ String* new_str = cltypeof<String>()->CreateInstance({"new str"}); //ok
 ## 程序集
 应用程序以程序集`Assembly`构建，一个`Assembly`应代表着一个lib、dll或者exe，每一个Assembly实例内储存着该模块的所有Type实例，如果知道一个外部程序集中的某个类型，那么就可以动态的获取到Type并创建实例。
 
-程序集需要使用`CORELIB_DECL_ASSEMBLY(Name)`宏来定义。如：`CORELIB_DECL_ASSEMBLY(JxCoreLib)`，就声明了一个名为JxCoreLib的程序集，同时产生一个程序集实例给予类型定义使用，它的名字是`AssemblyObject_程序集名字`，所以`JxCoreLib`的类型定义用实例名为`AssemblyObject_JxCoreLib`。
+程序集需要使用`CORELIB_DECL_ASSEMBLY(Name)`宏来定义。如：`CORELIB_DECL_ASSEMBLY(jxcorlib)`，就声明了一个名为jxcorlib的程序集，同时产生一个程序集实例给予类型定义使用，它的名字是`AssemblyObject_程序集名字`，所以`jxcorlib`的类型定义用实例名为`AssemblyObject_jxcorlib`。
 
 ## 类型定义
 
@@ -213,7 +213,7 @@ namespace space
 {
     class ExampleClass : public Object
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, space::ExampleClass, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, space::ExampleClass, Object);
     public:
 
     };
@@ -221,7 +221,7 @@ namespace space
 ```
 
 定义类型在类中使用`CORELIB_DEF_TYPE(AssemblyObject, Class, Base)`宏
-- 第一个参数使用了之前上一小节中定义的程序集实例，代表该类型将会注册进JxCoreLib程序集中。
+- 第一个参数使用了之前上一小节中定义的程序集实例，代表该类型将会注册进jxcorlib程序集中。
 - 第二个类型参数必需为完整路径。  
 - 第三个参数是继承的基类，不必使用完整名。
 
@@ -234,7 +234,7 @@ namespace space
 template<typename T>
 class TemplateClass : public Object
 {
-    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, TemplateClass, Object, T);
+    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_jxcorlib, TemplateClass, Object, T);
 public:
 
 };
@@ -254,7 +254,7 @@ public:
 ```c++
 class IList : public IInterface
 {
-    CORELIB_DEF_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IList, IInterface);
+    CORELIB_DEF_INTERFACE(AssemblyObject_jxcorlib, jxcorlib::IList, IInterface);
 
     virtual void Add(const sptr<Object>& value) = 0;
     virtual sptr<Object> At(int32_t index) = 0;
@@ -274,7 +274,7 @@ class IList : public IInterface
 template<typename T>
 class List : public Object, public array_list<T>, public IList, public ICopy
 {
-    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
+    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_jxcorlib, jxcorlib::List, Object, T);
     CORELIB_IMPL_INTERFACES(IList, ICopy);
     //implemented...
 }
@@ -301,7 +301,7 @@ namespace space
 {
     class DynCreateClass : public Object
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, space::DynCreateClass, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, space::DynCreateClass, Object);
         CORELIB_DECL_DYNCINST() {
             return new DynCreateClass(0);
         }
@@ -325,14 +325,14 @@ static Object* DynCreateInstance(const ParameterPackage& params)
 
 可以使用类名来获取Type对象，使用`CreateInstance`创建
 ```c++
-Type* dyn_type = Assembly::StaticFindAssembly(AssemblyObject_JxCoreLib)->FindType("space::DynCreateClass");
+Type* dyn_type = Assembly::StaticFindAssembly(AssemblyObject_jxcorlib)->FindType("space::DynCreateClass");
 Object* dyn = dyn_type->CreateInstance({});
 ```
 
 ### 参数包与变长验证模板函数
 `ParameterPackage`是用一个any数组的封装类，可以从外部向ParameterPackage对象添加参数，在传入工厂函数内。
 ```c++
-Type* dyn_type = Assembly::StaticFindAssembly(AssemblyObject_JxCoreLib)->FindType("space::DynCreateClass");
+Type* dyn_type = Assembly::StaticFindAssembly(AssemblyObject_jxcorlib)->FindType("space::DynCreateClass");
 Object* dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 ```
 之后`CreateInstance`将会调用对应类型的工厂函数。  
@@ -368,7 +368,7 @@ int p1 = params.Get<int>(0);
 ```c++
 class DataModel : public Object
 {
-    CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, DataModel, Object);
+    CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, DataModel, Object);
 public:
 
     CORELIB_REFL_DECL_FIELD(id);

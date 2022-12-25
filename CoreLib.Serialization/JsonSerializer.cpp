@@ -3,10 +3,10 @@
 #include <CoreLib/Reflection.h>
 #include <cassert>
 
-namespace JxCoreLib::Serialization
+namespace jxcorlib::ser
 {
     using namespace nlohmann;
-    using namespace JxCoreLib;
+    using namespace jxcorlib;
 
     static json _SerializeArray(IList* list, const JsonSerializerSettings& settings);
     static json _SerializeClassObject(Object* obj, const JsonSerializerSettings& settings);

@@ -26,7 +26,7 @@ SOFTWARE.
 * @Moudule     : CoreLib
 * @Date        : 2021/05/24
 * @Author      : JomiXedYu
-* @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
+* @Description : This file is part of jxcorlib : https://github.com/JomiXedYu/jxcorlib
 */
 
 #ifndef _CORELIB_CORELIB_H

@@ -8,7 +8,7 @@
 #include "Assembly.h"
 #include "BasicTypes.h"
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     static std::vector<Type*>* g_types = nullptr;
 
@@ -81,8 +81,8 @@ namespace JxCoreLib
         static Type* type = nullptr;
         if (type == nullptr)
         {
-            Assembly* assm = Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib);
-            type = new Type(nullptr, assm, cltypeof<Object>(), "JxCoreLib::Type", typeid(Object), sizeof(Object));
+            Assembly* assm = Assembly::StaticBuildAssembly(AssemblyObject_jxcorlib);
+            type = new Type(nullptr, assm, cltypeof<Object>(), "jxcorlib::Type", typeid(Object), sizeof(Object));
             assm->RegisterType(type);
         }
         return type;
@@ -267,8 +267,8 @@ namespace JxCoreLib
         static Type* type = nullptr;
         if (type == nullptr)
         {
-            Assembly* assm = ::JxCoreLib::Assembly::StaticBuildAssembly(AssemblyObject_JxCoreLib);
-            type = new Type(nullptr, assm, cltypeof<Object>(), "JxCoreLib::IInterface", typeid(IInterface), sizeof(IInterface));
+            Assembly* assm = ::jxcorlib::Assembly::StaticBuildAssembly(AssemblyObject_jxcorlib);
+            type = new Type(nullptr, assm, cltypeof<Object>(), "jxcorlib::IInterface", typeid(IInterface), sizeof(IInterface));
             type->is_interface_ = true;
             assm->RegisterType(type);
         }

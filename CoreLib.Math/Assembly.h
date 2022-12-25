@@ -2,7 +2,7 @@
 
 #include <CoreLib/Core.h>
 
-namespace JxCoreLib::Math
+namespace jxcorlib::math
 {
     CORELIB_DECL_ASSEMBLY(JxMath);
 }

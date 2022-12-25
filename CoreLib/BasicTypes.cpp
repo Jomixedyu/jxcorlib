@@ -4,14 +4,14 @@
 
 
 
-namespace JxCoreLib
+namespace jxcorlib
 {
 
 
 
     void ObjectUtil::DeepCopyObject(const sptr<Object>& from, sptr<Object>& to)
     {
-        using namespace ::JxCoreLib;
+        using namespace ::jxcorlib;
 
         if (from->GetType() != to->GetType())
         {

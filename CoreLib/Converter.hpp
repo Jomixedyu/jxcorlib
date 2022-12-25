@@ -2,7 +2,7 @@
 * @Moudule     : Converter
 * @Date        : 2021/07/14
 * @Author      : JomiXedYu
-* @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
+* @Description : This file is part of jxcorlib : https://github.com/JomiXedYu/jxcorlib
 * @StdRequired : c++11
 */
 
@@ -67,7 +67,7 @@ namespace jxcvt
 }
 
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     using namespace jxcvt;
 }

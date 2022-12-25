@@ -2,7 +2,7 @@
 #include <CoreLib/CoreLib.h>
 #include <cassert>
 
-using namespace JxCoreLib;
+using namespace jxcorlib;
 
 class PropertyClass
 {

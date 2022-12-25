@@ -6,11 +6,11 @@
 #include <functional>
 #include "CommonException.h"
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     class Delegate : public Object
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Delegate, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::Delegate, Object);
 
     public:
         virtual Object_sp DynamicInvoke(const array_list<Object_sp>& params) = 0;
@@ -104,7 +104,7 @@ namespace JxCoreLib
     template<typename TReturn, typename... TArgs>
     class FunctionDelegate : public Delegate
     {
-        CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::FunctionDelegate, Delegate, TReturn, TArgs...);
+        CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_jxcorlib, jxcorlib::FunctionDelegate, Delegate, TReturn, TArgs...);
 
         static_assert(sizeof...(TArgs) <= 8);
 

@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-using namespace JxCoreLib;
+using namespace jxcorlib;
 
 
 class CreateFactory : public Object

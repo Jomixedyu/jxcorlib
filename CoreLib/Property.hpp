@@ -2,7 +2,7 @@
 * @Moudule     : Property
 * @Date        : 2021/05/05
 * @Author      : JomiXedYu
-* @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
+* @Description : This file is part of jxcorlib : https://github.com/JomiXedYu/jxcorlib
 * @StdRequired : c++11
 */
 
@@ -10,7 +10,7 @@
 #define _CORELIB_PROPERTY_H
 #include <functional>
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     template<typename T>
     class Property

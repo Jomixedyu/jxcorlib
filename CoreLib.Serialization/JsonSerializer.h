@@ -2,7 +2,7 @@
 
 #include "Assembly.h"
 
-namespace JxCoreLib::Serialization
+namespace jxcorlib::ser
 {
     struct JsonSerializerSettings
     {
@@ -19,8 +19,8 @@ namespace JxCoreLib::Serialization
         template<typename T, typename O = Object>
         static sptr<T> Deserialize(const string& str, sptr<O> default_v = nullptr)
         {
-            return JxCoreLib::sptr_cast<T>(
-                Deserialize(str, cltypeof<T>(), JxCoreLib::sptr_cast<Object>(default_v) ) );
+            return jxcorlib::sptr_cast<T>(
+                Deserialize(str, cltypeof<T>(), jxcorlib::sptr_cast<Object>(default_v) ) );
         }
     };
 

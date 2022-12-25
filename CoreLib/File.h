@@ -2,7 +2,7 @@
 * @Moudule     : File
 * @Date        : 2020/07/14
 * @Author      : JomiXedYu
-* @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
+* @Description : This file is part of jxcorlib : https://github.com/JomiXedYu/jxcorlib
 * @StdRequired : c++11
 */
 
@@ -12,7 +12,7 @@
 #include <string>
 #include <string_view>
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     namespace FileUtil
     {

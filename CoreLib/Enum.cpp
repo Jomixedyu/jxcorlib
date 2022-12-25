@@ -1,6 +1,6 @@
 #include "Enum.h"
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     void Enum::InitDefinitions(const char* datas, DataMap** defs)
     {

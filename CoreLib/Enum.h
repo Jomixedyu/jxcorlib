@@ -9,9 +9,9 @@ enum class NAME : uint32_t \
 { \
  __VA_ARGS__ \
 }; \
-class Boxing##NAME final : public ::JxCoreLib::Enum \
+class Boxing##NAME final : public ::jxcorlib::Enum \
 { \
-    CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAMESPACE##Boxing##NAME, ::JxCoreLib::Enum); \
+    CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAMESPACE##Boxing##NAME, ::jxcorlib::Enum); \
     static inline DataMap* definitions = nullptr; \
     static inline const char* string_definitions = #__VA_ARGS__; \
     static void init_defs() { InitDefinitions(string_definitions, &definitions); } \
@@ -21,7 +21,7 @@ public: \
         init_defs(); \
         return definitions; \
     } \
-    static ::JxCoreLib::string StaticFindName(NAME value) { \
+    static ::jxcorlib::string StaticFindName(NAME value) { \
         init_defs(); \
         for (auto& [name, enum_value] : *definitions) { \
             if (enum_value == static_cast<uint32_t>(value)) return name; \
@@ -29,20 +29,20 @@ public: \
         return {}; \
     } \
     NAME get_unboxing_value() const { return static_cast<NAME>(this->value_); } \
-    ::JxCoreLib::string GetName() const override { return StaticFindName(static_cast<NAME>(this->value_)); } \
+    ::jxcorlib::string GetName() const override { return StaticFindName(static_cast<NAME>(this->value_)); } \
     Boxing##NAME& operator=(NAME value) { this->value_ = static_cast<uint32_t>(value); } \
     Boxing##NAME(NAME value) : base(static_cast<uint32_t>(value)) { } \
     Boxing##NAME() : base() {  } \
-    virtual ::JxCoreLib::string ToString() const override { return this->GetName(); } \
+    virtual ::jxcorlib::string ToString() const override { return this->GetName(); } \
 }; \
 template<> struct get_boxing_type<NAME> { using type = Boxing##NAME; }; \
 CORELIB_DECL_SHORTSPTR(Boxing##NAME);
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     class Enum : public BoxingObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Enum, BoxingObject);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::Enum, BoxingObject);
     public:
         using DataMap = Type::EnumDatas;
     protected:

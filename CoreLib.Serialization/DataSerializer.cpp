@@ -1,7 +1,7 @@
 #include "DataSerializer.h"
 #include <cstdio>
 
-namespace JxCoreLib::Serialization
+namespace jxcorlib::ser
 {
     bool FileStream::IsEOF()
     {
@@ -20,19 +20,19 @@ namespace JxCoreLib::Serialization
         char cmode[4]{ 0 };
         switch (mode)
         {
-        case JxCoreLib::Serialization::FileOpenMode::Read:
+        case jxcorlib::ser::FileOpenMode::Read:
             strcpy(cmode, "r");
             break;
-        case JxCoreLib::Serialization::FileOpenMode::Write:
+        case jxcorlib::ser::FileOpenMode::Write:
             strcpy(cmode, "w");
             break;
-        case JxCoreLib::Serialization::FileOpenMode::ReadWrite:
+        case jxcorlib::ser::FileOpenMode::ReadWrite:
             strcpy(cmode, "r+");
             break;
-        case JxCoreLib::Serialization::FileOpenMode::OpenOrCreate:
+        case jxcorlib::ser::FileOpenMode::OpenOrCreate:
             strcpy(cmode, "w+");
             break;
-        case JxCoreLib::Serialization::FileOpenMode::Append:
+        case jxcorlib::ser::FileOpenMode::Append:
             strcpy(cmode, "a+");
             break;
         default:

@@ -3,17 +3,17 @@
 #include "Type.h"
 #include "Assembly.h"
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     class BoxingObject : public Object
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::BoxingObject, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::BoxingObject, Object);
 
     };
 
     class IStringify : public IInterface
     {
-        CORELIB_DEF_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IStringify, IInterface);
+        CORELIB_DEF_INTERFACE(AssemblyObject_jxcorlib, jxcorlib::IStringify, IInterface);
 
         virtual void IStringify_Parse(const string& value) = 0;
         virtual string IStringify_Stringify() = 0;
@@ -21,14 +21,14 @@ namespace JxCoreLib
 
     class PrimitiveObject : public BoxingObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::PrimitiveObject, BoxingObject);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::PrimitiveObject, BoxingObject);
     public:
     };
 
 #define __CORELIB_DEF_BASE_TYPE(Class, DataType) \
     class Class final : public PrimitiveObject \
     { \
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::Class, PrimitiveObject);\
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::Class, PrimitiveObject);\
         CORELIB_DECL_DYNCINST() { \
             if (params.Count() != 1 || !params.Check<DataType>()) \
             { \
@@ -66,7 +66,7 @@ namespace JxCoreLib
 
     class String final : public PrimitiveObject, public string
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::String, PrimitiveObject);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::String, PrimitiveObject);
         CORELIB_DECL_DYNCINST()
         {
             if (params.Count() != 1 || !params.Check<const char*>())
@@ -91,7 +91,7 @@ namespace JxCoreLib
 
     class StdAny : public Object, public std::any
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::StdAny, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::StdAny, Object);
         CORELIB_DECL_DYNCINST() {
             return nullptr;
         }
@@ -177,7 +177,7 @@ namespace JxCoreLib
 
     class IList : public IInterface
     {
-        CORELIB_DEF_INTERFACE(AssemblyObject_JxCoreLib, JxCoreLib::IList, IInterface);
+        CORELIB_DEF_INTERFACE(AssemblyObject_jxcorlib, jxcorlib::IList, IInterface);
 
         virtual void Add(Object_rsp value) = 0;
         virtual Object_sp At(int32_t index) const = 0;
@@ -233,7 +233,7 @@ namespace JxCoreLib
     template<typename T>
     class List : public Object, public array_list<T>, public IList
     {
-        CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::List, Object, T);
+        CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_jxcorlib, jxcorlib::List, Object, T);
         CORELIB_IMPL_INTERFACES(IList);
         static_assert((cltype_concept<T>&& is_shared_ptr<T>::value) || !cltype_concept<T>, "");
         constexpr static bool is_shared_cltype = cltype_concept<T> && is_shared_ptr<T>::value;

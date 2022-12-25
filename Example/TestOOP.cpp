@@ -2,13 +2,13 @@
 #include <iostream>
 #include <cassert>
 
-using namespace JxCoreLib;
+using namespace jxcorlib;
 
 
 
 class ExampleClass : public Object
 {
-    CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, ExampleClass, Object);
+    CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, ExampleClass, Object);
 public:
     CORELIB_REFL_DECL_FIELD(ilist);
     List_sp<int> ilist;
@@ -21,7 +21,7 @@ template<typename T, typename K>
 class TemplateClass : public Object
 {
 public:
-    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_JxCoreLib, TemplateClass, Object, T, K);
+    CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_jxcorlib, TemplateClass, Object, T, K);
 
 };
 

@@ -1,7 +1,7 @@
 #include <CoreLib/Guid.h>
 #include <cassert>
 
-using namespace JxCoreLib;
+using namespace jxcorlib;
 using namespace std;
 
 void TestGuid()

@@ -2,7 +2,7 @@
 * @Moudule     : Reflection
 * @Date        : 2021/05/23
 * @Author      : JomiXedYu
-* @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
+* @Description : This file is part of jxcorlib : https://github.com/JomiXedYu/jxcorlib
 * @StdRequired : c++20
 */
 
@@ -32,7 +32,7 @@
             using CleanType = remove_shared_ptr<DecayType>::type; \
             using ClType = get_boxing_type<remove_shared_ptr<std::remove_cv<FieldType>::type>::type>::type; \
             ReflectionBuilder::CreateFieldInfo<ThisClass, FieldType>( \
-                #NAME, false, JxCoreLib::is_detected<_Detected, ThisClass>::value, \
+                #NAME, false, jxcorlib::is_detected<_Detected, ThisClass>::value, \
                 [](Object* p) -> sptr<Object> { \
                     auto rawptr = (ThisClass*)p; \
                     return get_object_pointer<CleanType>::get(rawptr->NAME); \
@@ -54,11 +54,11 @@
         } \
     } __corelib_refl_##NAME##_;
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     class TypeInfo : public Object
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::TypeInfo, Object);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::TypeInfo, Object);
     public:
         TypeInfo() {}
         TypeInfo(const TypeInfo&) = delete;
@@ -67,7 +67,7 @@ namespace JxCoreLib
 
     class MemberInfo : public TypeInfo
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::MemberInfo, TypeInfo);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::MemberInfo, TypeInfo);
     protected:
         string name_;
         bool is_static_;
@@ -84,7 +84,7 @@ namespace JxCoreLib
 
     class FieldInfo final : public MemberInfo
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::FieldInfo, MemberInfo);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::FieldInfo, MemberInfo);
     public:
         struct FieldTypeInfo
         {
@@ -121,7 +121,7 @@ namespace JxCoreLib
     };
     class ParameterInfo : public TypeInfo
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::ParameterInfo, TypeInfo);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::ParameterInfo, TypeInfo);
     protected:
         Type* param_type_;
         bool is_pointer_;
@@ -153,7 +153,7 @@ namespace JxCoreLib
     //TODO
     class MethodInfo final : public MemberInfo
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxCoreLib, JxCoreLib::MethodInfo, MemberInfo);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::MethodInfo, MemberInfo);
     protected:
         array_list<ParameterInfo*> param_types_;
         ParameterInfo* ret_type_;

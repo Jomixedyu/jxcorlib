@@ -7,13 +7,13 @@
 #include "Assembly.h"
 
 
-namespace JxCoreLib::Math
+namespace jxcorlib::math
 {
     using namespace jmath;
 
-    class BoxingVector2f : public JxCoreLib::BoxingObject
+    class BoxingVector2f : public jxcorlib::BoxingObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxMath, JxCoreLib::Math::BoxingVector2f, JxCoreLib::BoxingObject);
+        CORELIB_DEF_TYPE(AssemblyObject_JxMath, jxcorlib::math::BoxingVector2f, jxcorlib::BoxingObject);
     public:
 
         CORELIB_REFL_DECL_FIELD(x);
@@ -32,9 +32,9 @@ namespace JxCoreLib::Math
     template<> struct get_boxing_type<Vector2f> { using type = BoxingVector2f; };
 
 
-    class BoxingVector3f : public JxCoreLib::BoxingObject
+    class BoxingVector3f : public jxcorlib::BoxingObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxMath, JxCoreLib::Math::BoxingVector3f, JxCoreLib::BoxingObject);
+        CORELIB_DEF_TYPE(AssemblyObject_JxMath, jxcorlib::math::BoxingVector3f, jxcorlib::BoxingObject);
     public:
 
         CORELIB_REFL_DECL_FIELD(x);
@@ -54,9 +54,9 @@ namespace JxCoreLib::Math
     };
     template<> struct get_boxing_type<Vector3f> { using type = BoxingVector3f; };
 
-    class BoxingVector4f : public JxCoreLib::BoxingObject
+    class BoxingVector4f : public jxcorlib::BoxingObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxMath, JxCoreLib::Math::BoxingVector4f, JxCoreLib::BoxingObject);
+        CORELIB_DEF_TYPE(AssemblyObject_JxMath, jxcorlib::math::BoxingVector4f, jxcorlib::BoxingObject);
     public:
 
         CORELIB_REFL_DECL_FIELD(x);
@@ -78,9 +78,9 @@ namespace JxCoreLib::Math
     };
     template<> struct get_boxing_type<Vector4f> { using type = BoxingVector4f; };
 
-    class BoxingQuat4f : public JxCoreLib::BoxingObject
+    class BoxingQuat4f : public jxcorlib::BoxingObject
     {
-        CORELIB_DEF_TYPE(AssemblyObject_JxMath, JxCoreLib::Math::BoxingQuat4f, JxCoreLib::BoxingObject);
+        CORELIB_DEF_TYPE(AssemblyObject_JxMath, jxcorlib::math::BoxingQuat4f, jxcorlib::BoxingObject);
     public:
 
         CORELIB_REFL_DECL_FIELD(w);

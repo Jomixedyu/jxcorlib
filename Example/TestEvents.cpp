@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-using namespace JxCoreLib;
+using namespace jxcorlib;
 
 class TestEventsClass
 {

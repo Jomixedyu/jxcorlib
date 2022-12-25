@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-using namespace JxCoreLib;
+using namespace jxcorlib;
 
 namespace space
 {

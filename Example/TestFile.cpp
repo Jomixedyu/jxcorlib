@@ -5,8 +5,8 @@
 #include <CoreLib/UString.h>
 #include <CoreLib.Serialization/DataSerializer.h>
 #include <CoreLib/Core.h>
-using namespace JxCoreLib;
-using namespace JxCoreLib::Serialization;
+using namespace jxcorlib;
+using namespace jxcorlib::ser;
 using namespace std;
 
 void TestFile()

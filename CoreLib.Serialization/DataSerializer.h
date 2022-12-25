@@ -4,7 +4,7 @@
 #include <string>
 #include <string_view>
 
-namespace JxCoreLib::Serialization
+namespace jxcorlib::ser
 {
     class Stream
     {

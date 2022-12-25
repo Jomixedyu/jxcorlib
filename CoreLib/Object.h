@@ -2,7 +2,7 @@
 * @Moudule     : Object
 * @Date        : 2021/04/17
 * @Author      : JomiXedYu
-* @Description : This file is part of JxCode.CoreLib : https://github.com/JomiXedYu/JxCode.CoreLib
+* @Description : This file is part of jxcorlib : https://github.com/JomiXedYu/jxcorlib
 * @StdRequired : c++20
 */
 
@@ -14,26 +14,26 @@
 #include "UString.h"
 
 #define CORELIB_DECL_ASSEMBLY(NAME) \
-    inline struct __corelib_AssemblyClass_##NAME : public ::JxCoreLib::AssemblyTypeObject \
+    inline struct __corelib_AssemblyClass_##NAME : public ::jxcorlib::AssemblyTypeObject \
     {  __corelib_AssemblyClass_##NAME##() { name = #NAME; } } AssemblyObject_##NAME;
 
-#define CORELIB_DECL_SHORTSPTR(CLASS) using CLASS##_sp = ::JxCoreLib::sptr<class CLASS>; using CLASS##_rsp = const ::JxCoreLib::sptr<class CLASS>&; using CLASS##_wp = ::JxCoreLib::wptr<class CLASS>;
+#define CORELIB_DECL_SHORTSPTR(CLASS) using CLASS##_sp = ::jxcorlib::sptr<class CLASS>; using CLASS##_rsp = const ::jxcorlib::sptr<class CLASS>&; using CLASS##_wp = ::jxcorlib::wptr<class CLASS>;
 
 #define CORELIB_DECL_TEMP_SHORTSPTR(NAME) \
     template<typename T> \
-    using NAME##_sp = ::JxCoreLib::sptr<NAME<T>>; \
+    using NAME##_sp = ::jxcorlib::sptr<NAME<T>>; \
     template<typename T> \
     using NAME##_rsp = const NAME##_sp<T>&; \
     template<typename T> \
-    using NAME##_wp = ::JxCoreLib::wptr<NAME<T>>;
+    using NAME##_wp = ::jxcorlib::wptr<NAME<T>>;
 
 #ifdef WIN32
-#define API_JxCoreLib __declspec(dllexport)
+#define API_jxcorlib __declspec(dllexport)
 #else
-#define API_JxCoreLib
+#define API_jxcorlib
 #endif
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     class Type;
     class Assembly;
@@ -43,7 +43,7 @@ namespace JxCoreLib
         const char* name;
     };
 
-    CORELIB_DECL_ASSEMBLY(JxCoreLib);
+    CORELIB_DECL_ASSEMBLY(jxcorlib);
 
     template<typename T>
     using sptr = std::shared_ptr<T>;
@@ -127,5 +127,5 @@ namespace JxCoreLib
 }
 namespace std
 {
-    string to_string(JxCoreLib::Object* obj);
+    string to_string(jxcorlib::Object* obj);
 }

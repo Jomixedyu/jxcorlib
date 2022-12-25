@@ -2,8 +2,8 @@
 #include <cassert>
 #include <iostream>
 
-using namespace JxCoreLib::Math;
-using namespace JxCoreLib;
+using namespace jxcorlib::math;
+using namespace jxcorlib;
 using namespace std;
 
 void TestMath()

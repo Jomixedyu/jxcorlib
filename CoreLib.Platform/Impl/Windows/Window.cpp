@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <commdlg.h>
 
-namespace JxCoreLib::Platform::Window
+namespace jxcorlib::platform::window
 {
     using std::string;
 
@@ -10,10 +10,10 @@ namespace JxCoreLib::Platform::Window
     {
         switch (mode)
         {
-        case JxCoreLib::Platform::Window::MessageBoxMode::YesNo: return MB_YESNO;
-        case JxCoreLib::Platform::Window::MessageBoxMode::Ok: return MB_OK;
-        case JxCoreLib::Platform::Window::MessageBoxMode::OkCancel: return MB_OKCANCEL;
-        case JxCoreLib::Platform::Window::MessageBoxMode::YesNoCancel: return MB_YESNOCANCEL;
+        case jxcorlib::platform::window::MessageBoxMode::YesNo: return MB_YESNO;
+        case jxcorlib::platform::window::MessageBoxMode::Ok: return MB_OK;
+        case jxcorlib::platform::window::MessageBoxMode::OkCancel: return MB_OKCANCEL;
+        case jxcorlib::platform::window::MessageBoxMode::YesNoCancel: return MB_YESNOCANCEL;
         default:
             break;
         }

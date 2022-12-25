@@ -1,10 +1,10 @@
 #include <CoreLib/CoreLib.h>
 #include <CoreLib/Enum.h>
 #include <cassert>
-using namespace JxCoreLib;
+using namespace jxcorlib;
 
 
-CORELIB_DEF_ENUM(JxCoreLib::AssemblyObject_JxCoreLib,
+CORELIB_DEF_ENUM(jxcorlib::AssemblyObject_jxcorlib,
     , Mode,
     A,
     B = 3,

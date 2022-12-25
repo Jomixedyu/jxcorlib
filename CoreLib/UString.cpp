@@ -4,7 +4,7 @@
 
 
 
-using JxCoreLib::string;
+using jxcorlib::string;
 using u16string = std::u16string;
 
 static inline uint16_t _ByteSwapInt16(uint16_t number)
@@ -144,7 +144,7 @@ static string _Utf16BEToUtf8(const u16string& u16str)
 
 static string _Utf16ToUtf8(const u16string& u16str)
 {
-    if (JxCoreLib::StringUtil::IsLittleEndian()) {
+    if (jxcorlib::StringUtil::IsLittleEndian()) {
         return _Utf16LEToUtf8(u16str);
     }
     else {
@@ -244,7 +244,7 @@ static u16string _Utf8ToUtf16BE(const string& u8str, bool addbom, bool* ok)
 
 static u16string _Utf8ToUtf16(const string& u8str)
 {
-    if (JxCoreLib::StringUtil::IsLittleEndian()) {
+    if (jxcorlib::StringUtil::IsLittleEndian()) {
         return _Utf8ToUtf16LE(u8str, false, nullptr);
     }
     else {
@@ -255,7 +255,7 @@ static u16string _Utf8ToUtf16(const string& u8str)
 static string UTF8ToANSI(const char* src_str);
 static string ANSIToUTF8(const char* src_str);
 
-namespace JxCoreLib
+namespace jxcorlib
 {
 
     inline static bool _StringEqualsChar(const u8char& c, const string& str)

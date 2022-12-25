@@ -1,7 +1,7 @@
 ﻿#include "Reflection.h"
 
 
-namespace JxCoreLib
+namespace jxcorlib
 {
     FieldInfo::FieldInfo(
         const string& name, bool is_static, bool is_public,

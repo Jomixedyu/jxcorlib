@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <vector>
 
-namespace JxCoreLib::Platform
+namespace jxcorlib::platform
 {
-    namespace Window
+    namespace window
     {
         enum class MessageBoxMode : uint8_t
         {
