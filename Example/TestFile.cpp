@@ -33,8 +33,8 @@ void TestFile()
     assert(!PathUtil::AInB("a/b", "a/b"));
     assert(!PathUtil::AInB("a", "a/b/c"));
     auto path1 = PathUtil::Dir("a", paths);
-    auto path2 = PathUtil::Dir("a", paths, false);
-    auto path3 = PathUtil::Dir("", paths, false);
+    auto path2 = PathUtil::Dir("a", paths);
+    auto path3 = PathUtil::Dir("", paths);
     auto path5 = PathUtil::Dir("", paths);
 
 

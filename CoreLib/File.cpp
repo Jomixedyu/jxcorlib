@@ -116,6 +116,7 @@ namespace jxcorlib
         }
         bool AInB(std::string_view a, std::string_view b)
         {
+            if (b.empty() && !a.empty()) return true;
             if (a == b || a.length() <= b.length()) return false;
 
             for (size_t i = 0; i < b.length(); i++)
@@ -125,7 +126,7 @@ namespace jxcorlib
             return a[b.length()] == '/' || a[b.length()] == '\\';
         }
 
-        std::vector<std::string> Dir(std::string_view path, const std::vector<std::string>& target, bool fullname)
+        std::vector<std::string> Dir(std::string_view path, const std::vector<std::string>& target)
         {
             std::vector<std::string> ret;
             string pathstart = path.length() == 0 ? "" : string{ path } + '/';
@@ -133,15 +134,9 @@ namespace jxcorlib
             {
                 if (item.length() > path.length() && item.starts_with(pathstart))
                 {
-                    auto index = item.find('/', path.length() + 1);
-
-                    auto start = fullname ? 0 : (path.length() == 0 ? 0 : path.length() + 1);
-                    auto len = fullname ? index : index - start;
-                    auto right = item.substr(start, len);
-
-                    if (std::find(ret.begin(), ret.end(), right) == ret.end())
+                    if (AInB(item, path) && std::find(ret.begin(), ret.end(), item) == ret.end())
                     {
-                        ret.push_back(right);
+                        ret.push_back(item);
                     }
                 }
             }

@@ -29,7 +29,7 @@ namespace jxcorlib
         //eg. a= Dir/Path/file b= Dir/Path   return true
         bool AInB(std::string_view a, std::string_view b);
 
-        std::vector<std::string> Dir(std::string_view path, const std::vector<std::string>& target, bool fullname = true);
+        std::vector<std::string> Dir(std::string_view path, const std::vector<std::string>& target);
     };
 }
 
