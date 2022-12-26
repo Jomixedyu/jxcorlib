@@ -19,6 +19,23 @@ void TestFile()
 
     assert(PathUtil::GetFilenameExt(filename) == ".ext");
 
+    vector<string> paths = {
+        "a/b/c",
+        "a/b/d/c",
+        "d/b/d",
+        "c",
+        "a",
+        "a/cc",
+        ""
+    };
+
+    assert(PathUtil::AInB("a/b/c", "a"));
+    assert(!PathUtil::AInB("a/b", "a/b"));
+    assert(!PathUtil::AInB("a", "a/b/c"));
+    auto path1 = PathUtil::Dir("a", paths);
+    auto path2 = PathUtil::Dir("a", paths, false);
+
+
     {
         FileStream fs{ "D:/a.txt", FileOpenMode::OpenOrCreate };
 
@@ -70,6 +87,8 @@ void TestFile()
         ReadWriteStream(fs, false, i32);
 
         assert(257 == i32);
+
+
     }
 
 }

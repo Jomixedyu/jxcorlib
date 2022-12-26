@@ -114,6 +114,38 @@ namespace jxcorlib
 
             return ret;
         }
+        bool AInB(std::string_view a, std::string_view b)
+        {
+            if (a == b || a.length() <= b.length()) return false;
+
+            for (size_t i = 0; i < b.length(); i++)
+            {
+                if (a[i] != b[i]) return false;
+            }
+            return a[b.length()] == '/' || a[b.length()] == '\\';
+        }
+
+        std::vector<std::string> Dir(std::string_view path, const std::vector<std::string>& target, bool fullname)
+        {
+            std::vector<std::string> ret;
+            for (auto& item : target)
+            {
+                if (item.length() > path.length() && item.starts_with(path))
+                {
+                    auto index = item.find('/', path.length() + 1);
+
+                    auto start = fullname ? 0 : path.length() + 1;
+                    auto r = item.substr(start, index - 2);
+                    auto it = std::find(ret.begin(), ret.end(), r);
+                    if (it == ret.end())
+                    {
+                        ret.push_back(r);
+                    }
+                }
+            }
+
+            return ret;
+        }
     }
 }
 
