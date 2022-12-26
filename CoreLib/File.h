@@ -27,7 +27,7 @@ namespace jxcorlib
         std::string GetDirectory(std::string_view path);
         std::string Combine(const std::string& p1, const std::string& p2);
         //eg. a= Dir/Path/file b= Dir/Path   return true
-        bool AInB(std::string_view a, std::string_view b, bool recursive = true);
+        bool AInB(std::string_view a, std::string_view b);
 
         std::vector<std::string> Dir(std::string_view path, const std::vector<std::string>& target, bool fullname = true);
     };

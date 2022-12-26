@@ -128,18 +128,20 @@ namespace jxcorlib
         std::vector<std::string> Dir(std::string_view path, const std::vector<std::string>& target, bool fullname)
         {
             std::vector<std::string> ret;
+            string pathstart = path.length() == 0 ? "" : string{ path } + '/';
             for (auto& item : target)
             {
-                if (item.length() > path.length() && item.starts_with(path))
+                if (item.length() > path.length() && item.starts_with(pathstart))
                 {
                     auto index = item.find('/', path.length() + 1);
 
-                    auto start = fullname ? 0 : path.length() + 1;
-                    auto r = item.substr(start, index - 2);
-                    auto it = std::find(ret.begin(), ret.end(), r);
-                    if (it == ret.end())
+                    auto start = fullname ? 0 : (path.length() == 0 ? 0 : path.length() + 1);
+                    auto len = fullname ? index : index - start;
+                    auto right = item.substr(start, len);
+
+                    if (std::find(ret.begin(), ret.end(), right) == ret.end())
                     {
-                        ret.push_back(r);
+                        ret.push_back(right);
                     }
                 }
             }
