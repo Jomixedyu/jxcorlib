@@ -45,7 +45,7 @@ class NotImplCreate : public Object
 void TestDynCreateInst()
 {
 
-    Assembly* assm = Assembly::StaticFindAssembly(AssemblyObject_Test);
+    Assembly* assm = Assembly::StaticFindAssemblyByName(AssemblyObject_Test.name());
     auto p1 = std::static_pointer_cast<CreateFactory>(assm->FindType("CreateFactory")->CreateSharedInstance({}));
     assert(p1->i == 1);
 

@@ -112,7 +112,7 @@ void TestReflection()
     sptr<Object> n;
 
     //dynamic create
-    Type* dyn_type = Assembly::StaticFindAssembly(AssemblyObject_Test)->FindType("space::DynCreateClass");
+    Type* dyn_type = Assembly::StaticFindAssemblyByName(AssemblyObject_Test.name())->FindType("space::DynCreateClass");
     auto dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 
     assert(dyn->GetType() == cltypeof<space::DynCreateClass>());

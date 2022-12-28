@@ -238,8 +238,8 @@ namespace jxcorlib
         static_assert((cltype_concept<T>&& is_shared_ptr<T>::value) || !cltype_concept<T>, "");
         constexpr static bool is_shared_cltype = cltype_concept<T> && is_shared_ptr<T>::value;
     public:
-        List() {}
-        List(std::initializer_list<T> list)
+        List() : CORELIB_INIT_INTERFACE(IList) {}
+        List(std::initializer_list<T> list) : CORELIB_INIT_INTERFACE(IList)
         {
             for (auto& item : list) this->push_back(item);
         }
