@@ -143,12 +143,22 @@ public:
         return reinterpret_cast<char_t*>(block.bytes);
     }
 
+
+    bool empty() const { return index == none; }
+
     bool operator==(const basic_index_string& str)
     {
         return str.index == this->index;
     }
 
-    bool empty() const { return index == none; }
+    basic_index_string& operator=(std::basic_string_view<char_t> view)
+    {
+        return *new(this)basic_index_string(view);
+    }
+    basic_index_string& operator=(basic_index_string str)
+    {
+        this->index = str.index;
+    }
 
     index_t index;
 };
