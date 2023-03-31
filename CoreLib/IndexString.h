@@ -8,17 +8,37 @@
 namespace jxcorlib
 {
 
-    class IndexString : public PrimitiveObject, public index_string
+    class IndexString : public Object, public IStringify
     {
-        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::IndexString, PrimitiveObject);
+        CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::IndexString, Object);
+        CORELIB_IMPL_INTERFACES(IStringify);
     public:
-        using index_string::basic_index_string;
-        IndexString(std::basic_string_view<char_t> view) : index_string(view) {}
 
-        virtual string ToString() const override { return this->to_string(); }
-        index_string get_unboxing_value() { return *this; }
+        IndexString() : IndexString(index_string{}) {}
 
+        IndexString(index_string index) :
+            index(index),
+            CORELIB_INIT_INTERFACE(IStringify)
+        {
+        }
+
+    public:
+        virtual string ToString() const override { return this->index.to_string(); }
+        index_string get_unboxing_value() { return this->index; }
+
+        virtual void IStringify_Parse(const string& value)
+        {
+            this->index = value.c_str();
+        }
+        virtual string IStringify_Stringify()
+        {
+            return this->index.to_string();
+        }
+
+    protected:
+        index_string index;
     };
+
     CORELIB_DECL_SHORTSPTR(IndexString);
     template<> struct get_boxing_type<index_string> { using type = IndexString; };
 
