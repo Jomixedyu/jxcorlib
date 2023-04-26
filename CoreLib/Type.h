@@ -635,7 +635,7 @@ namespace jxcorlib
                 },
                 [](Object_rsp obj) -> IInterface_sp {
                     auto sobj = sptr_cast<T>(obj);
-                return sptr_cast<IInterface>(sobj);
+                return sptr_static_cast<IInterface>(sobj);
                 }
                 );
             _RegisterInterfaces<T, TInterfaces...>(self);

@@ -18,7 +18,7 @@ namespace jxcorlib
             throw ArgumentException();
         }
         Type* type = from->GetType();
-        for (auto& field : type->get_fieldinfos())
+        for (auto& field : type->get_fieldinfos(TypeBinding::NonPublic))
         {
             Type* field_type = field->get_field_type();
 
