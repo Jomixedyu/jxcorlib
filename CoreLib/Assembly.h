@@ -5,28 +5,33 @@
 
 namespace jxcorlib
 {
+    class Assembly;
+
+    class AssemblyManager final
+    {
+    public:
+        static Assembly* BuildAssemblyByName(string_view name);
+        static Assembly* FindAssemblyByName(string_view name);
+        static void UnloadAssemblyByName(string_view name);
+    };
+
     class Assembly final : public Object
     {
         CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::Assembly, Object);
+        friend class AssemblyManager;
     private:
-        string name_;
-        Assembly(string_view name) : name_(name) {}
+        string m_name;
+        Assembly(string_view name) : m_name(name) {}
     public:
-        string get_name() const { return this->name_; }
+        string GetName() const { return this->m_name; }
     public:
         Type* FindType(string_view name) const;
         array_list<Type*> GetTypes() const { return this->types; }
         void RegisterType(Type* type);
 
-    public:
-        //static inline FunctionEvents<Action<>> OnReset;
-
-        static Assembly* StaticBuildAssemblyByName(string_view name);
-
-        static Assembly* StaticFindAssemblyByName(string_view name);
-
-        static void StaticUnloadAssemblyByName(string_view name);
     private:
         array_list<Type*> types;
     };
+
+
 }

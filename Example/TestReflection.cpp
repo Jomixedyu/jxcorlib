@@ -95,7 +95,7 @@ public:
         {
             array_list<ParameterInfo*> infos;
             ReflectionBuilder::CreateMethodParameterInfos(AddOne, &infos);
-            ReflectionBuilder::CreateMethodInfo(StaticType(), "AddOne", true, true, std::move(infos));
+            ReflectionBuilder::CreateMethodInfo(StaticType(), "AddOne", true, std::move(infos));
             auto lambd = [](array_list<Object_sp>&& objs) -> Object_sp {
                 auto ret = AddOne(UnboxUtil::Unbox<int32_t>(objs[0]), UnboxUtil::Unbox<int64_t>(objs[1]));
                 return BoxUtil::Box(ret);
@@ -112,7 +112,7 @@ void TestReflection()
     sptr<Object> n;
 
     //dynamic create
-    Type* dyn_type = Assembly::StaticFindAssemblyByName(AssemblyObject_Test.name())->FindType("space::DynCreateClass");
+    Type* dyn_type = AssemblyManager::FindAssemblyByName(AssemblyObject_Test.name())->FindType("space::DynCreateClass");
     auto dyn = dyn_type->CreateInstance(ParameterPackage{ 20 });
 
     assert(dyn->GetType() == cltypeof<space::DynCreateClass>());
@@ -123,13 +123,12 @@ void TestReflection()
     Type* model_type = cltypeof<DataModel>();
 
     //id : const int
-    FieldInfo* id_field = model_type->get_fieldinfo("id");
-    assert(id_field->is_public() == true);
-    assert(id_field->is_static() == false);
-    assert(id_field->is_const() == false);
-    assert(id_field->is_pointer() == false);
+    FieldInfo* id_field = model_type->GetFieldInfo("id");
+    assert(id_field->IsPublic() == true);
+    assert(id_field->IsConst() == false);
+    assert(id_field->IsPointer() == false);
 
-    assert(id_field->get_name() == "id");
+    assert(id_field->GetName() == "id");
 
     id_field->SetValue(model, mksptr(new Integer32{ 3 }));
 
@@ -138,7 +137,7 @@ void TestReflection()
     assert(*(Integer32*)id_value.get() == 3);
 
     //name : Object*
-    FieldInfo* name_field = model_type->get_fieldinfo("name");
+    FieldInfo* name_field = model_type->GetFieldInfo("name");
 
     Object_sp obj = mksptr(new Object());
     name_field->SetValue(model, obj);
@@ -147,8 +146,8 @@ void TestReflection()
     assert(value == obj);
 
 
-    MethodInfo* minfo = cltypeof<DataModel>()->get_methodinfo("AddOne");
-    assert(minfo->get_parameter_infos().at(0)->get_param_type() == cltypeof<Integer32>());
-    assert(minfo->get_parameter_infos().at(1)->get_param_type() == cltypeof<Integer64>());
+    MethodInfo* minfo = cltypeof<DataModel>()->GetMethodInfo("AddOne");
+    assert(minfo->get_parameter_infos().at(0)->GetParamType() == cltypeof<Integer32>());
+    assert(minfo->get_parameter_infos().at(1)->GetParamType() == cltypeof<Integer64>());
     minfo->Invoke(model, {});
 }

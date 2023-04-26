@@ -21,7 +21,7 @@
 
 
 //支持 基础值类型 系统内指针（包括智能指针）类型
-#define CORELIB_REFL_DECL_FIELD(NAME) \
+#define CORELIB_REFL_DECL_FIELD(NAME, ...) \
     static inline struct __corelib_refl_##NAME \
     { \
         template<typename T> using _Detected = decltype(std::declval<T&>().NAME); \
@@ -32,7 +32,7 @@
             using CleanType = remove_shared_ptr<DecayType>::type; \
             using ClType = get_boxing_type<remove_shared_ptr<std::remove_cv<FieldType>::type>::type>::type; \
             ReflectionBuilder::CreateFieldInfo<ThisClass, FieldType>( \
-                #NAME, false, jxcorlib::is_detected<_Detected, ThisClass>::value, \
+                #NAME, jxcorlib::is_detected<_Detected, ThisClass>::value, \
                 [](Object* p) -> sptr<Object> { \
                     auto rawptr = (ThisClass*)p; \
                     return get_object_pointer<CleanType>::get(rawptr->NAME); \
@@ -40,7 +40,8 @@
                 [](Object* p, sptr<Object> value) { \
                     auto rawptr = (ThisClass*)p; \
                     object_assign<CleanType>::assign(&rawptr->NAME, value); \
-                }); \
+                }, \
+            {__VA_ARGS__} ); \
         } \
     } __corelib_refl_##NAME##_;
 
@@ -56,28 +57,38 @@
 
 namespace jxcorlib
 {
+    class Attribute;
+
     class TypeInfo : public Object
     {
         CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::TypeInfo, Object);
+        friend class ReflectionBuilder;
     public:
         TypeInfo() {}
         TypeInfo(const TypeInfo&) = delete;
         TypeInfo(TypeInfo&&) = delete;
+    public:
+        sptr<Attribute>             GetAttribute(Type* type);
+        array_list<sptr<Attribute>> GetAttributes(Type* type);
+        bool                        IsDefinedAttribute(Type* type);
+    private:
+        array_list<sptr<Attribute>> m_attributes;
     };
 
     class MemberInfo : public TypeInfo
     {
         CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::MemberInfo, TypeInfo);
+        friend class ReflectionBuilder;
     protected:
-        string name_;
-        bool is_static_;
-        bool is_public_;
+        string   m_name;
+        bool     m_isPublic;
+
     public:
-        const string& get_name() const { return this->name_; }
-        bool is_static() const { return this->is_static_; }
-        bool is_public() const { return this->is_public_; }
+        const string& GetName() const { return this->m_name; }
+        bool IsPublic() const { return this->m_isPublic; }
+        
     public:
-        MemberInfo(const string& name, bool is_static, bool is_public);
+        MemberInfo(const string& name, bool is_public);
         MemberInfo(const MemberInfo& right) = delete;
         MemberInfo(MemberInfo&& right) = delete;
     };
@@ -85,75 +96,77 @@ namespace jxcorlib
     class FieldInfo final : public MemberInfo
     {
         CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::FieldInfo, MemberInfo);
+        friend class ReflectionBuilder;
     public:
         struct FieldTypeInfo
         {
-            bool is_raw_pointer;
-            bool is_shared_pointer;
-            bool is_const;
+            bool IsRawPointer;
+            bool IsSharedPointer;
+            bool IsConst;
         };
         using GetterFunction = std::function<sptr<Object>(Object* instance)>;
         using SetterFunction = std::function<void(Object* instance, sptr<Object> value)>;
     protected:
-        FieldTypeInfo info_;
-        Type* field_type_;
-        GetterFunction getter_;
-        SetterFunction setter_;
+        FieldTypeInfo    m_info;
+        Type*            m_fieldType;
+        GetterFunction   m_getter;
+        SetterFunction   m_setter;
     public:
-        Type* get_field_type() const { return this->field_type_; }
-        bool is_raw_pointer() const { return this->info_.is_raw_pointer; }
-        bool is_shared_pointer() const { return this->info_.is_shared_pointer; }
-        bool is_pointer() const { return is_raw_pointer() || is_shared_pointer(); }
-        bool is_const() const { return this->info_.is_const; }
-
+        Type* get_field_type() const { return this->m_fieldType; }
+        bool IsRawPointer()    const { return this->m_info.IsRawPointer; }
+        bool IsSharedPointer() const { return this->m_info.IsSharedPointer; }
+        bool IsPointer()       const { return IsRawPointer() || IsSharedPointer(); }
+        bool IsConst()         const { return this->m_info.IsConst; }
     public:
         FieldInfo(
-            const string& name, bool is_static, bool is_public,
+            const string& name, bool is_public,
             FieldTypeInfo info, Type* field_type,
             const GetterFunction& getter, const SetterFunction& setter);
 
         FieldInfo(const FieldInfo& right) = delete;
-        FieldInfo(FieldInfo&& right) = delete;
+        FieldInfo(FieldInfo&& right)      = delete;
     public:
-        void SetValue(Object* instance, sptr<Object> value);
+        void         SetValue(Object* instance, sptr<Object> value);
         sptr<Object> GetValue(Object* instance) const;
 
     };
     class ParameterInfo : public TypeInfo
     {
         CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::ParameterInfo, TypeInfo);
+        friend class ReflectionBuilder;
     protected:
-        Type* param_type_;
-        bool is_pointer_;
-        bool is_const_;
-        bool is_ref_;
-        bool is_rref_;
+        Type* m_paramType;
+        bool m_isPointer;
+        bool m_isConst;
+        bool m_isRef;
+        bool m_isRref;
     public:
-        Type* get_param_type() const { return this->param_type_; }
-        bool is_pointer() const { return this->is_pointer_; }
-        bool is_const() const { return this->is_const_; }
-        bool is_reference() const { return this->is_ref_; }
-        bool is_rreference() const { return this->is_rref_; }
+        Type* GetParamType() const { return this->m_paramType; }
+        bool IsPointer() const { return this->m_isPointer; }
+        bool IsConst() const { return this->m_isConst; }
+        bool IsReference() const { return this->m_isRef; }
+        bool IsRReference() const { return this->m_isRref; }
     public:
         ParameterInfo(const ParameterInfo&) = delete;
         ParameterInfo(ParameterInfo&&) = delete;
         ParameterInfo(
-            Type* param_type,
-            bool is_pointer,
-            bool is_const,
-            bool is_ref,
-            bool is_rref)
-            : param_type_(param_type),
-            is_pointer_(is_pointer),
-            is_const_(is_const),
-            is_ref_(is_ref),
-            is_rref_(is_rref) {}
+            Type* m_paramType,
+            bool isPointer,
+            bool isConst,
+            bool isRef,
+            bool isRref)
+            : m_paramType(m_paramType),
+            m_isPointer(isPointer),
+            m_isConst(isConst),
+            m_isRef(isRef),
+            m_isRref(isRref) {}
     };
 
     //TODO
     class MethodInfo final : public MemberInfo
     {
         CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::MethodInfo, MemberInfo);
+        friend class ReflectionBuilder;
     protected:
         array_list<ParameterInfo*> param_types_;
         ParameterInfo* ret_type_;
@@ -164,7 +177,7 @@ namespace jxcorlib
         bool is_abstract() const { return this->is_abstract_; }
     public:
         MethodInfo(
-            const string& name, bool is_static, bool is_public,
+            const string& name, bool is_public,
             ParameterInfo* ret_type, array_list<ParameterInfo*>&& params_infos, bool is_abstract);
         MethodInfo(const MethodInfo& right) = delete;
         MethodInfo(MethodInfo&& right) = delete;
@@ -181,20 +194,28 @@ namespace jxcorlib
         template<typename T, typename TField>
         static inline void CreateFieldInfo(
             const string& name,
-            bool is_static, bool is_public,
+            bool is_public,
             const FieldInfo::GetterFunction& getter,
-            const FieldInfo::SetterFunction& setter
+            const FieldInfo::SetterFunction& setter,
+            std::initializer_list<class Attribute*> attributeList
         )
         {
             FieldInfo::FieldTypeInfo info;
-            info.is_raw_pointer = std::is_pointer<TField>::value;
-            info.is_const = std::is_const<TField>::value;
-            info.is_shared_pointer = is_shared_ptr<TField>::value;
+            info.IsRawPointer = std::is_pointer<TField>::value;
+            info.IsConst = std::is_const<TField>::value;
+            info.IsSharedPointer = is_shared_ptr<TField>::value;
 
             using ClType = get_boxing_type<typename fulldecay<TField>::type>::type;
-            Type* field_type = cltypeof<ClType>();
+            Type* fieldType = cltypeof<ClType>();
 
-            cltypeof<T>()->_AddMemberInfo(new FieldInfo{ name, is_static, is_public, info, field_type, getter, setter });
+            FieldInfo* fieldInfo = new FieldInfo{ name, is_public, info, fieldType, getter, setter };
+
+            for (auto& attr : attributeList)
+            {
+                static_cast<TypeInfo*>(fieldInfo)->m_attributes.push_back(mksptr(attr));
+            }
+
+            cltypeof<T>()->_AddMemberInfo(fieldInfo);
         }
 
     private:
@@ -224,10 +245,10 @@ namespace jxcorlib
         }
 
 
-        static void CreateMethodInfo(Type* type, const string& name, bool is_static, bool is_public, array_list<ParameterInfo*>&& info)
+        static void CreateMethodInfo(Type* type, const string& name, bool is_public, array_list<ParameterInfo*>&& info)
         {
             //todo: return value
-            type->_AddMemberInfo(new MethodInfo(name, is_static, is_public, nullptr, std::move(info), false));
+            type->_AddMemberInfo(new MethodInfo(name, is_public, nullptr, std::move(info), false));
         }
     };
 }

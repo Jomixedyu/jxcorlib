@@ -94,7 +94,7 @@ namespace jxcorlib::platform::window
         return TRUE;
     }
 
-    intptr_t MainWindow()
+    intptr_t GetMainWindowHandle()
     {
         DWORD id = GetCurrentProcessId();
         WNDINFO wi;
@@ -153,5 +153,13 @@ namespace jxcorlib::platform::window
             return true;
         }
         return false;
+    }
+
+    float GetUIScaling()
+    {
+        const HDC hDC = ::GetDC(NULL);
+        const UINT dpix = ::GetDeviceCaps(hDC, LOGPIXELSX);
+        ::ReleaseDC(NULL, hDC);
+        return  dpix / 96.f;
     }
 }

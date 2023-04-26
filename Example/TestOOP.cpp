@@ -44,8 +44,8 @@ void TestOOP()
 
     assert(exm->ilist->Equals(copy->ilist.get()));
 
-    assert(exm->GetType()->get_base() == cltypeof<Object>());
-    assert(exm->GetType()->get_name() == string("ExampleClass"));
+    assert(exm->GetType()->GetBase() == cltypeof<Object>());
+    assert(exm->GetType()->GetName() == string("ExampleClass"));
 
     assert(cltypeof<Object>()->IsInstanceOfType(exm.get()));
 

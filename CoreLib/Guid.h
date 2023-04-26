@@ -33,7 +33,7 @@ namespace jxcorlib
         using unboxing_type = guid_t;
         guid_t get_unboxing_value() const { return this->value_; }
 
-        Guid() :CORELIB_INIT_INTERFACE(IStringify) {}
+        Guid() : CORELIB_INIT_INTERFACE(IStringify) {}
         Guid(guid_t guid) : value_(guid), CORELIB_INIT_INTERFACE(IStringify) {}
         virtual string ToString() const override { return this->value_.to_string(); }
     public: /*Interfaces*/

@@ -21,19 +21,19 @@ namespace jxcorlib::ser
         switch (mode)
         {
         case jxcorlib::ser::FileOpenMode::Read:
-            strcpy(cmode, "r");
+            strcpy_s(cmode, "r");
             break;
         case jxcorlib::ser::FileOpenMode::Write:
-            strcpy(cmode, "w");
+            strcpy_s(cmode, "w");
             break;
         case jxcorlib::ser::FileOpenMode::ReadWrite:
-            strcpy(cmode, "r+");
+            strcpy_s(cmode, "r+");
             break;
         case jxcorlib::ser::FileOpenMode::OpenOrCreate:
-            strcpy(cmode, "w+");
+            strcpy_s(cmode, "w+");
             break;
         case jxcorlib::ser::FileOpenMode::Append:
-            strcpy(cmode, "a+");
+            strcpy_s(cmode, "a+");
             break;
         default:
             break;
@@ -70,9 +70,10 @@ namespace jxcorlib::ser
             this->file_ = nullptr;
         }
     }
-    FileStream::FileStream(FileStream&& r)
+    FileStream::FileStream(FileStream&& r) noexcept
     {
         this->file_ = r.file_;
+        this->mode_ = r.mode_;
         r.file_ = nullptr;
     }
 

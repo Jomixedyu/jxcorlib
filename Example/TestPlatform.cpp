@@ -1,6 +1,4 @@
 ﻿#include <CoreLib.Platform/Window.h>
-#include <CoreLib.Platform/FolderWatch.h>
-
 #include <cassert>
 #include <string>
 
@@ -17,10 +15,4 @@ void TestPlatform()
     //string sel;
     //Window::OpenFileDialog(0, "ExeFile(*.exe)|*.exe", "C:\\", &sel);
     //int a = 3;
-
-    FolderWatch w{ "D:\\newfolder", true };
-    w.Tick();
-    w.Tick();
-    w.Tick();
-
 }

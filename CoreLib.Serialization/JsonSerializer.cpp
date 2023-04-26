@@ -19,14 +19,14 @@ namespace jxcorlib::ser
             return json::object();
         }
 
-        if (obj->GetType()->is_primitive_type())
+        if (obj->GetType()->IsPrimitiveType())
         {
             json prim_js;
             PrimitiveObjectUtil::Assign(&prim_js, obj);
             return std::move(prim_js);
         }
 
-        if (obj->GetType()->is_enum())
+        if (obj->GetType()->IsEnum())
         {
             json enum_js;
             if (settings.string_enum)
@@ -73,10 +73,10 @@ namespace jxcorlib::ser
     {
         json obj_js = json::object();
 
-        for (FieldInfo* info : obj->GetType()->get_fieldinfos(TypeBinding::NonPublic))
+        for (FieldInfo* info : obj->GetType()->GetFieldInfos(TypeBinding::NonPublic))
         {
             Object_sp field_inst = info->GetValue(obj);
-            obj_js[info->get_name()] = _SerializeObject(field_inst.get(), settings);
+            obj_js[info->GetName()] = _SerializeObject(field_inst.get(), settings);
         }
 
         return obj_js;
@@ -164,9 +164,9 @@ namespace jxcorlib::ser
             obj = type->CreateSharedInstance({});
         }
 
-        for (auto field_info : type->get_fieldinfos())
+        for (auto field_info : type->GetFieldInfos())
         {
-            auto& item = js.at(field_info->get_name());
+            auto& item = js.at(field_info->GetName());
             if (!item.empty())
             {
                 field_info->SetValue(obj.get(), _DeserializeObject(item, field_info->get_field_type()));
@@ -196,12 +196,12 @@ namespace jxcorlib::ser
 
     static Object_sp _DeserializeObject(const json& js, Type* type, sptr<Object> default_v)
     {
-        if (type->is_primitive_type())
+        if (type->IsPrimitiveType())
         {
             return _GetPrimitiveValue(js, type);
         }
 
-        if (type->is_enum())
+        if (type->IsEnum())
         {
             return _DeserializeEnum(js, type);
         }

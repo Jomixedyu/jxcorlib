@@ -10,7 +10,7 @@ namespace jxcorlib
         for (string& enum_item : enums) {
             auto kv = StringUtil::Split(enum_item, u8char("="));
 
-            string& name_ = StringUtil::TrimSelf(kv[0]);
+            string& m_name = StringUtil::TrimSelf(kv[0]);
             uint32_t value_ = 0;
 
             if (kv.size() == 2)
@@ -29,7 +29,7 @@ namespace jxcorlib
                     value_ = 0;
                 }
             }
-            (*defs)->push_back({ name_, value_ });
+            (*defs)->push_back({ m_name, value_ });
         }
     }
     bool Enum::StaticTryParse(Type* type, string_view name, uint32_t* out_value)

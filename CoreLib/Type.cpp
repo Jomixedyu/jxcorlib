@@ -7,14 +7,42 @@
 #include "Reflection.h"
 #include "Assembly.h"
 #include "BasicTypes.h"
+#include "Attribute.h"
 
 namespace jxcorlib
 {
-    static std::vector<Type*>* g_types = nullptr;
+
+    Type::Type(
+        CreateInstFunc dyncreate,
+        Assembly* assembly,
+        Type* base,
+        const string& name,
+        const std::type_info& info,
+        int32_t structure_size)
+        :
+        m_createInstanceFunc(dyncreate),
+        m_base(base),
+        m_name(name),
+        m_typeinfo(info),
+        m_structureSize(structure_size),
+        m_assembly(assembly),
+        m_isInterface(false),
+        m_enumGetter(nullptr)
+    {
+        auto pos = name.find_last_of("::");
+        if (pos != name.npos)
+        {
+            m_shortName = name.substr(pos + 1, name.size() - pos - 1);
+        }
+        else
+        {
+            m_shortName = name;
+        }
+    }
 
     bool Type::IsImplementedInterface(Type* type)
     {
-        for (auto& [item, fun, sfun]: this->interfaces_)
+        for (auto& [item, fun, sfun] : this->m_interfaces)
         {
             if (type->IsSubclassOf(item))
             {
@@ -24,14 +52,19 @@ namespace jxcorlib
         return false;
     }
 
-    //array_list<Type*> Type::GetInterfaces() const
-    //{
-    //    return this->interfaces_;
-    //}
+    array_list<Type*> Type::GetInterfaces() const
+    {
+        array_list<Type*> ret;
+        for (auto& [type, _, __] : this->m_interfaces)
+        {
+            ret.push_back(type);
+        }
+        return ret;
+    }
 
     string Type::ToString() const
     {
-        return this->name_;
+        return this->m_name;
     }
 
     bool Type::IsInstanceOfType(const Object* object) const
@@ -52,7 +85,7 @@ namespace jxcorlib
                 return true;
             }
             else {
-                base = base->get_base();
+                base = base->GetBase();
             }
         }
         return false;
@@ -60,19 +93,19 @@ namespace jxcorlib
 
     Object* Type::CreateInstance(const ParameterPackage& v)
     {
-        if (this->c_inst_ptr_ == nullptr) {
-            throw NotImplementException(this->get_name() + ": the creation method is not implemented");
+        if (this->m_createInstanceFunc == nullptr) {
+            throw NotImplementException(this->GetName() + ": the creation method is not implemented");
         }
 
-        return (*this->c_inst_ptr_)(v);
+        return (*this->m_createInstanceFunc)(v);
     }
 
     sptr<Object> Type::CreateSharedInstance(const ParameterPackage& v)
     {
-        if (this->c_inst_ptr_ == nullptr) {
-            throw NotImplementException(this->get_name() + ": the creation method is not implemented");
+        if (this->m_createInstanceFunc == nullptr) {
+            throw NotImplementException(this->GetName() + ": the creation method is not implemented");
         }
-        return mksptr((*this->c_inst_ptr_)(v));
+        return mksptr((*this->m_createInstanceFunc)(v));
     }
 
 
@@ -81,65 +114,61 @@ namespace jxcorlib
         static Type* type = nullptr;
         if (type == nullptr)
         {
-            Assembly* assm = Assembly::StaticBuildAssemblyByName(AssemblyObject_jxcorlib.name());
+            Assembly* assm = AssemblyManager::BuildAssemblyByName(AssemblyObject_jxcorlib.name());
             type = new Type(nullptr, assm, cltypeof<Object>(), "jxcorlib::Type", typeid(Object), sizeof(Object));
             assm->RegisterType(type);
         }
         return type;
     }
 
-    bool Type::is_primitive_type() const
+    bool Type::IsPrimitiveType() const
     {
         return this->IsSubclassOf(cltypeof<PrimitiveObject>());
     }
 
-    bool Type::is_boxing_type() const
+    bool Type::IsBoxingType() const
     {
         return this->IsSubclassOf(cltypeof<BoxingObject>());
     }
 
-    void Type::get_memberinfos(array_list<MemberInfo*>& out, TypeBinding attr)
+    void Type::GetMemberInfos(array_list<MemberInfo*>& out, TypeBinding attr)
     {
-        for (auto& [name, info] : this->member_infos_)
+        for (auto& [name, info] : this->m_memberInfos)
         {
             if (!EnumHasFlag(attr, TypeBinding::NonPublic))
             {
-                if (!info->is_public_) continue;
-            }
-            if (EnumHasFlag(attr, TypeBinding::Static))
-            {
-                if (!info->is_static_) continue;
+                if (!info->m_isPublic) continue;
             }
 
             out.push_back(info);
         }
-        if (this->get_base())
+        if (this->GetBase())
         {
-            this->get_base()->get_memberinfos(out, attr);
+            this->GetBase()->GetMemberInfos(out, attr);
         }
     }
 
-    array_list<MemberInfo*> Type::get_memberinfos(TypeBinding attr)
+    array_list<MemberInfo*> Type::GetMemberInfos(TypeBinding attr)
     {
         array_list<MemberInfo*> v;
-        this->get_memberinfos(v, attr);
+        this->GetMemberInfos(v, attr);
         return v;
     }
 
-    MemberInfo* Type::get_memberinfo(const string& name)
+    MemberInfo* Type::GetMemberInfo(const string& name)
     {
-        if (this->member_infos_.find(name) == this->member_infos_.end())
+        if (this->m_memberInfos.find(name) == this->m_memberInfos.end())
         {
             return nullptr;
         }
-        return this->member_infos_.at(name);
+        return this->m_memberInfos.at(name);
     }
 
-    void Type::get_fieldinfos(array_list<FieldInfo*>& out, TypeBinding attr)
+    void Type::GetFieldInfos(array_list<FieldInfo*>& out, TypeBinding attr)
     {
         Type* fieldinfo_type = cltypeof<FieldInfo>();
 
-        for (auto& [name, info] : this->member_infos_)
+        for (auto& [name, info] : this->m_memberInfos)
         {
             if (!fieldinfo_type->IsInstanceOfType(info))
             {
@@ -147,34 +176,30 @@ namespace jxcorlib
             }
             if (!EnumHasFlag(attr, TypeBinding::NonPublic))
             {
-                if (!info->is_public_) continue;
-            }
-            if (EnumHasFlag(attr, TypeBinding::Static))
-            {
-                if (!info->is_static_) continue;
+                if (!info->m_isPublic) continue;
             }
             out.push_back(static_cast<FieldInfo*>(info));
         }
-        if (this->get_base())
+        if (this->GetBase())
         {
-            this->get_base()->get_fieldinfos(out, attr);
+            this->GetBase()->GetFieldInfos(out, attr);
         }
     }
 
-    array_list<FieldInfo*> Type::get_fieldinfos(TypeBinding attr)
+    array_list<FieldInfo*> Type::GetFieldInfos(TypeBinding attr)
     {
         array_list<FieldInfo*> v;
-        this->get_fieldinfos(v, attr);
+        this->GetFieldInfos(v, attr);
         return v;
     }
 
-    FieldInfo* Type::get_fieldinfo(const string& name)
+    FieldInfo* Type::GetFieldInfo(const string& name)
     {
-        if (this->member_infos_.find(name) == this->member_infos_.end())
+        if (this->m_memberInfos.find(name) == this->m_memberInfos.end())
         {
             return nullptr;
         }
-        MemberInfo* info = this->member_infos_.at(name);
+        MemberInfo* info = this->m_memberInfos.at(name);
         if (!info->GetType()->IsSubclassOf(cltypeof<FieldInfo>()))
         {
             return nullptr;
@@ -182,11 +207,11 @@ namespace jxcorlib
         return static_cast<FieldInfo*>(info);
     }
 
-    void Type::get_methodinfos(array_list<MethodInfo*>& out, TypeBinding attr)
+    void Type::GetMethodInfos(array_list<MethodInfo*>& out, TypeBinding attr)
     {
         Type* methodi_type = cltypeof<MethodInfo>();
 
-        for (auto& [name, info] : this->member_infos_)
+        for (auto& [name, info] : this->m_memberInfos)
         {
             if (!methodi_type->IsInstanceOfType(info))
             {
@@ -194,34 +219,30 @@ namespace jxcorlib
             }
             if (!EnumHasFlag(attr, TypeBinding::NonPublic))
             {
-                if (!info->is_public_) continue;
-            }
-            if (EnumHasFlag(attr, TypeBinding::Static))
-            {
-                if (!info->is_static_) continue;
+                if (!info->m_isPublic) continue;
             }
             out.push_back(static_cast<MethodInfo*>(info));
         }
-        if (this->get_base())
+        if (this->GetBase())
         {
-            this->get_base()->get_methodinfos(out, attr);
+            this->GetBase()->GetMethodInfos(out, attr);
         }
     }
 
-    array_list<MethodInfo*> Type::get_methodinfos(TypeBinding attr)
+    array_list<MethodInfo*> Type::GetMethodInfos(TypeBinding attr)
     {
         array_list<MethodInfo*> v;
-        this->get_methodinfos(v, attr);
+        this->GetMethodInfos(v, attr);
         return v;
     }
 
-    MethodInfo* Type::get_methodinfo(const string& name)
+    MethodInfo* Type::GetMethodInfo(const string& name)
     {
-        if (this->member_infos_.find(name) == this->member_infos_.end())
+        if (this->m_memberInfos.find(name) == this->m_memberInfos.end())
         {
             return nullptr;
         }
-        MemberInfo* info = this->member_infos_.at(name);
+        MemberInfo* info = this->m_memberInfos.at(name);
         if (!info->GetType()->IsSubclassOf(cltypeof<MethodInfo>()))
         {
             return nullptr;
@@ -230,12 +251,12 @@ namespace jxcorlib
     }
     void Type::_AddMemberInfo(MemberInfo* info)
     {
-        this->member_infos_.insert({ info->get_name(), info });
+        this->m_memberInfos.insert({ info->GetName(), info });
     }
 
     IInterface_sp Type::GetSharedInterface(Object_rsp instance, Type* type)
     {
-        for (auto& [ty, func, sfunc] : this->interfaces_)
+        for (auto& [ty, func, sfunc] : this->m_interfaces)
         {
             if (type->IsSubclassOf(ty))
             {
@@ -247,19 +268,71 @@ namespace jxcorlib
 
     IInterface* Type::GetInterface(Object* instance, Type* type)
     {
-        for (auto& [ty, func, sfunc] : this->interfaces_)
+        for (auto& [ty, func, sfunc] : this->m_interfaces)
         {
             if (type->IsSubclassOf(ty))
             {
                 return func(instance);
             }
         }
-        if (this->get_base())
+        if (this->GetBase())
         {
-            IInterface* intfc = this->get_base()->GetInterface(instance, type);
+            IInterface* intfc = this->GetBase()->GetInterface(instance, type);
             if (intfc) { return intfc; }
         }
         return nullptr;
+    }
+
+    sptr<Attribute> Type::GetAttribute(Type* type, bool inherit)
+    {
+        Type* target = this;
+        do
+        {
+            for (auto& attr : target->m_attributes)
+            {
+                if (type->IsInstanceOfType(attr.get()))
+                {
+                    return attr;
+                }
+            }
+            // not found
+            if (inherit)
+            {
+                target = target->GetBase();
+            }
+        } while (target);
+
+        return nullptr;
+    }
+    array_list<sptr<Attribute>> Type::GetAttributes(Type* type, bool inherit)
+    {
+        array_list<sptr<Attribute>> ret;
+        Type* target = this;
+        do
+        {
+            for (auto& attr : target->m_attributes)
+            {
+                if (type->IsInstanceOfType(attr.get()))
+                {
+                    ret.push_back(attr);
+                }
+            }
+            if (inherit)
+            {
+                target = target->GetBase();
+            }
+            else
+            {
+                target = nullptr;
+            }
+        } while (target);
+
+        return ret;
+    }
+
+    bool Type::IsDefinedAttribute(Type* type, bool inherit)
+    {
+        return GetAttribute(type, inherit) != nullptr;
     }
 
     Type* IInterface::StaticType()
@@ -267,9 +340,9 @@ namespace jxcorlib
         static Type* type = nullptr;
         if (type == nullptr)
         {
-            Assembly* assm = ::jxcorlib::Assembly::StaticBuildAssemblyByName(AssemblyObject_jxcorlib.name());
+            Assembly* assm = ::jxcorlib::AssemblyManager::BuildAssemblyByName(AssemblyObject_jxcorlib.name());
             type = new Type(nullptr, assm, cltypeof<Object>(), "jxcorlib::IInterface", typeid(IInterface), sizeof(IInterface));
-            type->is_interface_ = true;
+            type->m_isInterface = true;
             assm->RegisterType(type);
         }
         return type;

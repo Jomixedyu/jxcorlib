@@ -17,7 +17,7 @@ namespace jxcorlib
         static Type* type = nullptr;
         if (type == nullptr)
         {
-            Assembly* assm = Assembly::StaticBuildAssemblyByName(AssemblyObject_jxcorlib.name());
+            Assembly* assm = AssemblyManager::BuildAssemblyByName(AssemblyObject_jxcorlib.name());
             type = new Type(CreateInstance, assm, nullptr, "jxcorlib::Object", typeid(Object), sizeof(Object));
             assm->RegisterType(type);
         }
@@ -35,7 +35,7 @@ namespace jxcorlib
 
     string Object::ToString() const
     {
-        return this->GetType()->get_name();
+        return this->GetType()->GetName();
     }
 
     bool Object::Equals(Object* object) const

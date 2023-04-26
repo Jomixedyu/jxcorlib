@@ -1,4 +1,5 @@
 #include "Assembly.h"
+#include <cassert>
 
 namespace jxcorlib
 {
@@ -7,7 +8,7 @@ namespace jxcorlib
     {
         for (auto item : this->types)
         {
-            if (item->get_name() == name)
+            if (item->GetName() == name)
             {
                 return item;
             }
@@ -20,17 +21,20 @@ namespace jxcorlib
         this->types.push_back(type);
     }
 
+
+
     static array_list<Assembly*>& assemblies()
     {
         static array_list<Assembly*> list;
         return list;
     }
+    
 
-    Assembly* Assembly::StaticFindAssemblyByName(string_view name)
+    Assembly* AssemblyManager::FindAssemblyByName(string_view name)
     {
         for (Assembly* assembly : assemblies())
         {
-            if (assembly->get_name() == name)
+            if (assembly->GetName() == name)
             {
                 return assembly;
             }
@@ -38,13 +42,22 @@ namespace jxcorlib
         return nullptr;
     }
 
-    void Assembly::StaticUnloadAssemblyByName(string_view name)
+    void AssemblyManager::UnloadAssemblyByName(string_view name)
     {
-
+        for (auto it = assemblies().begin(); it < assemblies().end(); ++it)
+        {
+            if ((*it)->GetName() == name)
+            {
+                assemblies().erase(it);
+                return;
+            }
+        }
     }
-    Assembly* Assembly::StaticBuildAssemblyByName(string_view name)
+    Assembly* AssemblyManager::BuildAssemblyByName(string_view name)
     {
-        Assembly* ass = StaticFindAssemblyByName(name);
+        Assembly* ass = FindAssemblyByName(name);
+        assert(ass != nullptr);
+
         if (ass == nullptr)
         {
             ass = new Assembly(name);

@@ -18,7 +18,7 @@ namespace jxcorlib
             throw ArgumentException();
         }
         Type* type = from->GetType();
-        for (auto& field : type->get_fieldinfos(TypeBinding::NonPublic))
+        for (auto& field : type->GetFieldInfos())
         {
             Type* field_type = field->get_field_type();
 
@@ -39,7 +39,7 @@ namespace jxcorlib
 
                 for (int i = 0; i < len; i++)
                 {
-                    if (item_type->is_boxing_type())
+                    if (item_type->IsBoxingType())
                     {
                         tolist->Add(fromlist->At(i));
                     }

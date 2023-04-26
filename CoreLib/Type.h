@@ -34,7 +34,7 @@ public: static inline ::jxcorlib::Type* StaticType() \
             { \
                 dynptr = ::jxcorlib::TypeTraits::get_zeroparam_object<ThisClass>::get(); \
             } \
-            ::jxcorlib::Assembly* assm = ::jxcorlib::Assembly::StaticBuildAssemblyByName(ASSEMBLY.name()); \
+            ::jxcorlib::Assembly* assm = ::jxcorlib::AssemblyManager::BuildAssemblyByName(ASSEMBLY.name()); \
             type = new ::jxcorlib::Type(dynptr, assm, ::jxcorlib::cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
             assm->RegisterType(type); \
         } \
@@ -72,7 +72,7 @@ public: static inline ::jxcorlib::Type* StaticType() \
             { \
                 dynptr = ::jxcorlib::TypeTraits::get_zeroparam_object<ThisClass>::get(); \
             } \
-            ::jxcorlib::Assembly* assm = ::jxcorlib::Assembly::StaticBuildAssemblyByName(ASSEMBLY.name()); \
+            ::jxcorlib::Assembly* assm = ::jxcorlib::AssemblyManager::BuildAssemblyByName(ASSEMBLY.name()); \
             type = new ::jxcorlib::Type(dynptr, assm, ::jxcorlib::cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
             assm->RegisterType(type); \
             ::jxcorlib::TypeBuilder::RegisterEnum(type, &ThisClass::StaticGetDefinitions); \
@@ -102,7 +102,7 @@ public: static inline ::jxcorlib::Type* StaticType() \
         static ::jxcorlib::Type* type = nullptr; \
         if (type == nullptr) \
         { \
-            ::jxcorlib::Assembly* assm = ::jxcorlib::Assembly::StaticBuildAssemblyByName(ASSEMBLY.name()); \
+            ::jxcorlib::Assembly* assm = ::jxcorlib::AssemblyManager::BuildAssemblyByName(ASSEMBLY.name()); \
             type = new ::jxcorlib::Type(nullptr, assm, ::jxcorlib::cltypeof<BASE>(), #NAME, typeid(NAME), sizeof(NAME)); \
             assm->RegisterType(type); \
         } \
@@ -131,7 +131,7 @@ public: static inline ::jxcorlib::Type* StaticType() \
         static ::jxcorlib::Type* type = nullptr; \
         if (type == nullptr) \
         { \
-            ::jxcorlib::Assembly* assm = ::jxcorlib::Assembly::StaticBuildAssemblyByName(ASSEMBLY.name()); \
+            ::jxcorlib::Assembly* assm = ::jxcorlib::AssemblyManager::BuildAssemblyByName(ASSEMBLY.name()); \
             type = new ::jxcorlib::Type(nullptr, assm, ::jxcorlib::cltypeof<BASE>(), #NAME, typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
             assm->RegisterType(type); \
         } \
@@ -161,7 +161,7 @@ public: static inline ::jxcorlib::Type* StaticType() \
             dynptr = ::jxcorlib::TypeTraits::get_zeroparam_object<ThisClass>::get(); \
         } \
         using TemplateType = ::jxcorlib::TemplateTypePair<__VA_ARGS__>; \
-        ::jxcorlib::Assembly* assm = ::jxcorlib::Assembly::StaticBuildAssemblyByName(ASSEMBLY.name()); \
+        ::jxcorlib::Assembly* assm = ::jxcorlib::AssemblyManager::BuildAssemblyByName(ASSEMBLY.name()); \
         type = new ::jxcorlib::Type(dynptr, assm, ::jxcorlib::cltypeof<BASE>(), ::jxcorlib::StringUtil::Concat(#NAME, "<", typeid(TemplateType).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
         assm->RegisterType(type); \
     } \
@@ -208,13 +208,12 @@ namespace jxcorlib
     class FieldInfo;
     class MethodInfo;
     class ReflectionBuilder;
-
+    class Attribute;
 
     enum class TypeBinding : int32_t
     {
         None = 0,
         NonPublic = 1,
-        Static = 1 << 1,
     };
     ENUM_CLASS_FLAGS(TypeBinding);
 
@@ -266,25 +265,28 @@ namespace jxcorlib
         friend class TypeBuilder;
         friend class IInterface;
         friend class Enum;
-        using c_inst_ptr_t = Object * (*)(const ParameterPackage&);
-        using EnumDatas = std::vector<std::pair<string, uint32_t>>;
+        using CreateInstFunc = Object * (*)(const ParameterPackage&);
+        using EnumDatas      = std::vector<std::pair<string, uint32_t>>;
     public:
         using SharedInterfaceGetter = std::function<IInterface_sp(Object_rsp)>;
         using InterfaceGetter = std::function<IInterface* (Object*)>;
         using EnumGetter = const EnumDatas* (*)();
     private:
-        string name_;
-        string short_name_;
-        int32_t structure_size_;
-        Type* base_;
-        c_inst_ptr_t c_inst_ptr_;
-        const std::type_info& typeinfo_;
-        array_list<Type*>* template_types_;
-        Assembly* assembly_;
-        array_list<std::tuple<Type*, InterfaceGetter, SharedInterfaceGetter>> interfaces_;
+        string                 m_name;
+        string                 m_shortName;
+        int32_t                m_structureSize;
+        Type*                  m_base;
+        CreateInstFunc         m_createInstanceFunc;
+        const std::type_info&  m_typeinfo;
+        array_list<Type*>*     m_templateTypes;
+        Assembly*              m_assembly;
+        EnumGetter             m_enumGetter;
+        bool                   m_isInterface;
 
-        EnumGetter enum_getter_;
-        bool is_interface_;
+        array_list<sptr<Attribute>>    m_attributes;
+        std::map<string, MemberInfo*>  m_memberInfos;
+        array_list<std::tuple<Type*, InterfaceGetter, SharedInterfaceGetter>> m_interfaces;
+
     private:
         Type(const Type& r) = delete;
         Type(Type&& r) = delete;
@@ -295,59 +297,42 @@ namespace jxcorlib
             }
         } _type_init_;
     public:
-        static Type* StaticType();
+        static Type*  StaticType();
         virtual Type* GetType() const { return StaticType(); }
-        Assembly* GetAssembly() const { return this->assembly_; }
+        Assembly*     GetAssembly() const { return this->m_assembly; }
     public:
-        virtual int32_t get_structure_size() const { return this->structure_size_; }
-        const string& get_name() const { return this->name_; }
-        const string get_short_name() const { return this->short_name_; }
-        Type* get_base() const { return this->base_; }
-        const std::type_info& get_typeinfo() const { return this->typeinfo_; }
-        bool is_primitive_type() const;
-        bool is_boxing_type() const;
-        bool is_interface() const { return this->is_interface_; }
-        bool is_enum() const { return this->enum_getter_; }
-    public:
-        bool IsImplementedInterface(Type* type);
-        //array_list<Type*> GetInterfaces() const;
+        virtual int32_t         GetStructureSize() const { return this->m_structureSize; }
+        const string&           GetName() const { return this->m_name; }
+        const string            GetShortName() const { return this->m_shortName; }
+        Type*                   GetBase() const { return this->m_base; }
+        const std::type_info&   GetTypeInfo() const { return this->m_typeinfo; }
+        array_list<Type*>       GetInterfaces() const;
 
+        bool IsPrimitiveType() const;
+        bool IsBoxingType() const;
+        bool IsInterface() const { return this->m_isInterface; }
+        bool IsEnum() const { return this->m_enumGetter; }
+        bool IsImplementedInterface(Type* type);
         bool IsInstanceOfType(const Object* object) const;
         bool IsSharedInstanceOfType(const sptr<Object>& ptr) const;
         bool IsSubclassOf(const Type* type) const;
 
-        Object* CreateInstance(const ParameterPackage& v);
+        sptr<Attribute>             GetAttribute(Type* type, bool inherit = true);
+        array_list<sptr<Attribute>> GetAttributes(Type* type, bool inherit = true);
+        bool                        IsDefinedAttribute(Type* type, bool inherit = true);
+
+        Object*      CreateInstance(const ParameterPackage& v);
         sptr<Object> CreateSharedInstance(const ParameterPackage& v);
     public:
         virtual string ToString() const override;
     public:
         Type(
-            c_inst_ptr_t dyncreate,
+            CreateInstFunc dyncreate,
             Assembly* assembly,
             Type* base,
             const string& name,
             const std::type_info& info,
-            int32_t structure_size)
-            :
-            c_inst_ptr_(dyncreate),
-            base_(base),
-            name_(name),
-            typeinfo_(info),
-            structure_size_(structure_size),
-            assembly_(assembly),
-            is_interface_(false),
-            enum_getter_(nullptr)
-        {
-            auto pos = name.find_last_of("::");
-            if (pos != name.npos)
-            {
-                short_name_ = name.substr(pos + 1, name.size() - pos - 1);
-            }
-            else
-            {
-                short_name_ = name;
-            }
-        }
+            int32_t structure_size);
 
         template<cltype_concept T>
         static inline Type* Typeof()
@@ -361,30 +346,25 @@ namespace jxcorlib
         friend class MethodInfo;
         friend class ReflectionBuilder;
     public:
-        MemberInfo* get_memberinfo(const string& name);
-        void get_memberinfos(array_list<MemberInfo*>& out, TypeBinding attr = TypeBinding::None);
-        array_list<MemberInfo*> get_memberinfos(TypeBinding attr = TypeBinding::None);
+        MemberInfo*             GetMemberInfo(const string& name);
+        void                    GetMemberInfos(array_list<MemberInfo*>& out, TypeBinding attr = TypeBinding::None);
+        array_list<MemberInfo*> GetMemberInfos(TypeBinding attr = TypeBinding::None);
 
-        FieldInfo* get_fieldinfo(const string& name);
-        void get_fieldinfos(array_list<FieldInfo*>& out, TypeBinding attr = TypeBinding::None);
-        array_list<FieldInfo*> get_fieldinfos(TypeBinding attr = TypeBinding::None);
+        FieldInfo*              GetFieldInfo(const string& name);
+        void                    GetFieldInfos(array_list<FieldInfo*>& out, TypeBinding attr = TypeBinding::None);
+        array_list<FieldInfo*>  GetFieldInfos(TypeBinding attr = TypeBinding::None);
 
-        MethodInfo* get_methodinfo(const string& name);
-        void get_methodinfos(array_list<MethodInfo*>& out, TypeBinding attr = TypeBinding::None);
-        array_list<MethodInfo*> get_methodinfos(TypeBinding attr = TypeBinding::None);
-    private:
-        std::map<string, MemberInfo*> member_infos_;
+        MethodInfo*             GetMethodInfo(const string& name);
+        void                    GetMethodInfos(array_list<MethodInfo*>& out, TypeBinding attr = TypeBinding::None);
+        array_list<MethodInfo*> GetMethodInfos(TypeBinding attr = TypeBinding::None);
+
+        IInterface_sp           GetSharedInterface(Object_rsp instance, Type* type);
+        IInterface*             GetInterface(Object* instance, Type* type);
+
+        const EnumDatas*        GetEnumDefinitions() const { return this->m_enumGetter(); }
+
     private:
         void _AddMemberInfo(MemberInfo* info);
-    public:
-
-        IInterface_sp GetSharedInterface(Object_rsp instance, Type* type);
-        IInterface* GetInterface(Object* instance, Type* type);
-
-        const EnumDatas* GetEnumDefinitions() const
-        {
-            return this->enum_getter_();
-        }
     public:
 
     };
@@ -619,8 +599,8 @@ namespace jxcorlib
     public:
         static void RegisterInterface(Type* self, Type* interface_type, const Type::InterfaceGetter& cast, const Type::SharedInterfaceGetter& scast)
         {
-            self->interfaces_.push_back({ interface_type, cast, scast });
-            self->is_interface_ = true;
+            self->m_interfaces.push_back({ interface_type, cast, scast });
+            self->m_isInterface = true;
         }
     private:
         template<typename T>
@@ -635,7 +615,7 @@ namespace jxcorlib
                 },
                 [](Object_rsp obj) -> IInterface_sp {
                     auto sobj = sptr_cast<T>(obj);
-                return sptr_static_cast<IInterface>(sobj);
+                    return sptr_static_cast<IInterface>(sobj);
                 }
                 );
             _RegisterInterfaces<T, TInterfaces...>(self);
@@ -650,9 +630,17 @@ namespace jxcorlib
     public:
         static void RegisterEnum(Type* type, Type::EnumGetter enum_getter)
         {
-            type->enum_getter_ = enum_getter;
+            type->m_enumGetter = enum_getter;
         }
 
+        template<typename... TArgs>
+        static void RegisterAttributes(Type* type, TArgs&&... args)
+        {
+            for (auto& i : std::initializer_list{ args... })
+            {
+                type->m_attributes.push_back(mksptr(i));
+            }
+        }
     };
 
 }

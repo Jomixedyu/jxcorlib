@@ -23,7 +23,7 @@ namespace jxcorlib::platform
             No,
         };
 
-        intptr_t MainWindow();
+        intptr_t GetMainWindowHandle();
 
         MessageBoxResult MessageBox(intptr_t owner, std::string_view text, std::string_view title, MessageBoxMode mode);
         
@@ -33,5 +33,7 @@ namespace jxcorlib::platform
         * @param out_select: u8str
         */
         bool OpenFileDialog(intptr_t owner, std::string_view filter, std::string_view default_path, std::string* out_select);
+
+        float GetUIScaling();
     }
 }

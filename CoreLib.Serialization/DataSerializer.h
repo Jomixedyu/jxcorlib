@@ -52,7 +52,7 @@ namespace jxcorlib::ser
         virtual void Flush() override;
         virtual ~FileStream() override;
         FileStream(const FileStream&) = delete;
-        FileStream(FileStream&& r);
+        FileStream(FileStream&& r) noexcept;
     };
 
     Stream& ReadWriteStream(Stream& stream, bool is_write, uint8_t& out);
@@ -67,7 +67,7 @@ namespace jxcorlib::ser
     template<typename T>
     Stream& ReadWriteStream(Stream& stream, bool is_write, std::vector<T>& arr)
     {
-        int32_t len = arr.size();
+        int32_t len = static_cast<int32_t>(arr.size());
         ReadWriteStream(stream, is_write, len);
 
         if (is_write)
@@ -106,7 +106,7 @@ namespace jxcorlib::ser
     template<typename T, int N>
     Stream& ReadWriteStream(Stream& stream, bool is_write, std::array<T, N>& arr)
     {
-        int32_t len = arr.size();
+        int32_t len = static_cast<int32_t>(arr.size());
         ReadWriteStream(stream, is_write, len);
         for (int i = 0; i < len; i++)
         {
