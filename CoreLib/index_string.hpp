@@ -95,7 +95,7 @@ public:
             const size_t block_len = view_len + 1;
 
             block.bytes = new char_t[block_len];
-            ::memcpy_s(block.bytes, block_len, view.data(), view_len);
+            ::memcpy(block.bytes, view.data(), view_len);
 
             reinterpret_cast<char_t*>(block.bytes)[view_len] = 0;
             block.size = block_len * sizeof(char_t);

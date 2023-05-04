@@ -252,8 +252,6 @@ static u16string _Utf8ToUtf16(const string& u8str)
     }
 }
 
-static string UTF8ToANSI(const char* src_str);
-static string ANSIToUTF8(const char* src_str);
 
 namespace jxcorlib
 {
@@ -498,15 +496,6 @@ namespace jxcorlib
         return _Utf16ToUtf8(str);
     }
 
-    string StringUtil::Utf8ToAnsi(string_view str)
-    {
-        return UTF8ToANSI(str.data());
-    }
-
-    string StringUtil::AnsiToUtf8(string_view str)
-    {
-        return ANSIToUTF8(str.data());
-    }
 
     static const std::string base64_chars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -715,43 +704,3 @@ namespace jxcorlib
 
 
 }
-
-#ifdef _WIN32
-#include <Windows.h>
-static string UTF8ToANSI(const char* src_str)
-{
-    int len = MultiByteToWideChar(CP_UTF8, 0, src_str, -1, NULL, 0);
-    wchar_t* wszANSI = new wchar_t[len + 1];
-    memset(wszANSI, 0, len * 2 + 2);
-    MultiByteToWideChar(CP_UTF8, 0, src_str, -1, wszANSI, len);
-    len = WideCharToMultiByte(CP_ACP, 0, wszANSI, -1, NULL, 0, NULL, NULL);
-    char* szANSI = new char[len + 1];
-    memset(szANSI, 0, len + 1);
-    WideCharToMultiByte(CP_ACP, 0, wszANSI, -1, szANSI, len, NULL, NULL);
-    string strTemp(szANSI);
-    if (wszANSI) delete[] wszANSI;
-    if (szANSI) delete[] szANSI;
-    return strTemp;
-}
-
-static string ANSIToUTF8(const char* src_str)
-{
-    string outUtf8 = "";
-    int n = MultiByteToWideChar(CP_ACP, 0, src_str, -1, NULL, 0);
-    WCHAR* str1 = new WCHAR[n];
-    MultiByteToWideChar(CP_ACP, 0, src_str, -1, str1, n);
-    n = WideCharToMultiByte(CP_UTF8, 0, str1, -1, NULL, 0, NULL, NULL);
-    char* str2 = new char[n];
-    WideCharToMultiByte(CP_UTF8, 0, str1, -1, str2, n, NULL, NULL);
-    outUtf8 = str2;
-    delete[]str1;
-    str1 = NULL;
-    delete[]str2;
-    str2 = NULL;
-    return outUtf8;
-}
-#elif __linux__
-
-#elif __APPLE__
-
-#endif

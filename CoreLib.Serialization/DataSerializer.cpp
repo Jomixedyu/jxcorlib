@@ -2,6 +2,18 @@
 #include <cstdio>
 #include <cstring>
 
+#ifdef _WIN32
+#define strcpy strcpy_s
+#define ftell64 _ftelli64
+#define fseek64 _fseeki64
+
+#elif __linux__
+#define ftell64 ftello64
+#define fseek64 fseeko64
+#endif
+
+#define _FILE_OFFSET_BITS 64
+
 namespace jxcorlib::ser
 {
     bool FileStream::IsEOF()
@@ -10,11 +22,11 @@ namespace jxcorlib::ser
     }
     int64_t FileStream::get_position() const
     {
-        return _ftelli64((FILE*)this->file_);
+        return ftell64((FILE*)this->file_);
     }
     void FileStream::set_position(int64_t value)
     {
-        _fseeki64((FILE*)this->file_, value, SEEK_SET);
+        fseek64((FILE*)this->file_, value, SEEK_SET);
     }
     FileStream::FileStream(std::string_view filename, FileOpenMode mode)
     {
@@ -22,19 +34,19 @@ namespace jxcorlib::ser
         switch (mode)
         {
         case jxcorlib::ser::FileOpenMode::Read:
-            strcpy_s(cmode, "r");
+            strcpy(cmode, "r");
             break;
         case jxcorlib::ser::FileOpenMode::Write:
-            strcpy_s(cmode, "w");
+            strcpy(cmode, "w");
             break;
         case jxcorlib::ser::FileOpenMode::ReadWrite:
-            strcpy_s(cmode, "r+");
+            strcpy(cmode, "r+");
             break;
         case jxcorlib::ser::FileOpenMode::OpenOrCreate:
-            strcpy_s(cmode, "w+");
+            strcpy(cmode, "w+");
             break;
         case jxcorlib::ser::FileOpenMode::Append:
-            strcpy_s(cmode, "a+");
+            strcpy(cmode, "a+");
             break;
         default:
             break;
