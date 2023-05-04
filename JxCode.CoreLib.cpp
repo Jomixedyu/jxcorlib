@@ -1,7 +1,6 @@
 ﻿
 #include "CoreLib/CoreLib.h"
 #include "CoreLib/DebugTool.hpp"
-#include <format>
 #include <array>
 #include <iostream>
 #include <string>
@@ -46,7 +45,8 @@ int main()
     TestPlatform();
 
 
-    
+    int a;
+    cin >> a;
 
     return 0;
 }

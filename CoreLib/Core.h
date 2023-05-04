@@ -38,5 +38,6 @@ SOFTWARE.
 #include "Assembly.h"
 #include "BasicTypes.h"
 #include "Enum.h"
+#include "Attribute.h"
 
 #endif // !_CORELIB_OOPCORE_H

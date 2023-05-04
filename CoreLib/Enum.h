@@ -30,13 +30,14 @@ public: \
     } \
     NAME get_unboxing_value() const { return static_cast<NAME>(this->m_value); } \
     ::jxcorlib::string GetName() const override { return StaticFindName(static_cast<NAME>(this->m_value)); } \
-    Boxing##NAME& operator=(NAME value) { this->m_value = static_cast<uint32_t>(value); } \
+    Boxing##NAME& operator=(NAME value) { this->m_value = static_cast<uint32_t>(value); return *this; } \
     Boxing##NAME(NAME value) : base(static_cast<uint32_t>(value)) { } \
     Boxing##NAME() : base() {  } \
     virtual ::jxcorlib::string ToString() const override { return this->GetName(); } \
 }; \
-template<> struct get_boxing_type<NAME> { using type = Boxing##NAME; }; \
 CORELIB_DECL_SHORTSPTR(Boxing##NAME);
+
+#define CORELIB_DECL_BOXING_ENUM(Enum) CORELIB_DECL_BOXING(Enum, Boxing##Enum);
 
 namespace jxcorlib
 {

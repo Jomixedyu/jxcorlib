@@ -1,7 +1,7 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-project ("jxcorlib.platform")
+project (jxcorlib.platform)
 
 
 list(APPEND LIST_SRC "Window.h")
@@ -14,4 +14,4 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 endif ()
 
 
-add_library(${PROJECT_NAME} STATIC ${LIST_SRC})
+add_library(${PROJECT_NAME} STATIC OBJECT ${LIST_SRC})

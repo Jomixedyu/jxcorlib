@@ -6,6 +6,11 @@ project ("jxcorlibTest")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_compile_options("/utf-8")
 endif()
+
+#add_compile_options("-fpermissive")
+add_compile_options("-g")
+
+
 set(CMAKE_CXX_STANDARD 23)
 
 include_directories(".")

@@ -1,7 +1,7 @@
 #include <CoreLib.Serialization/JsonSerializer.h>
 #include "Assembly.h"
 #include <iostream>
-#include <format>
+//#include <format>
 #include <map>
 #include <CoreLib/Converter.hpp>
 #include <CoreLib/Enum.h>
@@ -25,15 +25,17 @@ public:
     int age;
     virtual string ToString() const override
     {
-        return std::format("name: {}, age: {}", name, age);
+        return StringUtil::Concat("name: ", name, ", age: ", to_string(age));
+        //return std::format("name: {}, age: {}", name, age);
     }
 };
 
-CORELIB_DEF_ENUM(AssemblyObject_Test, 
-    , StudentLevel,
+CORELIB_DEF_ENUM(AssemblyObject_Test, , 
+    StudentLevel,
     A, B, C
     );
 
+CORELIB_DECL_BOXING_ENUM(StudentLevel);
 
 class StudentInfo : public Object
 {
@@ -63,7 +65,8 @@ public:
 
     virtual string ToString() const override
     {
-        return std::format("id: {}, exist: {}, level: {}, guid: {}, person_info: {{{}}}, score: {}, vec3: {}", id, is_exist, BoxingStudentLevel::StaticFindName(level), guid.to_string(), person_info->ToString(), jxcvt::to_string(*score), to_string(vec3));
+        //return std::format("id: {}, exist: {}, level: {}, guid: {}, person_info: {{{}}}, score: {}, vec3: {}", id, is_exist, BoxingStudentLevel::StaticFindName(level), guid.to_string(), person_info->ToString(), jxcvt::to_string(*score), to_string(vec3));
+        return {};
     }
 };
 

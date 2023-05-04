@@ -1,5 +1,6 @@
 #include "DataSerializer.h"
 #include <cstdio>
+#include <cstring>
 
 namespace jxcorlib::ser
 {

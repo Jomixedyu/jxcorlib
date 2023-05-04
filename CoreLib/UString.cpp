@@ -716,6 +716,7 @@ namespace jxcorlib
 
 }
 
+#ifdef _WIN32
 #include <Windows.h>
 static string UTF8ToANSI(const char* src_str)
 {
@@ -749,3 +750,8 @@ static string ANSIToUTF8(const char* src_str)
     str2 = NULL;
     return outUtf8;
 }
+#elif __linux__
+
+#elif __APPLE__
+
+#endif

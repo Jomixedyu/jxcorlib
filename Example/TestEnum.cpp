@@ -11,6 +11,7 @@ CORELIB_DEF_ENUM(jxcorlib::AssemblyObject_jxcorlib,
     C
 );
 
+CORELIB_DECL_BOXING_ENUM(Mode);
 
 void TestEnum()
 {

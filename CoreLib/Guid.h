@@ -44,6 +44,6 @@ namespace jxcorlib
     };
     CORELIB_DECL_SHORTSPTR(Guid);
 
-    template<> struct get_boxing_type<guid_t> { using type = Guid; };
-
 }
+
+CORELIB_DECL_BOXING(guid_t, Guid);

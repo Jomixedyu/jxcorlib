@@ -224,7 +224,7 @@ namespace jmath
             return a.x * b.x + a.y * b.y;
         }
         static Vector2<T> Normalize(const Vector2<T>& input);
-        static void Normalized() { *this = Normalize(*this); }
+        void Normalized() { *this = Normalize(*this); }
         inline Vector2 Reflect(const Vector2& input, const Vector2& normal)
         {
             return -input + 2.0f * Dot(Normalize(input), normal) * normal;

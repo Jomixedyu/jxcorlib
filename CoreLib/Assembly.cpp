@@ -56,7 +56,6 @@ namespace jxcorlib
     Assembly* AssemblyManager::BuildAssemblyByName(string_view name)
     {
         Assembly* ass = FindAssemblyByName(name);
-        assert(ass != nullptr);
 
         if (ass == nullptr)
         {

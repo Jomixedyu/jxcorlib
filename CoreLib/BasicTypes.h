@@ -50,7 +50,7 @@ namespace jxcorlib
     inline bool operator!=(const Class& l, const DataType& r) { return l.value != r; } \
     inline bool operator!=(const DataType& l, const Class& r) { return l != r.value; } \
     template<> struct get_boxing_type<DataType> { using type = Class; };
-
+    
     __CORELIB_DEF_BASE_TYPE(CharObject, char);
     __CORELIB_DEF_BASE_TYPE(Integer8, int8_t);
     __CORELIB_DEF_BASE_TYPE(UInteger8, uint8_t);
@@ -315,7 +315,12 @@ namespace jxcorlib
             if (this->GetType() != obj->GetType()) return false;
 
             List<T>* list = static_cast<List<T>*>(obj);
+            intptr_t t = (intptr_t)obj;
+            intptr_t t2 = (intptr_t)list;
 
+
+            int lista = this->size();
+            int listb = list->size();
             if (this->size() != list->size()) return false;
 
             if constexpr (is_shared_cltype)

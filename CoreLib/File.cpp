@@ -4,6 +4,9 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <memory>
+#include <cstring>
+#include <algorithm>
 
 namespace jxcorlib
 {
@@ -14,7 +17,7 @@ namespace jxcorlib
         {
             std::ifstream ifs;
             std::stringstream ss;
-            ifs.open(path);
+            ifs.open(path.data());
             if (!ifs.is_open()) {
                 throw std::invalid_argument("Unable to open file");
             }

@@ -53,10 +53,13 @@ namespace jxcvt
     {
         std::string s;
         s.append("[");
+        auto last = arr.end(); 
+        --last;
+
         for (auto it = arr.begin(); it != arr.end(); it++)
         {
             s.append(to_string(*it));
-            if (it != --arr.end())
+            if (it != last)
             {
                 s.append(", ");
             }

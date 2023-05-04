@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <array>
 
 namespace jxcorlib::ser
 {
@@ -103,7 +104,7 @@ namespace jxcorlib::ser
         return stream;
     }
 
-    template<typename T, int N>
+    template<typename T, size_t N>
     Stream& ReadWriteStream(Stream& stream, bool is_write, std::array<T, N>& arr)
     {
         int32_t len = static_cast<int32_t>(arr.size());

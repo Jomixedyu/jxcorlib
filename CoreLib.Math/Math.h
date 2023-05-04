@@ -3,7 +3,6 @@
 #include "Jmath.h"
 #include <CoreLib/Type.h>
 #include <CoreLib/Reflection.h>
-#include <format>
 #include "Assembly.h"
 
 
@@ -29,8 +28,6 @@ namespace jxcorlib::math
 
         virtual string ToString() const override { return to_string(unboxing_type(x, y)); }
     };
-    template<> struct get_boxing_type<Vector2f> { using type = BoxingVector2f; };
-
 
     class BoxingVector3f : public jxcorlib::BoxingObject
     {
@@ -52,7 +49,6 @@ namespace jxcorlib::math
 
         virtual string ToString() const override { return to_string(unboxing_type(x, y, z)); }
     };
-    template<> struct get_boxing_type<Vector3f> { using type = BoxingVector3f; };
 
     class BoxingVector4f : public jxcorlib::BoxingObject
     {
@@ -76,7 +72,6 @@ namespace jxcorlib::math
 
         virtual string ToString() const override { return to_string(unboxing_type(x, y, z, w)); }
     };
-    template<> struct get_boxing_type<Vector4f> { using type = BoxingVector4f; };
 
     class BoxingQuat4f : public jxcorlib::BoxingObject
     {
@@ -100,6 +95,10 @@ namespace jxcorlib::math
 
         virtual string ToString() const override { return to_string(unboxing_type(w, x, y, z)); }
     };
-    template<> struct get_boxing_type<Quat4f> { using type = BoxingQuat4f; };
 
 }
+
+CORELIB_DECL_BOXING(::jxcorlib::math::Vector2f, ::jxcorlib::math::BoxingVector2f);
+CORELIB_DECL_BOXING(::jxcorlib::math::Vector3f, ::jxcorlib::math::BoxingVector3f);
+CORELIB_DECL_BOXING(::jxcorlib::math::Vector4f, ::jxcorlib::math::BoxingVector4f);
+CORELIB_DECL_BOXING(::jxcorlib::math::Quat4f, ::jxcorlib::math::BoxingQuat4f);

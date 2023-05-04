@@ -196,7 +196,11 @@ private: \
 #define CORELIB_DECL_DYNCINST() \
     static Object* DynCreateInstance(const ParameterPackage& params)
 
-
+#define CORELIB_DECL_BOXING(ValueType, BoxingType) \
+namespace jxcorlib \
+{ \
+    template<> struct get_boxing_type<ValueType> { using type = BoxingType; }; \
+}
 
 
 namespace jxcorlib
@@ -501,26 +505,21 @@ namespace jxcorlib
     class StdAny;
 
 
-}
+    template<typename T, bool b = ::jxcorlib::cltype_concept<T>>
+    struct get_boxing_type
+    {};
 
-template<typename T, bool b = ::jxcorlib::cltype_concept<T>>
-struct get_boxing_type
-{};
+    template<typename T>
+    struct get_boxing_type<T, true>
+    {
+        using type = typename ::jxcorlib::remove_shared_ptr<T>::type;
+    };
 
-template<typename T>
-struct get_boxing_type<T, true>
-{
-    using type = typename ::jxcorlib::remove_shared_ptr<T>::type;
-};
-
-template<typename T>
-struct get_boxing_type<T, false>
-{
-    static_assert(true, "no boxing type!");
-};
-
-namespace jxcorlib
-{
+    template<typename T>
+    struct get_boxing_type<T, false>
+    {
+        static_assert(true, "no boxing type!");
+    };
 
     template<typename T>
     sptr<T> interface_sptr_cast(Object_rsp obj)

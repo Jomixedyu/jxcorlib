@@ -26,7 +26,7 @@ namespace jxcorlib
     class SerializableAttribtue : public Attribute
     {
         CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::SerializableAttribtue, Attribute);
-        CORELIB_USE_ATTR(new Attribute(), new Attribute());
+        CORELIB_USE_ATTR(new Attribute());
 
     public:
 

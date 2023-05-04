@@ -26,7 +26,7 @@ SOFTWARE.
 #include <unordered_map>
 #include <string>
 #include <string_view>
-
+#include <cstring>
 
 struct index_string_block
 {

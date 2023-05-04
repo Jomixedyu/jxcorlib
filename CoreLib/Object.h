@@ -63,7 +63,7 @@ namespace jxcorlib
     sptr<Tout> sptr_cast(const sptr<Tin>& other)
     {
         if (other == nullptr) return nullptr;
-        if (cltypeof<Tout>()->IsInstanceOfType(other.get()))
+        if (Tout::StaticType()->IsInstanceOfType(other.get()))
             return std::static_pointer_cast<Tout, Tin>(other);
         return nullptr;
     }
@@ -71,7 +71,7 @@ namespace jxcorlib
     sptr<Tout> sptr_cast(sptr<Tin>&& other)
     {
         if (other == nullptr) return nullptr;
-        if (cltypeof<Tout>()->IsInstanceOfType(other.get()))
+        if (Tout::StaticType()->IsInstanceOfType(other.get()))
             return std::static_pointer_cast<Tout, Tin>(other);
         return nullptr;
     }
