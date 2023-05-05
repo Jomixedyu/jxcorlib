@@ -4,8 +4,8 @@
 using namespace jxcorlib;
 
 
-CORELIB_DEF_ENUM(jxcorlib::AssemblyObject_jxcorlib,
-    , Mode,
+CORELIB_DEF_ENUM(jxcorlib::AssemblyObject_jxcorlib, , 
+    Mode,
     A,
     B = 3,
     C

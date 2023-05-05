@@ -28,7 +28,6 @@ extern void TestDelegate();
 int main()
 {
     using namespace std;
-
     TestOOP();
     TestEnum();
     TestProperty();
@@ -41,9 +40,9 @@ int main()
     TestFormater();
     TestGuid();
     TestMath();
-    #ifdef _WIN32
+#ifdef _WIN32
     TestFile();
-    #endif
+#endif
     TestPlatform();
 
 
