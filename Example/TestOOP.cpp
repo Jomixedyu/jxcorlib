@@ -17,6 +17,12 @@ public:
 };
 CORELIB_DECL_SHORTSPTR(ExampleClass);
 
+namespace jxcorlib
+{
+    template class List<int>;
+    template class List< sptr<class ExampleClass> >;
+}
+
 template<typename T, typename K>
 class TemplateClass : public Object
 {

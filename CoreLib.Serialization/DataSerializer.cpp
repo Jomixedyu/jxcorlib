@@ -10,9 +10,9 @@
 #elif __linux__
 #define ftell64 ftello64
 #define fseek64 fseeko64
+#define _FILE_OFFSET_BITS 64
 #endif
 
-#define _FILE_OFFSET_BITS 64
 
 namespace jxcorlib::ser
 {

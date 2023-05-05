@@ -40,8 +40,10 @@ int main()
     TestDynCreateInst();
     TestFormater();
     TestGuid();
-    TestFile();
     TestMath();
+    #ifdef _WIN32
+    TestFile();
+    #endif
     TestPlatform();
 
 
