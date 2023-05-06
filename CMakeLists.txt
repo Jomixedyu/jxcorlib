@@ -7,6 +7,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_compile_options("/utf-8")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	add_compile_options("-g")
+	add_compile_options("-fpermissive")
 endif()
 
 
