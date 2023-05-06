@@ -11,7 +11,7 @@ enum class NAME : uint32_t \
 }; \
 class Boxing##NAME final : public ::jxcorlib::Enum \
 { \
-    CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAMESPACE##Boxing##NAME, ::jxcorlib::Enum); \
+    CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAMESPACE::Boxing##NAME, ::jxcorlib::Enum); \
     static inline DataMap* definitions = nullptr; \
     static inline const char* string_definitions = #__VA_ARGS__; \
     static void init_defs() { InitDefinitions(string_definitions, &definitions); } \

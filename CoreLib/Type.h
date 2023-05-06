@@ -269,9 +269,9 @@ namespace jxcorlib
         friend class TypeBuilder;
         friend class IInterface;
         friend class Enum;
-        using CreateInstFunc = Object * (*)(const ParameterPackage&);
         using EnumDatas      = std::vector<std::pair<string, uint32_t>>;
     public:
+        using CreateInstFunc = Object * (*)(const ParameterPackage&);
         using SharedInterfaceGetter = std::function<IInterface_sp(Object_rsp)>;
         using InterfaceGetter = std::function<IInterface* (Object*)>;
         using EnumGetter = const EnumDatas* (*)();

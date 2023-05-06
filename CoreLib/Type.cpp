@@ -22,21 +22,40 @@ namespace jxcorlib
         :
         m_createInstanceFunc(dyncreate),
         m_base(base),
-        m_name(name),
         m_typeinfo(info),
         m_structureSize(structure_size),
         m_assembly(assembly),
         m_isInterface(false),
         m_enumGetter(nullptr)
     {
-        auto pos = name.find_last_of("::");
-        if (pos != name.npos)
+        assert(assembly);
+        assert(name.length());
+
+        if (name[0] == ':')
         {
-            m_shortName = name.substr(pos + 1, name.size() - pos - 1);
+            for (size_t i = 0; i < name.length(); i++)
+            {
+                if (name[i] != ':')
+                {
+                    m_name = name.substr(i, name.size() - i);
+                    break;
+                }
+            }
+            assert(m_name.length());
         }
         else
         {
-            m_shortName = name;
+            m_name = name;
+        }
+
+        auto pos = m_name.find_last_of("::");
+        if (pos != m_name.npos)
+        {
+            m_shortName = m_name.substr(pos + 1, m_name.size() - pos - 1);
+        }
+        else
+        {
+            m_shortName = m_name;
         }
     }
 

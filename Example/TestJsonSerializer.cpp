@@ -30,10 +30,10 @@ public:
     }
 };
 
-CORELIB_DEF_ENUM(AssemblyObject_Test, , 
+CORELIB_DEF_ENUM(AssemblyObject_Test, ,
     StudentLevel,
     A, B, C
-    );
+);
 
 CORELIB_DECL_BOXING_ENUM(StudentLevel);
 
@@ -58,7 +58,7 @@ public:
     List_sp<int> score;
 
     CORELIB_REFL_DECL_FIELD(guid)
-    guid_t guid;
+        guid_t guid;
 
     CORELIB_REFL_DECL_FIELD(vec3);
     Vector3f vec3;
@@ -87,11 +87,11 @@ void TestJsonSerializer()
     student->person_info->name = "jx";
     student->person_info->age = 12;
 
-    string json_str = JsonSerializer::Serialize(student, {4, false});
+    string json_str = JsonSerializer::Serialize(student, { 4, false });
     cout << json_str << endl;
 
     sptr<StudentInfo> newstudent = JsonSerializer::Deserialize<StudentInfo>(json_str);
     cout << newstudent->ToString() << endl;
 
-    
+
 }
