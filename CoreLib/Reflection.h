@@ -71,6 +71,8 @@ namespace jxcorlib
         sptr<Attribute>             GetAttribute(Type* type);
         array_list<sptr<Attribute>> GetAttributes(Type* type);
         bool                        IsDefinedAttribute(Type* type);
+        template<typename T>
+        sptr<T> GetAttribute() { return sptr_cast<T>(GetAttribute(cltypeof<T>())); }
     private:
         array_list<sptr<Attribute>> m_attributes;
     };
