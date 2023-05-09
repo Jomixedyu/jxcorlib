@@ -56,6 +56,10 @@ namespace jxcorlib
             return true;
         }
         u8char() {}
+        u8char(char c) 
+        {
+            value[0] = c;
+        }
         u8char(const char* str, int max_count = 6)
         {
             for (size_t i = 0; i < max_count; i++)
