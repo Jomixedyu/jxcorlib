@@ -18,7 +18,8 @@ namespace jxcorlib
         Type* base,
         const string& name,
         const std::type_info& info,
-        int32_t structure_size)
+        int32_t structure_size,
+        bool isGeneric)
         :
         m_createInstanceFunc(dyncreate),
         m_base(base),
@@ -26,7 +27,8 @@ namespace jxcorlib
         m_structureSize(structure_size),
         m_assembly(assembly),
         m_isInterface(false),
-        m_enumGetter(nullptr)
+        m_enumGetter(nullptr),
+        m_isGeneric(isGeneric)
     {
         assert(assembly);
         assert(name.length());

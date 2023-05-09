@@ -162,7 +162,7 @@ public: static inline ::jxcorlib::Type* StaticType() \
         } \
         using TemplateType = ::jxcorlib::TemplateTypePair<__VA_ARGS__>; \
         ::jxcorlib::Assembly* assm = ::jxcorlib::AssemblyManager::BuildAssemblyByName(ASSEMBLY.name()); \
-        type = new ::jxcorlib::Type(dynptr, assm, ::jxcorlib::cltypeof<BASE>(), ::jxcorlib::StringUtil::Concat(#NAME, "<", typeid(TemplateType).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>)); \
+        type = new ::jxcorlib::Type(dynptr, assm, ::jxcorlib::cltypeof<BASE>(), ::jxcorlib::StringUtil::Concat(#NAME, "<", typeid(TemplateType).name(), ">"), typeid(NAME<__VA_ARGS__>), sizeof(NAME<__VA_ARGS__>), true); \
         assm->RegisterType(type); \
     } \
     return type; \
@@ -286,6 +286,7 @@ namespace jxcorlib
         Assembly*              m_assembly;
         EnumGetter             m_enumGetter;
         bool                   m_isInterface;
+        bool                   m_isGeneric;
 
         array_list<sptr<Attribute>>    m_attributes;
         std::map<string, MemberInfo*>  m_memberInfos;
@@ -315,6 +316,7 @@ namespace jxcorlib
         bool IsPrimitiveType() const;
         bool IsBoxingType() const;
         bool IsInterface() const { return this->m_isInterface; }
+        bool IsGeneric() const { return this->m_isGeneric; }
         bool IsEnum() const { return this->m_enumGetter; }
         bool IsImplementedInterface(Type* type);
         bool IsInstanceOfType(const Object* object) const;
@@ -336,7 +338,8 @@ namespace jxcorlib
             Type* base,
             const string& name,
             const std::type_info& info,
-            int32_t structure_size);
+            int32_t structure_size,
+            bool isGeneric = false);
 
         template<cltype_concept T>
         static inline Type* Typeof()
