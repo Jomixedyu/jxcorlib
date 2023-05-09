@@ -35,7 +35,7 @@ namespace jxcorlib
 
     string Object::ToString() const
     {
-        return this->GetType()->GetName();
+        return StringUtil::Concat("{", this->GetType()->GetName(), "}");
     }
 
     bool Object::Equals(Object* object) const
@@ -45,7 +45,23 @@ namespace jxcorlib
 
 }
 
-std::string std::to_string(jxcorlib::Object* obj)
+
+namespace std
 {
-    return obj->ToString();
+    string to_string(jxcorlib::Object* obj)
+    {
+        if (obj)
+        {
+            return obj->ToString();
+        }
+        return "{null}";
+    }
+    string to_string(const jxcorlib::sptr<jxcorlib::Object>& obj)
+    {
+        if (obj)
+        {
+            return obj->ToString();
+        }
+        return "{null}";
+    }
 }

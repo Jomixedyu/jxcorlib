@@ -145,4 +145,5 @@ namespace jxcorlib
 namespace std
 {
     string to_string(jxcorlib::Object* obj);
+    string to_string(const jxcorlib::sptr<jxcorlib::Object>& obj);
 }
