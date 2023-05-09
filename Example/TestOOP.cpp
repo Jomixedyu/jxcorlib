@@ -1,7 +1,7 @@
 ﻿#include <CoreLib/CoreLib.h>
 #include <iostream>
 #include <cassert>
-
+#include <CoreLib/List.h>
 using namespace jxcorlib;
 
 
@@ -11,16 +11,17 @@ class ExampleClass : public Object
     CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, ExampleClass, Object);
 public:
     CORELIB_REFL_DECL_FIELD(ilist);
-    List_sp<int> ilist;
+    ArrayList_sp ilist;
+
     CORELIB_REFL_DECL_FIELD(slist);
-    List_sp<sptr<ExampleClass>> slist;
+    ArrayList_sp slist;
 };
 CORELIB_DECL_SHORTSPTR(ExampleClass);
 
 namespace jxcorlib
 {
-    template class List<int>;
-    template class List< sptr<class ExampleClass> >;
+    // template class List<int>;
+    // template class List< sptr<class ExampleClass> >;
 }
 
 template<typename T, typename K>
@@ -41,10 +42,10 @@ void TestOOP()
 
     ExampleClass_sp exm1 = mksptr(new ExampleClass);
 
-    exm->ilist = mksptr(new List<int>{ 2,3 });
-    exm1->ilist = mksptr(new List<int>{ 5,35 });
+    exm->ilist = mksptr(new ArrayList{ mkbox(2), mkbox(3) } );
+    exm1->ilist = mksptr(new ArrayList{ mkbox(3), mkbox(4) });
 
-    exm->slist = mksptr(new List<ExampleClass_sp> { exm1 });
+    exm->slist = mksptr(new ArrayList{ exm1 });
 
     auto copy = sptr_cast<ExampleClass>(ObjectUtil::DeepCopyObject(exm));
 

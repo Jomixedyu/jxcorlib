@@ -8,11 +8,11 @@ namespace jxcorlib::ser
     using namespace nlohmann;
     using namespace jxcorlib;
 
-    static json _SerializeArray(IList* list, const JsonSerializerSettings& settings);
+    static json _SerializeArray(IList* list, const JsonSerializerSettings& settings, FieldInfo* fieldInfo = nullptr);
     static json _SerializeClassObject(Object* obj, const JsonSerializerSettings& settings);
 
 
-    static json _SerializeObject(Object* obj, const JsonSerializerSettings& settings)
+    static json _SerializeObject(Object* obj, const JsonSerializerSettings& settings, FieldInfo* fieldInfo = nullptr)
     {
         if (obj == nullptr)
         {
@@ -29,7 +29,7 @@ namespace jxcorlib::ser
         if (obj->GetType()->IsEnum())
         {
             json enum_js;
-            if (settings.string_enum)
+            if (settings.StringEnum)
             {
                 enum_js = static_cast<Enum*>(obj)->GetName();
             }
@@ -48,7 +48,7 @@ namespace jxcorlib::ser
         //list
         if (IList* list = interface_cast<IList>(obj))
         {
-            return _SerializeArray(list, settings);
+            return _SerializeArray(list, settings, fieldInfo);
         }
 
         //other
@@ -56,9 +56,10 @@ namespace jxcorlib::ser
 
     }
 
-    static json _SerializeArray(IList* list, const JsonSerializerSettings& settings)
+    static json _SerializeArray(IList* list, const JsonSerializerSettings& settings, FieldInfo* fieldInfo)
     {
         int32_t count = list->GetCount();
+
         json arr_json = json::array();
 
         for (int32_t i = 0; i < count; i++)
@@ -66,12 +67,46 @@ namespace jxcorlib::ser
             Object_rsp element = list->At(i);
             arr_json.push_back(_SerializeObject(element.get(), settings));
         }
-        return arr_json;
+
+        json retjson;
+        if (settings.SaveObjectType)
+        {
+            retjson = json::object();
+
+            Type* itemType = nullptr;
+
+            if (fieldInfo)
+            {
+                auto attr = fieldInfo->GetAttribute<SerializableArrayAttribute>();
+                if (attr)
+                {
+                    itemType = attr->GetItemType();
+                }
+            }
+            if (!itemType)
+            {
+                itemType = list->GetIListElementType();
+            }
+
+            retjson["$type"] = util::GetSerializableTypeName(list->GetType());
+            retjson["$values"] = arr_json;
+        }
+        else
+        {
+            retjson = std::move(arr_json);
+        }
+
+        return retjson;
     }
 
     static json _SerializeClassObject(Object* obj, const JsonSerializerSettings& settings)
     {
         json obj_js = json::object();
+
+        if (settings.SaveObjectType)
+        {
+            obj_js["$type"] = util::GetSerializableTypeName(obj->GetType());
+        }
 
         for (FieldInfo* info : obj->GetType()->GetFieldInfos(TypeBinding::NonPublic))
         {
@@ -87,7 +122,7 @@ namespace jxcorlib::ser
     {
         using namespace nlohmann;
         json js = _SerializeObject(obj, settings);
-        return js.dump(settings.indent_space);
+        return js.dump(settings.IndentSpace);
     }
 
 
@@ -137,39 +172,68 @@ namespace jxcorlib::ser
     }
 
 
-    static Object_sp _DeserializeObject(const json& js, Type* type, sptr<Object> default_v = nullptr);
+    static Object_sp _DeserializeObject(const json& js, Type* type, FieldInfo* fieldInfo = nullptr);
 
-    static Object_sp _DeserializeArray(const json& js, Type* type)
+    static Object_sp _DeserializeArray(const json& js, Type* type, FieldInfo* fieldInfo = nullptr)
     {
-        Object_sp list_sp = type->CreateSharedInstance({});
-        IList* list = interface_cast<IList>(list_sp.get());
-        Type* element_type = list->GetIListElementType();
-
-        if (js.is_array())
+        Type* realListType = type;
+        bool isSavedType = js.contains("$type");
+        if (isSavedType)
         {
-            for (auto& item : js)
+            realListType = util::GetSerializableType(js["$type"]);
+        }
+
+        Object_sp list_sp = realListType->CreateSharedInstance({});
+        IList* list = interface_cast<IList>(list_sp.get());
+        Type* elementType = nullptr;
+        
+        if (fieldInfo != nullptr)
+        {
+            auto attr = fieldInfo->GetAttribute<SerializableArrayAttribute>();
+            if (attr)
             {
-                list->Add(_DeserializeObject(item, element_type));
+                elementType = attr->GetItemType();
+            }
+        }
+        if(!elementType)
+        {
+            elementType = list->GetIListElementType();
+        }
+
+        json arr_json = js;
+        if (isSavedType)
+        {
+            arr_json = js["$values"];
+        }
+
+        if (arr_json.is_array())
+        {
+            for (auto& item : arr_json)
+            {
+                list->Add(_DeserializeObject(item, elementType));
             }
         }
 
         return list_sp;
     }
     
-    static Object_sp _DeserializeClassObject(const json& js, Type* type, sptr<Object> default_v = nullptr)
+    static Object_sp _DeserializeClassObject(const json& js, Type* type)
     {
-        Object_sp obj = default_v;
-        if (default_v == nullptr)
+        Type* realtype = type;
+        if (js.contains("$type"))
         {
-            obj = type->CreateSharedInstance({});
+            realtype = util::GetSerializableType(js["$type"]);
         }
 
-        for (auto field_info : type->GetFieldInfos())
+        Object_sp obj = realtype->CreateSharedInstance({});
+
+        for (auto fieldInfo : realtype->GetFieldInfos())
         {
-            auto& item = js.at(field_info->GetName());
+            auto& item = js.at(fieldInfo->GetName());
+
             if (!item.empty())
             {
-                field_info->SetValue(obj.get(), _DeserializeObject(item, field_info->get_field_type()));
+                fieldInfo->SetValue(obj.get(), _DeserializeObject(item, fieldInfo->get_field_type(), fieldInfo));
             }
         }
 
@@ -194,7 +258,7 @@ namespace jxcorlib::ser
         return ptr;
     }
 
-    static Object_sp _DeserializeObject(const json& js, Type* type, sptr<Object> default_v)
+    static Object_sp _DeserializeObject(const json& js, Type* type, FieldInfo* fieldInfo)
     {
         if (type->IsPrimitiveType())
         {
@@ -209,11 +273,7 @@ namespace jxcorlib::ser
         if (type->IsImplementedInterface(cltypeof<IStringify>()))
         {
             if (!js.is_string()) return nullptr;
-            sptr<Object> obj = default_v;
-            if (default_v == nullptr)
-            {
-                obj = type->CreateSharedInstance({});
-            }
+            sptr<Object> obj = type->CreateSharedInstance({});
 
             interface_cast<IStringify>(obj.get())->IStringify_Parse(js.get<string>());
             return obj;
@@ -222,17 +282,33 @@ namespace jxcorlib::ser
 
         if (type->IsImplementedInterface(cltypeof<IList>()))
         {
-            return _DeserializeArray(js, type);
+            return _DeserializeArray(js, type, fieldInfo);
         }
 
         //other
-        return _DeserializeClassObject(js, type, default_v);
+        return _DeserializeClassObject(js, type);
     }
 
 
-    sptr<Object> JsonSerializer::Deserialize(const string& jstr, Type* type, sptr<Object> default_v)
+    sptr<Object> JsonSerializer::Deserialize(const string& jstr, Type* type)
     {
-        return _DeserializeObject(nlohmann::json::parse(jstr), type, default_v);
+        return _DeserializeObject(nlohmann::json::parse(jstr), type);
+    }
+
+}
+namespace jxcorlib::ser::util
+{
+    string GetSerializableTypeName(Type* type)
+    {
+        return type->GetName() + "," + type->GetAssembly()->GetName();
+    }
+
+    Type* GetSerializableType(string_view name)
+    {
+        auto split = StringUtil::Split(name, ',');
+        Assembly* assmbly = AssemblyManager::FindAssemblyByName(split[1]);
+        Type* type = assmbly->FindType(split[0]);
+        return type;
     }
 
 }

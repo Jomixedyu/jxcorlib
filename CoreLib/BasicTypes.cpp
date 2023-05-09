@@ -7,8 +7,6 @@
 namespace jxcorlib
 {
 
-
-
     void ObjectUtil::DeepCopyObject(const sptr<Object>& from, sptr<Object>& to)
     {
         using namespace ::jxcorlib;
@@ -34,11 +32,13 @@ namespace jxcorlib
                 }
                 IList* tolist = interface_cast<IList>(obj.get());
 
-                Type* item_type = fromlist->GetIListElementType();
                 int32_t len = fromlist->GetCount();
 
                 for (int i = 0; i < len; i++)
                 {
+                    auto src_item = fromlist->At(i);
+                    Type* item_type = src_item->GetType();
+
                     if (item_type->IsBoxingType())
                     {
                         tolist->Add(fromlist->At(i));
@@ -46,7 +46,7 @@ namespace jxcorlib
                     else
                     {
                         auto new_item = item_type->CreateSharedInstance({});
-                        DeepCopyObject(fromlist->At(i), new_item);
+                        DeepCopyObject(src_item, new_item);
                         tolist->Add(new_item);
                     }
                 }

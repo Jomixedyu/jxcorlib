@@ -13,6 +13,7 @@ namespace jxcorlib
         static Assembly* BuildAssemblyByName(string_view name);
         static Assembly* FindAssemblyByName(string_view name);
         static void UnloadAssemblyByName(string_view name);
+
     };
 
     class Assembly final : public Object
