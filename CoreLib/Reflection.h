@@ -14,7 +14,7 @@
 #include "Assembly.h"
 #include "BasicTypes.h"
 #include "Enum.h"
-
+#include "Delegate.h"
 #include <functional>
 #include <any>
 #include <memory>
@@ -45,18 +45,61 @@
         } \
     } __corelib_refl_##NAME##_;
 
-#define CORELIB_REFL_DECL_FUNC(NAME) \
-    static inline struct __corelib_refl_##NAME \
+#define CORELIB_REFL_DECL_STATICMETHOD(METHOD) \
+    static inline struct __corelib_refl_##METHOD \
     { \
-        __corelib_refl_##NAME() \
+        __corelib_refl_##METHOD() \
         { \
             array_list<ParameterInfo*> infos; \
-            ReflectionBuilder::CreateMethodParameterInfos(NAME, &infos); \
+            ReflectionBuilder::GenMethodParameterInfos(&ThisClass::METHOD, &infos); \
+            auto deleg = std::unique_ptr<MethodDescription>(new StaticMethodDescription{ &ThisClass::METHOD }); \
+            ReflectionBuilder::CreateMethodInfo(StaticType(), #METHOD, true, true, std::move(infos), std::move(deleg)); \
         } \
-    } __corelib_refl_##NAME##_;
+    } __corelib_refl_##METHOD##_;
+
+#define CORELIB_REFL_DECL_METHOD(METHOD) \
+    static inline struct __corelib_refl_##METHOD \
+    { \
+        __corelib_refl_##METHOD() \
+        { \
+            array_list<ParameterInfo*> infos; \
+            ReflectionBuilder::GenMethodParameterInfos(&ThisClass::METHOD, &infos); \
+            auto deleg = std::unique_ptr<MethodDescription>(new MemberMethodDescription{ &ThisClass::METHOD }); \
+            ReflectionBuilder::CreateMethodInfo(StaticType(), #METHOD, true, false, std::move(infos), std::move(deleg)); \
+        } \
+    } __corelib_refl_##METHOD##_;
 
 namespace jxcorlib
 {
+    struct MethodDescription
+    {
+        virtual sptr<Delegate> CreateDelegate(Object_rsp target) = 0;
+        ~MethodDescription()
+        {
+            int a = 3;
+        }
+    };
+    template<typename TReturn, typename... TArgs>
+    struct StaticMethodDescription : public MethodDescription
+    {
+        StaticMethodDescription(TReturn(*ptr)(TArgs...)) : m_ptr(ptr) {}
+        virtual sptr<Delegate> CreateDelegate(Object_rsp target)
+        {
+            return mksptr(new FunctionDelegate<TReturn, TArgs...>(m_ptr));
+        }
+        TReturn(*m_ptr)(TArgs...);
+    };
+    template<typename TClass, typename TReturn, typename... TArgs>
+    struct MemberMethodDescription : public MethodDescription
+    {
+        MemberMethodDescription(TReturn(TClass::* ptr)(TArgs...)) : m_ptr(ptr) {}
+        virtual sptr<Delegate> CreateDelegate(Object_rsp target)
+        {
+            return mksptr(new FunctionDelegate<TReturn, TArgs...>(sptr_cast<TClass>(target), m_ptr));
+        }
+        TReturn(TClass::* m_ptr)(TArgs...);
+    };
+
     class Attribute;
 
     class TypeInfo : public Object
@@ -164,28 +207,43 @@ namespace jxcorlib
             m_isRref(isRref) {}
     };
 
-    //TODO
     class MethodInfo final : public MemberInfo
     {
         CORELIB_DEF_TYPE(AssemblyObject_jxcorlib, jxcorlib::MethodInfo, MemberInfo);
         friend class ReflectionBuilder;
     protected:
-        array_list<ParameterInfo*> param_types_;
-        ParameterInfo* ret_type_;
-        bool is_abstract_;
+        array_list<ParameterInfo*> m_paramTypes;
+        ParameterInfo* m_retType;
+        bool m_isAbstract;
+        bool m_isStatic;
+        std::unique_ptr<MethodDescription> m_delegate;
     public:
-        const std::vector<ParameterInfo*>& get_parameter_infos() const noexcept { return this->param_types_; }
-        ParameterInfo* get_return_type() const noexcept { return this->ret_type_; }
-        bool is_abstract() const { return this->is_abstract_; }
+        const std::vector<ParameterInfo*>& GetParameterInfos() const noexcept { return this->m_paramTypes; }
+        ParameterInfo* GetReturnType() const noexcept { return this->m_retType; }
+        bool IsAbstract() const { return this->m_isAbstract; }
+        bool IsStatic() const { return this->m_isStatic; }
     public:
         MethodInfo(
-            const string& name, bool is_public,
-            ParameterInfo* ret_type, array_list<ParameterInfo*>&& params_infos, bool is_abstract);
+            const string& name, 
+            bool isPublic,
+            bool isStatic,
+            ParameterInfo* retType, 
+            array_list<ParameterInfo*>&& paramsInfos, 
+            bool isAbstract, 
+            std::unique_ptr<MethodDescription>&& delegate);
+
         MethodInfo(const MethodInfo& right) = delete;
         MethodInfo(MethodInfo&& right) = delete;
     public:
-        Object_sp Invoke(Object* instance, array_list<Object_sp>&& params) const;
+        template<typename T>
+        sptr<T> CreateDelegate(Object_rsp target)
+        {
+            return sptr_cast<T>(this->m_delegate->CreateDelegate(target));
+        }
+
+        Object_sp Invoke(Object_rsp instance, array_list<Object_sp>&& params) const;
     };
+
 
 
     class ReflectionBuilder
@@ -241,16 +299,29 @@ namespace jxcorlib
     public:
 
         template<typename R, typename... P>
-        static void CreateMethodParameterInfos(R(*p)(P...), array_list<ParameterInfo*>* out)
+        static void GenMethodParameterInfos(R(*p)(P...), array_list<ParameterInfo*>* out)
         {
             _GetParameters(out, GenNullptr<P>()...);
         }
 
+        template<typename TClass, typename R, typename... P>
+        static void GenMethodParameterInfos(R(TClass::*p)(P...), array_list<ParameterInfo*>* out)
+        {
+            _GetParameters(out, GenNullptr<P>()...);
+        }
 
-        static void CreateMethodInfo(Type* type, const string& name, bool is_public, array_list<ParameterInfo*>&& info)
+        static void CreateMethodInfo(
+            Type* type,
+            const string& name, 
+            bool isPublic,
+            bool isStatic,
+            array_list<ParameterInfo*>&& info, 
+            std::unique_ptr<MethodDescription>&& delegate)
         {
             //todo: return value
-            type->_AddMemberInfo(new MethodInfo(name, is_public, nullptr, std::move(info), false));
+            auto methodInfo = new MethodInfo(name, isPublic, isStatic, nullptr, std::move(info), false, std::move(delegate));
+            type->_AddMemberInfo(methodInfo);
+
         }
     };
 }

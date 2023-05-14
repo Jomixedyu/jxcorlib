@@ -179,11 +179,11 @@ namespace jxcorlib
         CORELIB_DEF_TEMPLATE_TYPE(AssemblyObject_jxcorlib, jxcorlib::FunctionDelegate, Delegate, TReturn, TArgs...);
 
         static_assert(sizeof...(TArgs) <= 16);
-
+    public:
         using This = FunctionDelegate<TReturn, TArgs...>;
         using FunctionType = std::function<TReturn(TArgs...)>;
         using FunctionPointer = TReturn(*)(TArgs...);
-
+    private:
         enum class FunctionInfoType
         {
             Static, Lambda, Member
@@ -262,7 +262,7 @@ namespace jxcorlib
             }
         };
 
-    protected:
+    public:
         FunctionInfo* func_ptr_;
 
         FunctionDelegate(FunctionPointer funcptr) : func_ptr_(new StaticFunctionInfo(funcptr)) {}

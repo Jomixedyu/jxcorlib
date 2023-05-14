@@ -3,7 +3,7 @@
 #include <functional>
 #include <map>
 #include <iostream>
-
+#include <CoreLib/Delegate.h>
 
 using namespace jxcorlib;
 
@@ -27,10 +27,10 @@ namespace space
 }
 
 
-struct gen_lambda
+struct MethodReflectionGenerator
 {
     template<typename R>
-    static std::function<Object_sp(array_list<Object_sp>&&)> get(R(*ptr)())
+    static std::function<Object_sp(array_list<Object_sp>&&)> Generate(R(*ptr)())
     {
         return [ptr](array_list<Object_sp>&& objs) -> Object_sp {
             auto ret = ptr();
@@ -43,7 +43,7 @@ struct gen_lambda
     }
 
     template<typename R, typename P1>
-    static std::function<Object_sp(array_list<Object_sp>&&)> get(R(*ptr)(P1))
+    static std::function<Object_sp(array_list<Object_sp>&&)> Generate(R(*ptr)(P1))
     {
         return [ptr](array_list<Object_sp>&& objs) -> Object_sp {
             auto ret = ptr(UnboxUtil::Unbox<P1>(objs[0]));
@@ -52,13 +52,11 @@ struct gen_lambda
     }
 
     template<typename R, typename P1, typename P2>
-    static std::function<Object_sp(array_list<Object_sp>&&)> get(R(*ptr)(P1, P2))
+    static auto Generate(R(*ptr)(P1, P2))
     {
-        return [ptr](array_list<Object_sp>&& objs) -> Object_sp {
-            auto ret = ptr(UnboxUtil::Unbox<P1>(objs[0]), UnboxUtil::Unbox<P2>(objs[1]));
-            return BoxUtil::Box(ret);
-        };
+        return FunctionDelegate<R, P1, P2>(ptr);
     }
+
 };
 
 class DataModel : public Object
@@ -69,40 +67,18 @@ private:
     CORELIB_REFL_DECL_FIELD(id);
     int id = 0;
 public:
-
     CORELIB_REFL_DECL_FIELD(is_human);
     bool is_human = true;
 
     CORELIB_REFL_DECL_FIELD(name);
     sptr<Object> name;
 
+    CORELIB_REFL_DECL_STATICMETHOD(Add);
+    static int Add(int32_t a, int64_t b) { return a + int(b); }
 
+    CORELIB_REFL_DECL_METHOD(Minus);
+    int Minus(int32_t a, int64_t b) { return a - int(b); }
 
-
-    static int GetNum()
-    {
-        return 3;
-    }
-
-    static int AddOne(int32_t a, int64_t b)
-    {
-        return a + int(b);
-    }
-
-    static inline struct __corelib_refl_AddOne
-    {
-        __corelib_refl_AddOne()
-        {
-            array_list<ParameterInfo*> infos;
-            ReflectionBuilder::CreateMethodParameterInfos(AddOne, &infos);
-            ReflectionBuilder::CreateMethodInfo(StaticType(), "AddOne", true, std::move(infos));
-            auto lambd = [](array_list<Object_sp>&& objs) -> Object_sp {
-                auto ret = AddOne(UnboxUtil::Unbox<int32_t>(objs[0]), UnboxUtil::Unbox<int64_t>(objs[1]));
-                return BoxUtil::Box(ret);
-            };
-            gen_lambda::get(AddOne);
-        }
-    } __corelib_refl_AddOne_;
 };
 
 
@@ -146,8 +122,13 @@ void TestReflection()
     assert(value == obj);
 
 
-    MethodInfo* minfo = cltypeof<DataModel>()->GetMethodInfo("AddOne");
-    assert(minfo->get_parameter_infos().at(0)->GetParamType() == cltypeof<Integer32>());
-    assert(minfo->get_parameter_infos().at(1)->GetParamType() == cltypeof<Integer64>());
-    minfo->Invoke(model, {});
+    MethodInfo* minfo = cltypeof<DataModel>()->GetMethodInfo("Add");
+    assert(minfo->GetParameterInfos().at(0)->GetParamType() == cltypeof<Integer32>());
+    assert(minfo->GetParameterInfos().at(1)->GetParamType() == cltypeof<Integer64>());
+
+    auto minfoRet1 = minfo->Invoke(nullptr, { mkbox(2), mkbox(3) });
+    assert(UnboxUtil::Unbox<int>(minfoRet1) == 5);
+
+    auto minfoRet2 = cltypeof<DataModel>()->GetMethodInfo("Minus")->Invoke(mksptr(new DataModel), {mkbox(2), mkbox(5)});
+    assert(UnboxUtil::Unbox<int>(minfoRet2) == -3);
 }

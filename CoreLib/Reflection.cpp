@@ -62,17 +62,22 @@ namespace jxcorlib
     }
 
     MethodInfo::MethodInfo(
-        const string& name, bool is_public,
-        ParameterInfo* ret_type, array_list<ParameterInfo*>&& params_infos, bool is_abstract
-    ) : base(name, is_public),
-        ret_type_(ret_type), param_types_(params_infos), is_abstract_(is_abstract)
+        const string& name, 
+        bool isPublic,
+        bool isStatic,
+        ParameterInfo* retType, 
+        array_list<ParameterInfo*>&& paramsInfos, 
+        bool isAbstract,
+        std::unique_ptr<MethodDescription>&& delegate
+    ) : base(name, isPublic),
+        m_isStatic(isStatic),
+        m_retType(retType), m_paramTypes(paramsInfos), m_isAbstract(isAbstract), m_delegate(std::move(delegate))
     {
     }
 
-    Object_sp MethodInfo::Invoke(Object* instance, array_list<Object_sp>&& params) const
+    Object_sp MethodInfo::Invoke(Object_rsp instance, array_list<Object_sp>&& params) const
     {
-
-        return nullptr;
+        return this->m_delegate->CreateDelegate(instance)->DynamicInvoke(params);
     }
 
 
