@@ -27,7 +27,7 @@ namespace jxcorlib
     struct u8char final
     {
         char value[8]{ 0 };
-        inline static int U8Length(const char* c)
+        inline static int CharLength(const char* c)
         {
             for (int i = 0; i < 8; i++)
             {
@@ -43,8 +43,8 @@ namespace jxcorlib
         }
         inline static bool Charcmp(const char* l, const char* r)
         {
-            int len = U8Length(l);
-            if (len != U8Length(r))
+            int len = CharLength(l);
+            if (len != CharLength(r))
             {
                 return false;
             }
@@ -126,6 +126,7 @@ namespace jxcorlib
         string Substring(string_view str, size_t offset_char_pos, size_t char_count);
         string& TrimSelf(string& str);
         string Trim(string_view str);
+        string FriendlyName(const string& name);
 
         inline size_t Size(const char* str) { return ::strlen(str); }
         inline size_t Size(const string& str) { return str.length(); }
