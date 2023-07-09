@@ -46,4 +46,4 @@ namespace jxcorlib
 
 }
 
-CORELIB_DECL_BOXING(guid_t, Guid);
+CORELIB_DECL_BOXING(jxcorlib::guid_t, jxcorlib::Guid);
