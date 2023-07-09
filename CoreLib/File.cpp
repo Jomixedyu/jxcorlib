@@ -167,6 +167,15 @@ namespace jxcorlib
             }
             if (index == -1) return std::string{ path };
         }
+
+        void PathUtil::GenericSelf(std::string* path)
+        {
+            for (auto& i : *path)
+            {
+                if (i == '\\')
+                    i = '/';
+            }
+        }
     }
 }
 
