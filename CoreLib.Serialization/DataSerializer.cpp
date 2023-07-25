@@ -96,12 +96,27 @@ namespace jxcorlib::ser
         stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
         return stream;
     }
+    Stream& ReadWriteStream(Stream& stream, bool is_write, uint16_t& out)
+    {
+        stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
+        return stream;
+    }
     Stream& ReadWriteStream(Stream& stream, bool is_write, int16_t& out)
     {
         stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
         return stream;
     }
+    Stream& ReadWriteStream(Stream& stream, bool is_write, uint32_t& out)
+    {
+        stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
+        return stream;
+    }
     Stream& ReadWriteStream(Stream& stream, bool is_write, int32_t& out)
+    {
+        stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
+        return stream;
+    }
+    Stream& ReadWriteStream(Stream& stream, bool is_write, uint64_t& out)
     {
         stream.ReadWriteBytes((uint8_t*)(&out), 0, sizeof(out), is_write);
         return stream;

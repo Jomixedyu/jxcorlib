@@ -57,8 +57,11 @@ namespace jxcorlib::ser
     };
 
     Stream& ReadWriteStream(Stream& stream, bool is_write, uint8_t& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, uint16_t& out);
     Stream& ReadWriteStream(Stream& stream, bool is_write, int16_t& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, uint32_t& out);
     Stream& ReadWriteStream(Stream& stream, bool is_write, int32_t& out);
+    Stream& ReadWriteStream(Stream& stream, bool is_write, uint64_t& out);
     Stream& ReadWriteStream(Stream& stream, bool is_write, int64_t& out);
     Stream& ReadWriteStream(Stream& stream, bool is_write, float& out);
     Stream& ReadWriteStream(Stream& stream, bool is_write, double& out);
@@ -73,7 +76,7 @@ namespace jxcorlib::ser
 
         if (is_write)
         {
-            for(auto& item : arr)
+            for (auto& item : arr)
             {
                 ReadWriteStream(stream, is_write, item);
             }
@@ -92,7 +95,7 @@ namespace jxcorlib::ser
         return stream;
     }
     template<typename T, int N>
-    Stream& ReadWriteStream(Stream& stream, bool is_write, T (&arr)[N])
+    Stream& ReadWriteStream(Stream& stream, bool is_write, T(&arr)[N])
     {
         int len = N;
         ReadWriteStream(stream, is_write, len);
