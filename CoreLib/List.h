@@ -44,7 +44,20 @@ namespace jxcorlib
 
     };
     CORELIB_DECL_SHORTSPTR(ArrayList);
-
+    
+    template<typename T>
+    class ArrayListView
+    {
+        ArrayList* m_arrayList;
+    public:
+        T* GetRaw(int index) { return m_arrayList->At(i).get(); }
+        sptr<T> Get(int index) { return sptr_cast<T>(m_arrayList->At(index)); }
+        void Add(const sptr<T>& obj)
+        {
+            m_arrayList->Add(obj);
+        }
+        
+    };
 
     template<typename T>
     class List : public Object, public array_list<T>, public IList

@@ -4,16 +4,12 @@
 #include "BasicTypes.h"
 #include "Assembly.h"
 
-#define CORELIB_DEF_ENUM(ASSEMBLY, NAMESPACE, NAME, ...) \
-enum class NAME : uint32_t \
-{ \
- __VA_ARGS__ \
-}; \
+#define CORELIB_DEF_BOXING_ENUM(ASSEMBLY, NAMESPACE, NAME, DEFS) \
 class Boxing##NAME final : public ::jxcorlib::Enum \
 { \
     CORELIB_DEF_ENUMTYPE(ASSEMBLY, NAMESPACE::Boxing##NAME, ::jxcorlib::Enum); \
     static inline DataMap* definitions = nullptr; \
-    static inline const char* string_definitions = #__VA_ARGS__; \
+    static inline const char* string_definitions = DEFS; \
     static void init_defs() { InitDefinitions(string_definitions, &definitions); } \
 public: \
     using unboxing_type = NAME; \
@@ -36,6 +32,13 @@ public: \
     virtual ::jxcorlib::string ToString() const override { return this->GetName(); } \
 }; \
 CORELIB_DECL_SHORTSPTR(Boxing##NAME);
+
+#define CORELIB_DEF_ENUM(ASSEMBLY, NAMESPACE, NAME, ...) \
+enum class NAME : uint32_t \
+{ \
+ __VA_ARGS__ \
+}; \
+CORELIB_DEF_BOXING_ENUM(ASSEMBLY, NAMESPACE, NAME, #__VA_ARGS__)
 
 #define CORELIB_DECL_BOXING_ENUM(Enum) CORELIB_DECL_BOXING(Enum, Boxing##Enum);
 
@@ -65,4 +68,5 @@ namespace jxcorlib
         uint32_t m_value;
     };
     CORELIB_DECL_SHORTSPTR(Enum);
+
 }
